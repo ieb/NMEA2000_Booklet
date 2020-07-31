@@ -580,7 +580,7 @@ public class Data {
                         for (String path : paths) {
                             state.put(path, dv);
                         }
-                        log.info("Added Data Path {} {} ",e.getKey(),dv);
+                        log.info("Added Data Path {} {} {} ",e.getKey(), dv, dataType);
                     } catch (Exception ex) {
                         log.error("Unable to create datavalue {} {} ",e.getKey(), ex.getMessage());
                         log.error(ex.getMessage(), ex);

@@ -28,12 +28,19 @@ public class SignalkTcpClient extends StatusUpdates  {
     private long nextFetch = 0;
     private Thread thread;
     private Object waitForServers = new Object();
+    private boolean httpOnly = true;
 
     public SignalkTcpClient(Data.Store store, SignalkHttpClient httpClient, Map<String, Object> config) {
         this.httpClient = httpClient;
         this.store = store;
         this.discovery = new SignalkDiscovery(this);
         this.servers = new ArrayList<>();
+        if (config.containsKey("httpOnly")) {
+            httpOnly = (boolean) config.get("httpOnly");
+        } else {
+            // with secure enabled I dont see any updates over tcp, so have to poll on http.
+            httpOnly = true;
+        }
         List<Map<String, Object>> configServers = (List<Map<String, Object>>) config.get("servers");
         if (configServers != null) {
             for(Map<String, Object> configServer : configServers) {
@@ -177,71 +184,88 @@ public class SignalkTcpClient extends StatusUpdates  {
 
     private void connect(SignalKServer server) {
         Socket socket = null;
-        try {
-            String host = server.getHost();
-            long port = server.getPort();
-            String url = server.getUrl();
-            InetAddress address = InetAddress.getByName(host);
-
-            nextFetch = 0;
+        String host = server.getHost();
+        long port = server.getPort();
+        String url = server.getUrl();
+        if (httpOnly) {
             if (!fetchState(url)) {
                 SignalkTcpClient.this.updateStatus(" No server at " + url);
                 server.failed();
                 return;
-            }
-            ;
-            SignalkTcpClient.this.updateStatus(" Connecting to " + address + " " + port);
-
-            socket = new Socket();
-            socket.connect(new InetSocketAddress(address, (int) port), 5000);
-            socket.setSoTimeout(30000); // allow 30s of no data
-            SignalkTcpClient.this.updateStatus(" Connected to " + address + " " + port);
-            SignalkTcpClient.this.updateStatus(" Fetched state from " + url);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            JSONParser parser = new JSONParser();
-
-            while (fetchState(url)) {
-                String line = null;
+            };
+            SignalkTcpClient.this.updateStatus("Server found " + url);
+            while (running && httpClient.fetch(url)) {
                 try {
-                    line = in.readLine();
-                } catch (SocketTimeoutException e) {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
                     log.debug(e.getMessage(), e);
                 }
-                if (line != null) {
+            }
+            SignalkTcpClient.this.updateStatus("Server Lost " + url);
+        } else {
+            try {
+                InetAddress address = InetAddress.getByName(host);
+
+                nextFetch = 0;
+                if (!fetchState(url)) {
+                    SignalkTcpClient.this.updateStatus(" No server at " + url);
+                    server.failed();
+                    return;
+                };
+
+                SignalkTcpClient.this.updateStatus(" Connecting to " + address + " " + port);
+
+                socket = new Socket();
+                socket.connect(new InetSocketAddress(address, (int) port), 5000);
+                socket.setSoTimeout(30000); // allow 30s of no data
+                SignalkTcpClient.this.updateStatus(" Connected to " + address + " " + port);
+                SignalkTcpClient.this.updateStatus(" Fetched state from " + url);
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                JSONParser parser = new JSONParser();
+
+                while (fetchState(url)) {
+                    String line = null;
                     try {
-                        JSONObject message = (JSONObject) parser.parse(line);
-                        List<Map<String, Object>> updates = (List<Map<String, Object>>) message.get("updates");
-                        if (updates != null) {
-                            for (Map<String, Object> update : updates) {
-                                String timestamp = (String) update.get("timestamp");
-                                List<Map<String, Object>> values = (List<Map<String, Object>>) update.get("values");
-                                if (values != null) {
-                                    for (Map<String, Object> value : values) {
-                                        value.put("timestamp", timestamp);
-                                        store.updateFromServer(value);
+                        line = in.readLine();
+                    } catch (SocketTimeoutException e) {
+                        log.debug(e.getMessage(), e);
+                    }
+                    if (line != null) {
+                        try {
+                            JSONObject message = (JSONObject) parser.parse(line);
+                            List<Map<String, Object>> updates = (List<Map<String, Object>>) message.get("updates");
+                            if (updates != null) {
+                                for (Map<String, Object> update : updates) {
+                                    String timestamp = (String) update.get("timestamp");
+                                    List<Map<String, Object>> values = (List<Map<String, Object>>) update.get("values");
+                                    if (values != null) {
+                                        for (Map<String, Object> value : values) {
+                                            value.put("timestamp", timestamp);
+                                            store.updateFromServer(value);
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                    } catch (ParseException e) {
-                        log.debug(e.getMessage(), e);
+                        } catch (ParseException e) {
+                            log.debug(e.getMessage(), e);
+                        }
                     }
                 }
-            }
-            socket.close();
-            socket = null;
-        } catch (Exception e) {
-            server.failed();
-            SignalkTcpClient.this.updateStatus("Connection Failed closing socket");
-            log.error("Failed closing socket {} ", e.getMessage());
-            log.debug(e.getMessage(), e);
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e1) {
-                    log.error("Failed closing socket (2) ", e1);
+                socket.close();
+                socket = null;
+            } catch (Exception e) {
+                server.failed();
+                SignalkTcpClient.this.updateStatus("Connection Failed closing socket");
+                log.error("Failed closing socket {} ", e.getMessage());
+                log.debug(e.getMessage(), e);
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e1) {
+                        log.error("Failed closing socket (2) ", e1);
+                    }
                 }
             }
         }
