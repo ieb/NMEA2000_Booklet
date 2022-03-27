@@ -13,7 +13,7 @@
 otautils_update_progressbar
 
 logmsg "I" "uninstall" "" "uninstalling booklet"
-rm -f "/opt/amazon/ebook/booklet/signalk_booklet.jar"
+rm -f "/opt/amazon/ebook/booklet/nmea2000_booklet.jar"
 
 otautils_update_progressbar
 
@@ -23,7 +23,7 @@ sqlite3 "/var/local/appreg.db" < "appreg.uninstall.sql"
 otautils_update_progressbar
 
 logmsg "I" "uninstall" "" "removing application"
-rm -f "/mnt/us/documents/SignalkBooklet.signalk"
+rm -f "/mnt/us/documents/NMEA2000Booklet.nmea2000"
 
 otautils_update_progressbar
 

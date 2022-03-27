@@ -13,7 +13,7 @@
 otautils_update_progressbar
 
 logmsg "I" "install" "" "installing booklet"
-cp -f "signalk_booklet.jar" "/opt/amazon/ebook/booklet/signalk_booklet.jar"
+cp -f "nmea2000_booklet.jar" "/opt/amazon/ebook/booklet/nmea2000_booklet.jar"
 
 otautils_update_progressbar
 
@@ -34,12 +34,12 @@ otautils_update_progressbar
 
 
 logmsg "I" "install" "" "creating application"
-touch "/mnt/us/documents/SignalkBooklet.signalk"
+touch "/mnt/us/documents/NMEA2000Booklet.nmea2000"
 
 otautils_update_progressbar
 
 logmsg "I" "install" "" "cleaning up"
-rm -f "SignalkBooklet.jar" "appreg.install.sql"
+rm -f "NMEA2000Booklet.jar" "appreg.install.sql"
 
 logmsg "I" "install" "" "done"
 

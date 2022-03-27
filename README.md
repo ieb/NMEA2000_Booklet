@@ -1,16 +1,16 @@
-# SignalK EInk Booklet
+# NMEA2000 EInk Booklet
 
-This is a Kindle Booklet for SignalK that allows you to open a book on a Kindle Paperwhite that displays pages
-of graphical instruments that display real time data from a SignalK server on the network.
+This is a Kindle Booklet for NMEA2000 data that allows you to open a book on a Kindle Paperwhite that displays pages
+of graphical instruments that display real time data from a NMEA2000 TCP server on the network.
 
 Kindle UIs are Java Swing applications running inside a lightweight OSGi Framework.
 
-It recognises the mimetype of the "book" and launches the registered Booklet application (SignalkBooklet.java) which then 
+It recognises the mimetype of the "book" and launches the registered Booklet application (NMEA2000Booklet.java) which then 
 reads the json inside the book file, configures the UI with pages of widgets (EInkTextBox.java).
 
 It then either attempts to connect to a list of host port combinations from the book json. When 
-it connects it also fetches the current state from the Signalk REST API as TCP only provides
-updates and some slow polling sensors may not get an update for some time. (Perhaps SignalK  TCP should send the intial state on connect.)
+it connects it also fetches the current state from the NMEA2000 REST API as TCP only provides
+updates and some slow polling sensors may not get an update for some time. 
 
 When the booklet is running navigation is by finger swipes left and rig ht to change pages.
 
@@ -84,7 +84,7 @@ Copy the install image onto the kindle and run the MRPI package script. This wil
 eg 
 
         mvn clean install && \\
-           scp  target/Update_Signalk_uk.co.tfd.kindle.signalk_976ed_install.bin  root@192.168.15.244:/mnt/us/mrpackages && \\
+           scp  target/Update_NMEA2000_uk.co.tfd.kindle.nmea2000_976ed_install.bin  root@192.168.15.244:/mnt/us/mrpackages && \\
            ssh root@192.168.15.244  "/mnt/us/extensions/MRInstaller/bin/mrinstaller.sh launch_installer"
 
 
@@ -92,24 +92,24 @@ eg
 
 ## Logs
 
-slf4j logs to /var/tmp/signalk.log The slf4j settings are in the SignalkBooklet class. They must be set before any SLF4J classes
+slf4j logs to /var/tmp/nmea2000.log The slf4j settings are in the NMEA2000Booklet class. They must be set before any SLF4J classes
 are created. 
 
 ## Booklets
 
-Create files in /mnt/us/documents called .signalk containing json (eg /mnt/us/documents/OnDeck.signalk), 
+Create files in /mnt/us/documents called .nmea2000 containing json (eg /mnt/us/documents/OnDeck.nmea2000), 
 see src/test/resources/config.json for an example.
 
 ## SignalK servers
 
-By default the booklet will discover the Signalk server using mDNS, although if that doesnt work
+By default the booklet will discover the NMEA2000 server using mDNS, although if that doesnt work
 you can configutre a list of servers to try and connect to. The booklet will attempt to connect
 to each server in turn, backing off from failed servers for 30s. Process is displayed on the UI
 status screen with diagnostics going into the log file.
 
 For mDNS to work on the Kindle the IP firewall on the kindle must be adjusted to allow the multicast packets on port 5353 be be sent and recieved. If running on a isolated network with 
-no default router dont forget to add a default route to the routing table on the Signalk server 
-otherwise packets wont get routed off the signalk server. This can be done by making the 
+no default router dont forget to add a default route to the routing table on the NMEA2000 server 
+otherwise packets wont get routed off the nmea2000 server. This can be done by making the 
 wifi network interface the router.
 
 For the kindle firewall append the following to the UDP rules and restart the firewall.

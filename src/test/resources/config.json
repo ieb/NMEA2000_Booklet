@@ -1,4 +1,55 @@
 {
+  "mode" : "can",
+  "servers" : [
+    {
+      "url": "file:/Users/ieb/timefields/kindle/NMEA2000_Booklet/src/test/resources/data/",
+      "sections": {
+        "0": {
+          "ttl": 1000
+        },
+        "1": {
+          "ttl": 1200
+        },
+        "2": {
+          "ttl": 1300
+        },
+        "3": {
+          "ttl": 1400
+        },
+        "4": {
+          "ttl": 1500
+        },
+        "5": {
+          "ttl": 1600
+        },
+        "6": {
+          "ttl": 1700
+        },
+        "7": {
+          "ttl": 1800
+        },
+        "8": {
+          "ttl": 1900
+        },
+        "9": {
+          "ttl": 10000
+        },
+        "10": {
+          "ttl": 11000
+        },
+        "11": {
+          "ttl": 12000
+        },
+        "12": {
+          "ttl": 13000
+        },
+        "13": {
+          "ttl": 14000
+        }
+      }
+    }
+  ],
+
   "xxservers" : [
     {
       "host": "192.168.4.1",
@@ -18,322 +69,1161 @@
   ],
   "screensize": { "w":1072, "h":1448 },
 
-  "datavalues": {  
-    "environment.outside.temperature" : { 
-      "paths": [],
+  "datavalues": {
+    "candiag.1.engine.0.coolantTemp": {
+      "path": "candiag.1.engine.0",
       "unit": "K",
       "dataType": "TEMPERATURE",
-      "description": "Outside Temperature",
+      "description": "Main Engine Coolant Temperature",
       "dataClass": "DoubleDataValue"
     },
-    "environment.wind.directionTrue" : {
-      "paths": [],
+    "candiag.1.engine.0.speed": {
+      "path": "candiag.1.engine.0",
+      "unit": "RPM",
+      "dataType": "RPM",
+      "description": "Main Engine RPM",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.1.engine.0.hours": {
+      "path": "candiag.1.engine.0",
+      "unit": "S",
+      "dataType": "HOURS",
+      "description": "Main Engine Hours",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.1.engine.0.altenatorVoltage": {
+      "path": "candiag.1.engine.0",
+      "unit": "V",
+      "dataType": "VOLTAGE",
+      "description": "Main Engine Alternator Voltage",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.1.battery.0.voltage": {
+      "path": "candiag.1.battery.0",
+      "unit": "V",
+      "dataType": "VOLTAGE",
+      "description": "EngineBattery",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.1.battery.1.voltage": {
+      "path": "candiag.1.battery.1",
+      "unit": "V",
+      "dataType": "VOLTAGE",
+      "description": "Service Battery",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.1.fluidLevel.0.level": {
+      "path": "candiag.1.fluidLevel.0",
+      "unit": "PERCENTAGE",
+      "dataType": "PERCENTAGE",
+      "description": "Fuel Level",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.2.heading.0.heading": {
+      "path": "candiag.2.heading.0",
+      "filter_notused": "reference=1",
       "unit": "RAD",
       "dataType": "BEARING",
-      "description": "True Wind Direction",
+      "description": "Heading Magnetic",
       "dataClass": "DoubleDataValue"
     },
-    "environment.wind.directionGround" : {
-      "paths": [],
-      "unit": "RAD",
-      "dataType": "BEARING",
-      "description": "Ground Wind Direction",
-      "dataClass": "DoubleDataValue"
-    },
-    "environment.wind.angleGround" : {
-      "paths": [],
+    "candiag.2.heading.0.deviation": {
+      "path": "candiag.2.heading.0",
+      "filter_notused": "reference=1",
       "unit": "RAD",
       "dataType": "RELATIVEANGLE",
-      "description": "Ground Wind Angle",
+      "description": "Deviation",
       "dataClass": "DoubleDataValue"
     },
-    "environment.wind.angleTrue" : {
-      "paths": [],
+    "candiag.2.heading.0.variation": {
+      "path": "candiag.2.heading.0",
+      "filter_notused": "reference=1",
       "unit": "RAD",
       "dataType": "RELATIVEANGLE",
-      "description": "True Wind Angle",
+      "description": "Variation",
       "dataClass": "DoubleDataValue"
     },
-    "environment.wind.speedGround" : {
-      "paths": [],
+    "candiag.2.speed.0.sow": {
+      "path": "candiag.2.speed.0",
       "unit": "MS",
       "dataType": "SPEED",
-      "description": "Ground Wind Speed",
+      "description": "Variation",
       "dataClass": "DoubleDataValue"
     },
-    "environment.inside.mainCabin.temperature" : {
-      "paths": [],
+    "candiag.2.waterDepth.0.depthBelowTransducer": {
+      "path": "candiag.2.waterDepth.0",
+      "unit": "M",
+      "dataType": "DEPTH",
+      "description": "DBT",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.2.waterDepth.0.offset": {
+      "path": "candiag.2.waterDepth.0",
+      "unit": "M",
+      "dataType": "DEPTH",
+      "description": "Transducer Offset",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.2.wind.0.aws": {
+      "path": "candiag.2.wind.0",
+      "unit": "MS",
+      "dataType": "SPEED",
+      "description": "AWS",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.2.wind.0.awa": {
+      "path": "candiag.2.wind.0",
+      "unit": "RAD",
+      "dataType": "RELATIVEANGLE",
+      "description": "AWA",
+      "dataClass": "DoubleDataValue"
+    },
+
+
+    "candiag.2.rudder.0.position": {
+      "path": "candiag.2.rudder.0",
+      "unit": "RAD",
+      "dataType": "RELATIVEANGLE",
+      "description": "Transducer Offset",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.2.attitude.0.roll": {
+      "path": "candiag.2.attitude.0",
+      "unit": "RAD",
+      "dataType": "RELATIVEANGLE",
+      "description": "Roll",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.2.attitude.0.pitch": {
+      "path": "candiag.2.attitude.0",
+      "unit": "RAD",
+      "dataType": "RELATIVEANGLE",
+      "description": "Pitch",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.2.attitude.0.yaw": {
+      "path": "candiag.2.attitude.0",
+      "unit": "RAD",
+      "dataType": "RELATIVEANGLE",
+      "description": "Yaw",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.3.cogSog.0.cog": {
+      "path": "candiag.3.cogSog.0",
+      "unit": "RAD",
+      "dataType": "BEARING",
+      "description": "Cog",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.3.cogSog.0.sog": {
+      "path": "candiag.3.cogSog.0",
+      "unit": "MS",
+      "dataType": "SPEED",
+      "description": "Sog",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.3.gnss.0": {
+      "path": "candiag.3.gnss.0",
+      "unit": "MAP",
+      "dataType": "NONE",
+      "description": "Gnss",
+      "dataClass": "NMEA2KGnss"
+    },
+    "candiag.4.outsideEnvironment.0.waterTemperature": {
+      "path": "candiag.4.outsideEnvironment.0",
       "unit": "K",
       "dataType": "TEMPERATURE",
-      "description": "Main Cabin Temperature",
+      "description": "Water Temperature",
       "dataClass": "DoubleDataValue"
     },
-    "environment.outside.humidity" : {
-      "paths": [],
-      "unit": "RH",
-      "dataType": "HUMIDITY",
-      "description": "Outside Humidity",
+    "candiag.4.outsideEnvironment.0.outsideAmbientAirTemperature": {
+      "path": "candiag.4.outsideEnvironment.0",
+      "unit": "K",
+      "dataType": "TEMPERATURE",
+      "description": "Air Temperature",
       "dataClass": "DoubleDataValue"
     },
-    "environment.outside.pressure" : {
-      "paths": [],
+    "candiag.4.outsideEnvironment.0.atmosphericPressure": {
+      "path": "candiag.4.outsideEnvironment.0",
       "unit": "PA",
       "dataType": "ATMOSPHERICPRESSURE",
-      "description": "Outside Pressure",
+      "description": "Atmospheric Pressure",
       "dataClass": "DoubleDataValue"
     },
-    "propulsion.mainEngine.temperature" : {
-      "paths": [],
+    "candiag.5.temperature.0.actual": {
+      "path": "candiag.5.temperature.0",
       "unit": "K",
       "dataType": "TEMPERATURE",
-      "description": "Engine Temperature",
+      "description": "Exhaust Temperature",
       "dataClass": "DoubleDataValue"
     },
-    "propulsion.mainEngine.revolutions" : {
-      "paths": [],
-      "unit": "HZ",
-      "dataType": "FREQUENCY",
-      "description": "Engine RPM",
-      "dataClass": "DoubleDataValue"
-    },
-    "propulsion.mainEngine.exhaustTemperature" : {
-      "paths": [],
+    "candiag.5.temperature.1.actual": {
+      "path": "candiag.5.temperature.1",
       "unit": "K",
       "dataType": "TEMPERATURE",
-      "description": "Engine Exhaust Temperature",
+      "description": "Engine Room Temperature",
       "dataClass": "DoubleDataValue"
     },
-    "propulsion.mainEngine.alternatorVoltage" : {
-      "paths": [],
+    "candiag.5.temperature.2.actual": {
+      "path": "candiag.5.temperature.2",
+      "unit": "K",
+      "dataType": "TEMPERATURE",
+      "description": "Alternator",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.7.bmp280": {
+      "path": "candiag.7.bmp280",
+      "unit": "MAP",
+      "dataType": "NONE",
+      "description": "BMP280",
+      "dataClass": "BMP280"
+    },
+    "candiag.8.voltages.0.v": {
+      "path": "candiag.8.voltages.0",
       "unit": "V",
       "dataType": "VOLTAGE",
-      "description": "Engine Alternator Voltage",
+      "description": "Engine Voltage",
       "dataClass": "DoubleDataValue"
     },
-    "electrical.alternators.12V.temperature" : {
-      "paths": [],
-      "unit": "K",
-      "dataType": "TEMPERATURE",
-      "description": "Engine Alternator Temperature",
-      "dataClass": "DoubleDataValue"
-    },
-    "electrical.batteries.engine.voltage" : {
-      "paths": [],
+    "candiag.8.voltages.1.v": {
+      "path": "candiag.8.voltages.1",
       "unit": "V",
       "dataType": "VOLTAGE",
-      "description": "Engine Battery Voltage",
+      "description": "Serivce Voltage",
       "dataClass": "DoubleDataValue"
     },
-    "electrical.batteries.service.voltage" : {
-      "paths": [],
-      "unit": "V",
-      "dataType": "VOLTAGE",
-      "description": "Service Battery Voltage",
+    "candiag.8.voltages.2.v": {
+      "path": "candiag.8.voltages.2",
+      "unit": "V100ASHUNT",
+      "dataType": "CURRENT",
+      "description": "Serivce Current",
       "dataClass": "DoubleDataValue"
     },
-    "electrical.chargers.12V.temperature" : {
-      "paths": [],
-      "unit": "K",
-      "dataType": "TEMPERATURE",
-      "description": "12V Charger Temperature",
+    "candiag.9.xte.0.xte": {
+      "path": "candiag.9.xte.0",
+      "unit": "M",
+      "dataType": "DISTANCE",
+      "description": "XTE",
       "dataClass": "DoubleDataValue"
     },
-      "electrical.fridge.main.temperature" : {
-      "paths": [],
-      "unit": "K",
-      "dataType": "TEMPERATURE",
-      "description": "Fridge Temperature",
+    "candiag.10.variation.0.variation": {
+      "path": "candiag.10.variation.0",
+      "unit": "RAD",
+      "dataType": "RELATIVEANGLE",
+      "description": "Variation",
+      "dataClass": "DoubleDataValue"
+    },
+    "candiag.11.log.0": {
+      "path": "candiag.11.log.0",
+      "unit": "M",
+      "dataType": "DISTANCE",
+      "description": "Trip",
+      "dataClass": "NMEA2KLog"
+    },
+    "candiag.12.possition.0": {
+      "path": "candiag.12.possition.0",
+      "unit": "MAP",
+      "dataType": "NONE",
+      "description": "Position",
+      "dataClass": "NMEA2KPosition"
+    },
+    "candiag.13.leeway.0.leeway": {
+      "path": "candiag.13.leeway.0",
+      "unit": "DEGREES",
+      "dataType": "RELATIVEANGLE",
+      "description": "Leeway",
+      "dataClass": "DoubleDataValue"
+    },
+    "calc.hdt": {
+      "path": "calc.hdt",
+      "unit": "RAD",
+      "dataType": "BEARING",
+      "description": "Heading True",
+      "dataClass": "DoubleDataValue"
+    },
+    "calc.twa": {
+      "path": "calc.twa",
+      "unit": "RAD",
+      "dataType": "RELATIVEANGLE",
+      "description": "TWA",
+      "dataClass": "DoubleDataValue"
+    },
+    "calc.tws": {
+      "path": "calc.tws",
+      "unit": "MS",
+      "dataType": "SPEED",
+      "description": "TWS",
+      "dataClass": "DoubleDataValue"
+    },
+    "calc.leeway": {
+      "path": "calc.leeway",
+      "unit": "RAD",
+      "dataType": "RELATIVEANGLE",
+      "description": "Leeway",
+      "dataClass": "DoubleDataValue"
+    },
+    "polar.swt": {
+      "path": "polar.swt",
+      "unit": "MS",
+      "dataType": "SPEED",
+      "description": "Polar STW",
+      "dataClass": "DoubleDataValue"
+    },
+    "polar.speedRatio": {
+      "path": "polar.speedRatio",
+      "unit": "RATIO",
+      "dataType": "PERCENTAGE",
+      "description": "Polar Speed Ratio",
+      "dataClass": "DoubleDataValue"
+    },
+    "polar.vmg": {
+      "path": "polar.vmg",
+      "unit": "MS",
+      "dataType": "SPEED",
+      "description": "Polar VMG",
+      "dataClass": "DoubleDataValue"
+    },
+    "calc.vmg": {
+      "path": "calc.vmg",
+      "unit": "MS",
+      "dataType": "SPEED",
+      "description": "VMG",
+      "dataClass": "DoubleDataValue"
+    },
+    "polar.targetTwa": {
+      "path": "polar.targetTwa",
+      "unit": "RAD",
+      "dataType": "RELATIVEANGLE",
+      "description": "Target TWA",
+      "dataClass": "DoubleDataValue"
+    },
+    "polar.targetStw": {
+      "path": "polar.targetStw",
+      "unit": "MS",
+      "dataType": "SPEED",
+      "description": "Target STW",
+      "dataClass": "DoubleDataValue"
+    },
+    "polar.targetVmg": {
+      "path": "polar.targetVmg",
+      "unit": "MS",
+      "dataType": "SPEED",
+      "description": "Target VMG",
+      "dataClass": "DoubleDataValue"
+    },
+    "polar.vmgRatio": {
+      "path": "polar.vmgRatio",
+      "unit": "RATIO",
+      "dataType": "PERCENTAGE",
+      "description": "Polary VMG Ratio",
+      "dataClass": "DoubleDataValue"
+    },
+    "calc.twd": {
+      "path": "calc.twd",
+      "unit": "RAD",
+      "dataType": "BEARING",
+      "description": "TWD",
+      "dataClass": "DoubleDataValue"
+    },
+    "calc.mwd": {
+      "path": "calc.mwd",
+      "unit": "RAD",
+      "dataType": "BEARING",
+      "description": "Magnetic Wind Direction",
+      "dataClass": "DoubleDataValue"
+    },
+    "polar.oppositeTrackM": {
+      "path": "polar.oppositeTrackM",
+      "unit": "RAD",
+      "dataType": "BEARING",
+      "description": "Magnetic Wind Direction",
+      "dataClass": "DoubleDataValue"
+    },
+    "polar.oppositeTrackT": {
+      "path": "polar.oppositeTrackT",
+      "unit": "RAD",
+      "dataType": "BEARING",
+      "description": "Magnetic Wind Direction",
+      "dataClass": "DoubleDataValue"
+    },
+    "polar.oppositeHeadingM": {
+      "path": "polar.oppositeHeadingM",
+      "unit": "RAD",
+      "dataType": "BEARING",
+      "description": "Magnetic Wind Direction",
       "dataClass": "DoubleDataValue"
     }
   },
-  "instruments": { 
-    "airtemp": {
-      "widget": "EInkTemperature", 
-      "path": "environment.outside.temperature" 
-    },
-    "gwd": {
-      "widget": "EInkBearing", 
-      "path": "environment.wind.directionGround",
-    },
-    "gwa": {
-      "widget": "EInkRelativeAngle", 
-      "path": "environment.wind.angleGround",
-    },
-    "gws": {
-      "widget": "EInkSpeed", 
-      "path": "environment.wind.speedGround",
-    },
-    "cabintemp": {
-      "widget": "EInkTemperature", 
-      "path": "environment.inside.mainCabin.temperature",
-    },
-    "%RH": {
-      "widget": "EInkRatio", 
-      "path": "environment.outside.humidity",
-    },
-    "pressure": {
-      "widget": "EInkAtmosphericPressure", 
-      "path": "environment.outside.pressure",
-    },
-    "coolant": {
-      "widget": "EInkTemperature", 
-      "path": "propulsion.mainEngine.temperature"
-    },
-    "rpm": {
-        "widget": "EInkRpm", 
-        "path": "propulsion.mainEngine.revolutions"
-    },
-    "exhaust": {
-        "widget": "EInkTemperature", 
-        "path": "propulsion.mainEngine.exhaustTemperature"
-    },
-    "alternator V": {
-      "widget": "EInkVoltage", 
-      "path": "propulsion.mainEngine.alternatorVoltage"
-    },
-    "alternator T": {
-      "widget": "EInkTemperature", 
-      "path": "electrical.alternators.12V.temperature"
-    },
-    "Engine V": {
-      "widget": "EInkVoltage", 
-      "path": "electrical.batteries.engine.voltage"
-    },
-    "Service V": {
-      "widget": "EInkVoltage", 
-      "path": "electrical.batteries.service.voltage"
-    },
-    "Charger T": {
-      "widget": "EInkTemperature", 
-      "path": "electrical.chargers.12V.temperature"
-    },
-    "Fridge T": {
-      "widget": "EInkTemperature", 
-      "path": "electrical.fridge.main.temperature"
-    }
+  "calcs" : {
+    "magneticVariationInput" : "candiag.2.heading.0.variation",
+    "stwInput" : "candiag.2.speed.0.sow",
+    "rollInput" : "candiag.2.attitude.0.roll",
+    "awsInput" : "candiag.2.wind.0.aws",
+    "awaInput" : "candiag.2.wind.0.awa",
+    "hdmInput" : "candiag.2.heading.0.heading",
+    "hdtOutput" : "calc.hdt",
+    "twaOutput" : "calc.twa",
+    "twsOutput" : "calc.tws",
+    "leewayOutput" : "calc.leeway"
   },
-  "comment" : "
-   
-        the values of instruments may be one of the following and any custom instruments defined.
-
-        awa, Apparent Wind Angle                 perf, sail
-        aws, Apparent Wind Speed                 perf, sail
-        twa, True Wind Angle                     perf, sail  
-        tws, True Wind Speed                     perf, wind, sail
-        stw, Speed Through Water                 perf, nav, sail
-        dbt, Depth Below Transducer              perf, sail
-        vmg, Velocity Made good into or down wind. perf, sail
-        var, Variation
-        hdt, Heading True
-        cogm, Course over ground magnetic        perf,nav
-        hdm, Heading magnetic                    nav
-        lee, Leeway (angle)                      perf
-        pstw, Polar Speed Through Water          perf
-        psratio, Polar Speed Ratio               perf 
-        pvmg, Polar VMG                          perf
-        ttwa, target optional true wind angle upwind or downwind perf
-        tstw, target stw at ttwa                 perf
-        tvmg, target vmg at ttwa                 perf
-        pvmgr, polar vmg ratio
-        twdt, true wind direction true,           wind
-        twdm, true wind direction magnetic,       wind
-        tackt, heading on opposite tack true
-        tackm, heading on opposite tack magnetic perf
-        ophdm, target opposite heading true
-        cogt, course over ground true
-        rot, rate of turn
-        rudder, rudder angle                     perf
-        sog, speed over grount                   perf, nav, sail
-        twater, water temperature                enviro
-        stwref, stw sensor type
-        blank, blank widget
-        log,  log                                nav
-        attitude, pitch and roll                 perf
-        current, set and drift                   current
-        fix, gps fix information                 nav
-        pilot, pilot information                 nav
-        position, possition                      perf, nav
-
-
-custom
-       airtemp, enviro
-       gwd, wind
-       gwa
-       gws, wind
-       cabintemp
-       %RH, enviro
-       pressure, enviro
-
-
-        ",
-
-  "pages" : [
-
-    {
-      "instruments" : [
-        [ "airtemp", "pressure" ],  
-        [ "twater", "%RH" ]
+  "polar" : {
+    "magneticVariationInput" : "candiag.2.heading.0.variation",
+    "stwInput" : "candiag.2.speed.0.sow",
+    "hdtInput" : "calc.hdt",
+    "twaInput" : "calc.twa",
+    "twsInput" : "calc.tws",
+    "leewayInput" : "calc.leeway",
+    "polarStwOutput" : "polar.swt",
+    "polarSpeedRatioOutput" : "polar.speedRatio",
+    "polarVmgOutput" : "polar.vmg",
+    "vmgOutput" : "calc.vmg",
+    "targetTwaOutput" : "polar.targetTwa",
+    "targetStwOutput" : "polar.targetStw",
+    "targetVmgOutput" : "polar.targetVmg",
+    "polarVmgRatioOutput" : "polar.vmgRatio",
+    "windDirectionTrueOutput" : "calc.twd",
+    "windDirectionMagneticOutput" : "calc.mwd",
+    "oppositeTrackTrueOutput" : "polar.oppositeTrackT",
+    "oppositeTrackMagneticOutput" : "polar.oppositeTrackM",
+    "oppositeHeadingMagneticOutput" : "polar.oppositeHeadingM",
+    "polarMap": {
+      "name": "pogo1250",
+      "tws": [
+        0.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0,
+        12.0,
+        14.0,
+        16.0,
+        20.0,
+        25.0,
+        30.0,
+        35.0,
+        40.0,
+        45.0,
+        50.0,
+        55.0,
+        60.0
       ],
-      "vspace" : 5,
-      "hspace" : 5,
-      "id" : "enviro",
-      "rotate": true
-    },
-    {
-      "instruments" : [
-        [ "gwd", "gws" ],  
-        [ "twdt", "tws" ]
+      "twa": [
+        0.0,
+        5.0,
+        10.0,
+        15.0,
+        20.0,
+        25.0,
+        32.0,
+        36.0,
+        40.0,
+        45.0,
+        52.0,
+        60.0,
+        70.0,
+        80.0,
+        90.0,
+        100.0,
+        110.0,
+        120.0,
+        130.0,
+        140.0,
+        150.0,
+        160.0,
+        170.0,
+        180.0
       ],
-      "vspace" : 5,
-      "hspace" : 5,
-      "id" : "wind",
-      "rotate": true
-    },
-    {
-      "instruments" : [
-        [ "awa", "twa", "stw", "dbt" ], 
-        [ "aws", "tws", "pstw", "pvmg" ], 
-        [ "cogm", "sog", "attitude", "lee" ], 
-        [ "position", "current", "ttwa", "psratio" ],
-        [ "tackm", "hdm", "tstw", "rudder" ]
-      ],
-      "vspace" : 5,
-      "hspace" : 5,
-      "id" : "perf",
-      "rotate": true
-    },
-    {
-      "vspace" : 5,
-      "instruments" : [
-        [ "position", "log" ],
-        [ "cogm", "sog" ],
-        [ "hdm", "stw" ],
-        [ "fix", "pilot" ]
-      ],
-      "id" : "nav",
-      "hspace" : 5
-    },
-    {
-      "id" : "sail",
-      "hspace" : 5,
-      "vspace" : 5,
-      "instruments" : [
-        [ "awa", "twa" ],
-        [ "aws", "tws" ],
-        [ "stw", "vmg" ],
-        [ "dbt", "sog" ]
+      "stw": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.4,
+          0.6,
+          0.8,
+          0.9,
+          1.0,
+          1.0,
+          1.0,
+          1.1,
+          1.1,
+          1.1,
+          1.1,
+          0.1,
+          0.1,
+          0.1,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.8,
+          1.2,
+          1.6,
+          1.8,
+          2.0,
+          2.0,
+          2.1,
+          2.1,
+          2.2,
+          2.2,
+          2.2,
+          0.5,
+          0.2,
+          0.2,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.2,
+          1.8,
+          2.4,
+          2.7,
+          2.9,
+          3.0,
+          3.1,
+          3.2,
+          3.3,
+          3.3,
+          3.3,
+          1.2,
+          0.5,
+          0.3,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.4,
+          2.1,
+          2.7,
+          3.1,
+          3.4,
+          3.5,
+          3.6,
+          3.6,
+          3.7,
+          3.8,
+          3.7,
+          1.7,
+          0.7,
+          0.4,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.7,
+          2.5,
+          3.2,
+          3.7,
+          4.0,
+          4.1,
+          4.3,
+          4.3,
+          4.4,
+          4.5,
+          4.4,
+          2.6,
+          1.1,
+          0.4,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          2.8,
+          4.2,
+          5.4,
+          6.2,
+          6.7,
+          6.9,
+          7.1,
+          7.2,
+          7.4,
+          7.5,
+          7.4,
+          5.6,
+          2.2,
+          0.7,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          3.1,
+          4.7,
+          5.9,
+          6.7,
+          7.0,
+          7.2,
+          7.4,
+          7.6,
+          7.8,
+          7.9,
+          7.9,
+          6.5,
+          2.6,
+          0.8,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          3.5,
+          5.1,
+          6.3,
+          7.0,
+          7.3,
+          7.5,
+          7.7,
+          7.9,
+          8.1,
+          8.2,
+          8.3,
+          7.4,
+          2.9,
+          1.2,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          3.8,
+          5.6,
+          6.7,
+          7.3,
+          7.6,
+          7.8,
+          8.0,
+          8.2,
+          8.4,
+          8.5,
+          8.6,
+          8.2,
+          3.0,
+          1.3,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.2,
+          6.0,
+          7.0,
+          7.7,
+          8.0,
+          8.2,
+          8.3,
+          8.6,
+          8.9,
+          9.0,
+          9.1,
+          8.9,
+          3.2,
+          1.4,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.6,
+          6.3,
+          7.3,
+          8.0,
+          8.3,
+          8.5,
+          8.7,
+          9.0,
+          9.3,
+          9.5,
+          9.6,
+          9.6,
+          3.8,
+          1.9,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          4.8,
+          6.6,
+          7.5,
+          8.2,
+          8.6,
+          8.9,
+          9.1,
+          9.5,
+          9.8,
+          10.1,
+          10.4,
+          10.4,
+          4.2,
+          2.1,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          5.0,
+          6.9,
+          7.9,
+          8.3,
+          8.8,
+          9.2,
+          9.4,
+          9.9,
+          10.4,
+          10.9,
+          11.3,
+          11.3,
+          4.5,
+          2.3,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          5.3,
+          7.1,
+          8.1,
+          8.6,
+          8.9,
+          9.3,
+          9.7,
+          10.4,
+          11.1,
+          11.8,
+          12.5,
+          12.5,
+          5.6,
+          3.1,
+          0.6,
+          0.6
+        ],
+        [
+          0.0,
+          5.4,
+          7.1,
+          8.2,
+          8.8,
+          9.2,
+          9.5,
+          9.9,
+          10.9,
+          11.9,
+          12.8,
+          14.1,
+          14.1,
+          7.1,
+          4.2,
+          0.7,
+          0.7
+        ],
+        [
+          0.0,
+          5.3,
+          7.0,
+          8.1,
+          8.8,
+          9.4,
+          9.8,
+          10.3,
+          11.2,
+          12.7,
+          14.3,
+          15.0,
+          15.0,
+          8.3,
+          5.3,
+          1.5,
+          1.5
+        ],
+        [
+          0.0,
+          5.0,
+          6.8,
+          7.8,
+          8.6,
+          9.4,
+          10.0,
+          10.6,
+          11.8,
+          13.2,
+          14.9,
+          15.7,
+          15.7,
+          9.4,
+          6.3,
+          1.6,
+          1.6
+        ],
+        [
+          0.0,
+          4.5,
+          6.3,
+          7.4,
+          8.3,
+          9.0,
+          9.8,
+          10.6,
+          12.3,
+          14.4,
+          15.6,
+          16.6,
+          16.6,
+          10.8,
+          7.5,
+          2.5,
+          2.5
+        ],
+        [
+          0.0,
+          3.8,
+          5.6,
+          6.9,
+          7.8,
+          8.5,
+          9.2,
+          10.0,
+          12.2,
+          15.0,
+          16.3,
+          17.6,
+          17.6,
+          13.2,
+          9.7,
+          3.5,
+          2.6
+        ],
+        [
+          0.0,
+          3.2,
+          4.8,
+          6.1,
+          7.1,
+          7.9,
+          8.6,
+          9.3,
+          10.9,
+          14.4,
+          16.8,
+          18.6,
+          18.6,
+          14.9,
+          11.2,
+          3.7,
+          3.7
+        ],
+        [
+          0.0,
+          2.7,
+          4.1,
+          5.3,
+          6.4,
+          7.3,
+          8.0,
+          8.7,
+          10.0,
+          12.4,
+          15.4,
+          17.9,
+          17.9,
+          15.2,
+          11.6,
+          4.5,
+          3.6
+        ],
+        [
+          0.0,
+          2.4,
+          3.6,
+          4.8,
+          5.9,
+          6.8,
+          7.6,
+          8.2,
+          9.4,
+          11.4,
+          14.3,
+          16.6,
+          16.6,
+          15.8,
+          12.5,
+          5.0,
+          4.2
+        ],
+        [
+          0.0,
+          2.2,
+          3.3,
+          4.4,
+          5.5,
+          6.4,
+          7.2,
+          7.9,
+          9.0,
+          10.6,
+          12.8,
+          15.4,
+          15.4,
+          15.4,
+          12.3,
+          4.6,
+          3.9
+        ]
       ]
+    }
+  },
+  "instruments": {
+    "coolantTemp": {
+      "widget": "EInkTemperature", 
+      "path": "candiag.1.engine.0.coolantTemp"
     },
+    "engineRPM": {
+      "widget": "EInkRpm",
+      "path": "candiag.1.engine.0.speed"
+    },
+    "engineHours": {
+      "widget": "EInkTextBox",
+      "path": "candiag.1.engine.0.hours"
+    },
+    "alternatorV": {
+      "widget": "EInkVoltage",
+      "path": "candiag.1.engine.0.altenatorVoltage"
+    },
+    "engineV": {
+      "widget": "EInkVoltage",
+      "path": "candiag.1.battery.0.voltage"
+    },
+    "serviceV": {
+      "widget": "EInkVoltage",
+      "path": "candiag.1.battery.1.voltage"
+    },
+    "fuel": {
+      "widget": "EInkRatio",
+      "path": "candiag.1.fluidLevel.0.level"
+    },
+    "hdm": {
+      "ok": 1,
+      "widget": "EInkBearing",
+      "path": "candiag.2.heading.0.heading"
+    },
+    "deviation": {
+      "ok": 1,
+      "widget": "EInkRelativeAngle",
+      "path": "candiag.2.heading.0.deviation"
+    },
+    "variationH": {
+      "ok": 1,
+      "widget": "EInkRelativeAngle",
+      "path": "candiag.2.heading.0.variation"
+    },
+    "stw": {
+      "ok": 1,
+      "widget": "EInkSpeed",
+      "path": "candiag.2.speed.0.sow"
+    },
+    "dbt": {
+      "ok": 1,
+      "widget": "EInkDepth",
+      "path": "candiag.2.waterDepth.0.depthBelowTransducer"
+    },
+    "depthOffset": {
+      "ok": 1,
+      "widget": "EInkDepth",
+      "path": "candiag.2.waterDepth.0.offset"
+    },
+    "rudder": {
+      "ok": 1,
+      "widget": "EInkRelativeAngle",
+      "path": "candiag.2.rudder.0.position"
+    },
+    "roll": {
+      "ok": 1,
+      "widget": "EInkRelativeAngle",
+      "path": "candiag.2.attitude.0.roll"
+    },
+    "pitch": {
+      "ok": 1,
+      "widget": "EInkRelativeAngle",
+      "path": "candiag.2.attitude.0.pitch"
+    },
+    "yaw": {
+      "ok": 1,
+      "widget": "EInkRelativeAngle",
+      "path": "candiag.2.attitude.0.yaw"
+    },
+    "cog": {
+      "ok": 1,
+      "widget": "EInkBearing",
+      "path": "candiag.3.cogSog.0.cog"
+    },
+    "sog": {
+      "ok": 1,
+      "widget": "EInkSpeed",
+      "path": "candiag.3.cogSog.0.sog"
+    },
+    "fix": {
+      "ok": 1,
+      "widget": "EInkFix",
+      "path": "candiag.3.gnss.0"
+    },
+    "seaTemperature": {
+      "ok": 1,
+      "widget": "EInkTemperature",
+      "path": "candiag.4.outsideEnvironment.0.waterTemperature"
+    },
+    "airTemperature": {
+      "ok": 1,
+      "widget": "EInkTemperature",
+      "path": "candiag.4.outsideEnvironment.0.outsideAmbientAirTemperature"
+    },
+    "atmosphericPressure": {
+      "ok": 1,
+      "widget": "EInkAtmosphericPressure",
+      "path": "candiag.4.outsideEnvironment.0.atmosphericPressure"
+    },
+    "exhaustTemperature": {
+      "ok": 1,
+      "widget": "EInkTemperature",
+      "path": "candiag.5.temperature.0.actual"
+    },
+    "engineRoomTemperature": {
+      "ok": 1,
+      "widget": "EInkTemperature",
+      "path": "candiag.5.temperature.1.actual"
+    },
+    "alternatorTemperature": {
+      "ok": 1,
+      "widget": "EInkTemperature",
+      "path": "candiag.5.temperature.2.actual"
+    },
+    "bmp280": {
+      "ok": 1,
+      "widget": "EInkBMP280",
+      "path": "candiag.7.bmp280"
+    },
+    "adcEngineV": {
+      "widget": "EInkVoltage",
+      "path": "candiag.8.voltages.0.v"
+    },
+    "adcServiceV": {
+      "widget": "EInkVoltage",
+      "path": "candiag.8.voltages.1.v"
+    },
+    "adcServiceA": {
+      "widget": "EInkCurrent",
+      "path": "candiag.8.voltages.2.v"
+    },
+    "xte": {
+      "widget": "EInkDistance",
+      "path": "candiag.9.xte.0.xte"
+    },
+    "variation": {
+      "widget": "EInkRelativeAngle",
+      "path": "candiag.10.variation.0.variation"
+    },
+    "log": {
+      "widget": "EInkLog",
+      "path": "candiag.11.log.0"
+    },
+    "possition": {
+      "widget": "EInkPossition",
+      "path": "candiag.12.possition.0"
+    },
+    "leeway": {
+      "widget": "EInkRelativeAngle",
+      "path": "candiag.13.leeway.0"
+    }
+
+  },
+  "comment" : "",
+  "pages" : [
     {
       "id" : "engine",
       "hspace" : 5,
       "vspace" : 5,
-      "rotate": true,
+      "rotate": false,
       "instruments" : [
-        [ "rpm", "alternator V", "alternator T" ],
-        [ "coolant", "Engine V", "Charger T" ],
-        [ "exhaust", "Service V", "Fridge T" ]
+        [ "engineRPM", "coolantTemp", "engineHours" ],
+        [ "alternatorV", "engineV", "serviceV" ],
+        [ "fuel", "coolantTemp", "coolantTemp" ]
+      ]
+    },
+    {
+      "id" : "nav",
+      "hspace" : 5,
+      "vspace" : 5,
+      "rotate": false,
+      "instruments" : [
+        ["hdm", "deviation", "variationH" ],
+        ["stw", "dbt", "depthOffset" ],
+        ["cog", "sog", "fix"]
+      ]
+    },
+    {
+      "id" : "env",
+      "hspace" : 5,
+      "vspace" : 5,
+      "rotate": false,
+      "instruments" : [
+        ["rudder", "roll", "pitch"],
+        ["seaTemperature", "airTemperature", "atmosphericPressure"],
+        ["exhaustTemperature", "engineRoomTemperature", "alternatorTemperature"]
+      ]
+    },
+    {
+      "id" : "env",
+      "hspace" : 5,
+      "vspace" : 5,
+      "rotate": false,
+      "instruments" : [
+        ["rudder", "roll", "pitch"],
+        ["seaTemperature", "airTemperature", "atmosphericPressure"],
+        ["exhaustTemperature", "engineRoomTemperature", "alternatorTemperature"]
+      ]
+    },
+    {
+      "id" : "volts",
+      "hspace" : 5,
+      "vspace" : 5,
+      "rotate": false,
+      "instruments" : [
+        ["bmp280", "adcEngineV"],
+        ["adcServiceV","adcServiceA"]
+      ]
+    },
+    {
+      "id": "pos",
+      "hspace": 5,
+      "vspace": 5,
+      "rotate": false,
+      "instruments": [
+        ["xte", "variation", "log"],
+        ["possition", "leeway", "log"]
       ]
     }
+
+
+
   ]
 }

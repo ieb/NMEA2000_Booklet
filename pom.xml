@@ -2,17 +2,17 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>uk.co.tfd</groupId>
-  <artifactId>uk.co.tfd.kindle.signalk</artifactId>
+  <artifactId>uk.co.tfd.kindle.nmea2000</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>uk.co.tfd.kindle.signalk</name>
-  <url>http://github.com/ieb/Signalk_Booklet</url>
+  <name>uk.co.tfd.kindle.nmea2000</name>
+  <url>http://github.com/ieb/NMEA2000_Booklet</url>
   <properties>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
   </properties>
   <scm>
-    <connection>scm:git:git://github.com/ieb/Signalk_Booklet.git</connection>
+    <connection>scm:git:git://github.com/ieb/NMEA2000_Booklet.git</connection>
   </scm>
   <build>
     <resources>
@@ -24,7 +24,7 @@
         <directory>src/main/resources</directory>
       </resource>
     </resources>
-    <finalName>signalk_booklet</finalName>
+    <finalName>nmea2000_booklet</finalName>
     <plugins>
 
       <!-- download source code in Eclipse, best practice -->
@@ -77,7 +77,7 @@
           <archive>
             <manifest>
               <!-- Jar file entry point -->
-              <mainClass>uk.co.tfd.kindle.signalk.SignalkBooklet</mainClass>
+              <mainClass>uk.co.tfd.kindle.nmea2000.NMEA2000Booklet</mainClass>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
             </manifest>
@@ -115,7 +115,7 @@
                 <resource>
                   <directory>${project.build.directory}</directory>
                   <includes>
-                    <include>signalk_booklet.jar</include>
+                    <include>nmea2000_booklet.jar</include>
                   </includes>
                 </resource>
               </resources>
@@ -171,7 +171,7 @@
                 -xPackageAuthor=ieb -xPackageMaintainer=ieb -X
                 -d kindle5 -s 1679530004
                 -C ${project.build.directory}/booklet/install
-                ${project.build.directory}/Update_Signalk_${project.artifactId}_${buildNumber}_install.bin
+                ${project.build.directory}/Update_NMEA2000_${project.artifactId}_${buildNumber}_install.bin
               </commandlineArgs>
 
             </configuration>
@@ -188,7 +188,7 @@
               <commandlineArgs>create ota2 -d paperwhite2 -d basic -d voyage -d paperwhite3
                 -d oasis -d basic2 -d oasis2 -d paperwhite4 -d basic3
                 -d oasis3 -O -s 3556150002 -C ${project.build.directory}/booklet/install
-                ${project.build.directory}/Update_Signalk_${project.artifactId}_${buildNumber}_install-hotfix.bin
+                ${project.build.directory}/Update_NMEA2000_${project.artifactId}_${buildNumber}_install-hotfix.bin
               </commandlineArgs>
             </configuration>
           </execution>
@@ -205,7 +205,7 @@
                 -xPackageVersion=${project.version}_${buildNumber} -xPackageAuthor=ieb
                 -xPackageMaintainer=ieb -X -d kindle5
                 -C ${project.build.directory}/booklet/uninstall
-                ${project.build.directory}/Update_Signalk_${project.artifactId}_${buildNumber}_uninstall.bin
+                ${project.build.directory}/Update_NMEA2000_${project.artifactId}_${buildNumber}_uninstall.bin
               </commandlineArgs>
             </configuration>
           </execution>
@@ -253,8 +253,8 @@
     </dependency>
     <!-- the following come from your Kindle.
          You must login over ssh and copy the jars to build.
-         Some Kindle firmware has a busybox ssh shell that can be enabled with ;un, otherwise
-         you will have to find an alternative way of getting hold of the libraries, sorry these cant
+         Some Kindle firmware has a busybox ssh shell that nmea2000 be enabled with ;un, otherwise
+         you will have to find an alternative way of getting hold of the libraries, sorry these nmea2000t
          be distributed. -->
     <dependency>
       <groupId>kindle-sdk</groupId>
@@ -296,7 +296,7 @@
       <artifactId>testBook</artifactId>
       <version>1.0.0</version>
       <scope>system</scope>
-      <systemPath>/Users/ieb/timefields/kindle/Signalk_Booklet/test/ebook/lib/testBook.jar</systemPath>
+      <systemPath>/Users/ieb/timefields/kindle/NMEA2000_Booklet/test/ebook/lib/testBook.jar</systemPath>
     </dependency>
 
 
