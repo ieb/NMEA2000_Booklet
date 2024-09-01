@@ -130,7 +130,7 @@ public class Instruments {
         - navigation.datetime
         - navigation.gnss
          */
-        map.put("position", new Instrument(EInkPossition.class));
+        map.put("position", new Instrument(EInkPosition.class));
     }
 
     public EInkTextBox create(String key, boolean rotation, DisplayConversion.DisplayUnits displayUnits, Store store) {

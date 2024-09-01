@@ -78,16 +78,19 @@ public class Store extends Data.Observable {
         for (Map.Entry<String, Object> e : update.entrySet()) {
             String path = root + e.getKey();
             Object o = e.getValue();
+            boolean used = false;
             if (paths.containsKey(path)) {
                 for (Data.DataValue dv : paths.get(path)) {
                     dv.update(o, timeOffset);
                 }
+                used = true;
             }
             if (o instanceof Map) {
                 doUpdate(path + ".", (Map<String, Object>) o, rejects, timeOffset);
+
             } else if (o instanceof List) {
                 doUpdate(path + ".", (List<Object>) o, rejects, timeOffset);
-            } else {
+            } else if (!used ) {
                 rejects.put(path, o);
             }
         }
@@ -96,7 +99,7 @@ public class Store extends Data.Observable {
     public void doUpdate(String root, List<Object> update, Map<String, Object> rejects,  long timeOffset) {
         for (int i = 0; i < update.size(); i++) {
             Object o = update.get(i);
-            String path = root + "[" + i + "]";
+            String path = root + i;
             if (o instanceof Map) {
                 Map<String, Object> om = (Map<String, Object>) o;
                 if (om.containsKey("id")) {

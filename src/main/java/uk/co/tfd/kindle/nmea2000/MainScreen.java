@@ -3,9 +3,17 @@ package uk.co.tfd.kindle.nmea2000;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.co.tfd.kindle.nmea2000.can.*;
+import uk.co.tfd.kindle.nmea2000.canwidgets.CanPageLayout;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Map;
 
 /**
@@ -14,6 +22,12 @@ import java.util.Map;
 public class MainScreen {
 
     private static final Logger log = LoggerFactory.getLogger(MainScreen.class);
+    private final NMEA0183Client nmea0183Client;
+    private final SeaSmartHandler seaSmartHandler;
+    private final NMEA0183Discovery discovery;
+    private final Timer timer;
+    private final CanMessageProducer messageProducer;
+    private String lastCommandMessage = "";
 
     public static class Theme {
         private final Color foreground;
@@ -51,10 +65,7 @@ public class MainScreen {
     private int NTHEMES = 5;
     private int theme;
 
-    private final Calcs calcs;
-    private final NMEA2000Client nmea2000Client;
-    private final Store store;
-    private final PageLayout layout;
+    private final CanPageLayout layout;
     private final ControlPage controlPage;
 
     public interface MainScreenExit {
@@ -75,15 +86,54 @@ public class MainScreen {
 
             @Override
             public void exit() {
+                if ( timer != null) {
+                    timer.stop();
+                }
+                if ( discovery != null) {
+                    discovery.endDiscovery();
+                }
                 MainScreen.this.stop();
                 exitHook.exit();
             }
         });
+
+        /*
         store = new Store();
         calcs = new Calcs(store);
-        store.addStatusUpdateListener(controlPage);
-        layout = new PageLayout(configFile, store, calcs);
-        layout.addControl(controlPage);
+         */
+        nmea0183Client = new NMEA0183Client();
+        messageProducer = new CanMessageProducer();
+        seaSmartHandler = new SeaSmartHandler(messageProducer);
+
+        nmea0183Client.addHandler("DIN", seaSmartHandler);
+        seaSmartHandler.addHandler(new EngineMessageHandler());
+        seaSmartHandler.addHandler(new IsoMessageHandler());
+        seaSmartHandler.addHandler(new NavMessageHandler());
+        seaSmartHandler.addIgnore(59904); // Request Address
+        seaSmartHandler.addIgnore(126720); // Proprietary raymarine
+        seaSmartHandler.addIgnore(126208); // Function Group Handler
+        seaSmartHandler.addIgnore(65379); //  Seatalk Pilot mode
+        seaSmartHandler.addIgnore(127237); // Heading Track control
+        seaSmartHandler.addIgnore(130916); // Proprietary b;
+        seaSmartHandler.addIgnore(129044); // Datum
+        seaSmartHandler.addIgnore(65384); // Proprietary
+        seaSmartHandler.addIgnore(65359); // Seatalk Pilot heading
+        seaSmartHandler.addStatusUpdateListener(controlPage);
+        nmea0183Client.addStatusUpdateListener(controlPage);
+
+        // create calculators, and add them as listeners to the producers
+        // calculators create internal can messages derived from the messages received.
+        // generally the calculations are cheap relative to the network cost so at the moment
+        // they are not enabled or disabled, however they could be in the same
+        // way that traffic is enabled and disabled.
+        messageProducer.addListener(new WindCalculator(messageProducer));
+
+
+        discovery = new NMEA0183Discovery(nmea0183Client);
+        discovery.startDiscovery();
+
+
+        layout = new CanPageLayout(configFile, messageProducer);
         layout.setPreferredSize(root.getMaximumSize());
 
 
@@ -98,33 +148,60 @@ public class MainScreen {
                 log.info("Set Screensize to {} ", root.getSize());
             }
         }
+        layout.addControl(controlPage);
         root.add(layout);
         root.doLayout();
         root.setVisible(true);
 
+        /*
         calcs.addStatusUpdateListener(controlPage);
 
-        NMEA2000HttpClient NMEA2000HttpClient =  new NMEA2000HttpClient(store);
-        nmea2000Client = new NMEA2000Client(store, NMEA2000HttpClient, config);
+        NMEA2000HttpClient nmea2000HttpClient =  new NMEA2000HttpClient(store);
+        nmea2000Client = new NMEA2000Client(store, nmea2000HttpClient, config);
         nmea2000Client.addStatusUpdateListener(controlPage);
-        NMEA2000HttpClient.addStatusUpdateListener(controlPage);
+        nmea2000HttpClient.addStatusUpdateListener(controlPage);
+         */
+
+
+
+        timer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                String commandMessage = seaSmartHandler.getCommandMessage();
+                if ( !lastCommandMessage.equals(commandMessage)) {
+
+                    try {
+                        nmea0183Client.send(nmea0183Client.addCheckSum(commandMessage));
+                    } catch (IOException e) {
+                        log.info("Failed to send nmea0183 command {}", e);
+                    }
+                    lastCommandMessage = commandMessage;
+                }
+                seaSmartHandler.emitStatus();
+            }
+        });
+        timer.start();
+
+
 
 
 
     }
 
     public void stop() {
-        calcs.stop();
-        store.stop();
-        nmea2000Client.stop();
+        nmea0183Client.stop();
+        nmea0183Client.setAddress(null);
+        nmea0183Client.setPort(-1);
      }
 
 
-    public void start() throws IOException {
+    public void start(InetAddress address, int port) throws IOException {
         log.info("Starting");
-        calcs.start(); // No threads
-        store.start(); // AWT Timer
-        nmea2000Client.start();
+        nmea0183Client.setAddress(address);
+        nmea0183Client.setPort(port);
+        nmea0183Client.start();
         log.info("Started");
     }
+
+
 }

@@ -28,6 +28,7 @@ public class DisplayConversion {
         displayUnits.add(new RpmDisplay());
         displayUnits.add(new FrequencyDisplay());
         displayUnits.add(new VoltageDisplay());
+        displayUnits.add(new AmpsDisplay());
         displayUnits.add(new CurrentDisplay());
         displayUnits.add(new HoursDisplay());
         displayUnits.add(new NoConversion());
@@ -71,7 +72,7 @@ public class DisplayConversion {
 
         @Override
         public String convert(double value, DecimalFormat format) {
-            return format.format(value);
+            return format.format(value/3600.0);
         }
 
         @Override
@@ -183,6 +184,18 @@ public class DisplayConversion {
         @Override
         public Data.DataType getDataType() {
             return Data.DataType.VOLTAGE;
+        }
+    }
+    public static class AmpsDisplay implements Conversion {
+
+        @Override
+        public String convert(double value, DecimalFormat format) {
+            return format.format(value);
+        }
+
+        @Override
+        public Data.DataType getDataType() {
+            return Data.DataType.AMPS;
         }
     }
 
@@ -312,6 +325,7 @@ public class DisplayConversion {
         private static final Logger log = LoggerFactory.getLogger(DisplayUnits.class);
 
         private Map<Data.DataType,Conversion> conversions = new HashMap<Data.DataType, Conversion>();
+
 
         public void add(Conversion conversion) {
             conversions.put(conversion.getDataType(), conversion);

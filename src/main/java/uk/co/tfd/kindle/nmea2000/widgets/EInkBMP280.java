@@ -37,7 +37,6 @@ public class EInkBMP280 extends EInkTextBox {
 
     @Override
     boolean formatOutput(DataValue data) {
-        LoggerFactory.getLogger(this.getClass()).info("Got BPM Data {} ",data);
 
         if ( data instanceof Data.BMP280) {
             Data.BMP280 bmp280 = (Data.BMP280) data;

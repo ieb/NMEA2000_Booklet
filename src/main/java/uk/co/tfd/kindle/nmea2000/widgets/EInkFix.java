@@ -41,7 +41,6 @@ public class EInkFix extends EInkTextBox {
     boolean formatOutput(DataValue data) {
 
 
-        LoggerFactory.getLogger(this.getClass()).info("Update {}  ", data);
 
         if ( data instanceof Data.NMEA2KGnss) {
     /*
@@ -78,7 +77,6 @@ public class EInkFix extends EInkTextBox {
 
     @Override
     void renderInstrument(Graphics2D g2) {
-        LoggerFactory.getLogger(this.getClass()).info("Render Fix {} {} {} {} {} ", new Object[] {methodQuality, type, satellites, horizontalDilution, integrity});
         Util.drawString(methodQuality, borderPadding, (int)(mediumLineSpace*0.1), mediumFont, Util.HAlign.LEFT, Util.VAlign.TOP, g2);
         Util.drawString(type, borderPadding, (int)(0.75*mediumLineSpace+mediumLineSpace*0.1), mediumFont, Util.HAlign.LEFT, Util.VAlign.TOP, g2);
         Util.drawString("sat:"+satellites, borderPadding, (int)(2*0.75*mediumLineSpace+mediumLineSpace*0.1), mediumFont, Util.HAlign.LEFT, Util.VAlign.TOP, g2);

@@ -46,6 +46,46 @@ to automate this however you may need to disable firmware updates to prevent you
 
 All Jars running on a Kindle must be signed by a key loaded onto the kindle so this step is required.
 
+# Kindle 4 USBNetworking
+
+This can be a bit confusing.  With KUAL and USBNetworking installed:
+
+If you plug in the Kindle and it appears as a disk then USBNetworking is not enabled.
+Check /Volumes/Kindle/usbnetworking/auto does not exist as this empty file will cause the Kindle to enter
+usbnetworking at boot, which you may not want.
+
+Then reboot with the USB cable disconnected.
+Once booted, go to KUAL -> USBNetworking and ensure that SSK is enabled over USBNetworking.
+Then Toggle USBNetworking
+Wait about 60s for everyting to start.
+Plugin the USB.
+On OSX you should see a new Networking device RNDIS/Ethernet Gadget, and ifconfig should show a new network device that was not there previously.
+Set the network address to static on 192.168.15.201/255.255.255.0
+ssh root@192.168.15.244 (root password is probably mario, or install a ssh key when you get in.)
+
+ifconfig should look like this 
+
+         en6: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+            options=6467<RXCSUM,TXCSUM,VLAN_MTU,TSO4,TSO6,CHANNEL_IO,PARTIAL_CSUM,ZEROINVERT_CSUM>
+            ether ee:49:00:00:00:00 
+            inet6 fe80::75:ea96:e6d5:2107%en6 prefixlen 64 secured scopeid 0x15 
+            inet 192.168.15.201 netmask 0xffffff00 broadcast 192.168.15.255
+            nd6 options=201<PERFORMNUD,DAD>
+            media: autoselect (100baseTX <full-duplex>)
+            status: active
+
+root login over ssh should look like this (once a ssh key is setup)
+
+            $ ssh root@192.168.15.244
+            Enter passphrase for key '~/.ssh/localhosts': 
+            #################################################
+            #  N O T I C E  *  N O T I C E  *  N O T I C E  # 
+            #################################################
+            Rootfs is mounted read-only. Invoke mntroot rw to
+            switch back to a writable rootfs.
+            #################################################
+            [root@kindle root]# ps aux
+
 # Developer setup
 
 The maven build produces an installable package that can be installed with the MPRI package installed that is part of KUAL, 

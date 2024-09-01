@@ -4,9 +4,7 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 
@@ -44,27 +42,35 @@ public class NMEA2000HttpClient extends StatusUpdates  {
     }
 
     public boolean fetch(String url, String section) {
-        InputStreamReader in = null;
+        BufferedReader in = null;
         Map<String, Object> update = new HashMap<>();
         try {
             // fetch the data from the ESP server API.
-            if ( url.startsWith("http")) {
-                URL u = new URL(url + "/api/data/"+section+".json");
-                in = new InputStreamReader(u.openStream());
-            } else if ( url.startsWith("file:")) {
-                log.info("Fetching File {}{}.json", url,section);
-                in = new InputStreamReader(new FileInputStream(url.substring("file:".length())+section+".json"));
-                //"/Users/ieb/timefields/PlatformIO/Projects/CanDiagnose/ui/einkweb/src/api.json"));
+            if ( url.startsWith("data:") ) {
+                CSVParser parser = new CSVParser();
+                in = new BufferedReader(new StringReader(url.substring("data:".length())));
+                update.put("candiag", parser.parseCSV(in));
             } else {
-                return false;
+                if (url.startsWith("http")) {
+                    URL u = new URL(url + "/api/data/" + section);
+                    in = new BufferedReader(new InputStreamReader(u.openStream()));
+                } else if (url.startsWith("file:")) {
+                    in = new BufferedReader(new InputStreamReader(new FileInputStream(url.substring("file:".length()) + section)));
+                    //"/Users/ieb/timefields/PlatformIO/Projects/CanDiagnose/ui/einkweb/src/api.json"));
+                } else {
+                    return false;
+                }
+                if (section.endsWith(".json")) {
+                    JSONParser parser = new JSONParser();
+                    //updateStatus("Fetched state from "+url);
+                    //log.info("Fetched state from {} ", url);
+                    update.put("candiag", parser.parse(in));
+                } else {
+                    CSVParser parser = new CSVParser();
+                    update.put("candiag", parser.parseCSV(in));
+                }
             }
 
-            JSONParser parser = new JSONParser();
-            //updateStatus("Fetched state from "+url);
-            //log.info("Fetched state from {} ", url);
-            Map<String, Object> sections = new HashMap<>();
-            sections.put(section, parser.parse(in));
-            update.put("candiag",sections);
             long timeOffset = System.currentTimeMillis() - findRequestEndTime(update, 0);
 
             Map<String, Object> rejects = store.update("", update, timeOffset);

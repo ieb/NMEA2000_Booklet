@@ -18,24 +18,24 @@ public class Data {
      * Internal units are RAD, MS, RATIO, M, K, PA, RH, HZ, V, A, C, S */
     public enum Unit {
         RAD,
-        DEGREES(Math.PI/180,0), // convert to radians
+        DEGREES(Math.PI/180.0,0), // convert to radians
         MS,
         RATIO,
-        PERCENTAGE(0.01,0),
+        PERCENTAGE(0.01,0.0),
         M,
         MAP,
         K,
         TEXT,
         PA,
-        MBAR(100,0),
+        MBAR(100.0,0.0),
         RH,
         HZ,
         V,
         A,
         C(1.0, 273.15), // convert to K
         S,
-        RPM(1/60,0.0), // convert to Hz
-        V100ASHUNT(100/0.075,0) // 75mV == 100A
+        RPM(1.0/60.0,0.0), // convert to Hz
+        V100ASHUNT(100.0/0.075,0) // 75mV == 100A
         ;
         private final double scale;
         private final double offset;
@@ -58,7 +58,7 @@ public class Data {
     public enum DataType {
         SPEED, BEARING, DISTANCE, NONE, RELATIVEANGLE, LATITUDE, LONGITUDE,
         TEMPERATURE, PERCENTAGE, DEPTH, ATMOSPHERICPRESSURE, PRESSURE,
-        HUMIDITY, FREQUENCY, RPM, VOLTAGE, CURRENT, HOURS
+        HUMIDITY, FREQUENCY, RPM, VOLTAGE, AMPS, CURRENT, HOURS
 
     }
 
@@ -151,6 +151,7 @@ public class Data {
         String text;
 
         protected long timestamp;
+        private int lastModified;
 
 
         public DataValue(DataKey key, String dataPath, String sourcePath) {
@@ -247,6 +248,9 @@ public class Data {
             return this.key.type;
         }
 
+        public int getLastModified() {
+            return lastModified;
+        }
     }
 
 
@@ -308,12 +312,13 @@ public class Data {
             if ( newValue == 0.0 ) {
                 newValue = 1E-4;
             }
-            newValue = newValue + newValue*((Math.random()-0.5)/10);
-            newValue = key.units.convertToInternal(newValue);
+            //newValue = newValue + newValue*((Math.random()-0.5)/10);
+            double internalValue = key.units.convertToInternal(newValue);
+            //log.info("Update {} with {} internal {} ", dataPath, newValue, internalValue);
 
 
-            if (newValue != this.value) {
-                this.value = newValue;
+            if (internalValue != this.value) {
+                this.value = internalValue;
                 this.fireUpdate();
                 change++;
             } else {
@@ -566,11 +571,18 @@ public class Data {
             }
             id = Util.intValue(input.get("id"),0);
             int lm = lastModified;
-            lastModified = Util.intValue(input.get("lastModified"),0);
-            roll = Util.doubleValue(input.get("roll"),0);
-            pitch = Util.doubleValue(input.get("pitch"),0);
-            yaw = Util.doubleValue(input.get("yaw"),0);
-            if ( lm != lastModified) {
+            lastModified = Util.intValue(input.get("lastModified"), 0);
+            double newRoll = Util.doubleValue(input.get("roll"), 0);
+            double newPitch = Util.doubleValue(input.get("pitch"),0);
+            double newYaw = Util.doubleValue(input.get("yaw"),0);
+            if ( lm != lastModified ||
+                    newRoll != roll ||
+                    newPitch != pitch ||
+                    newYaw != yaw) {
+                roll = newRoll;
+                pitch = newPitch;
+                yaw = newYaw;
+                lastModified = lm;
                 this.fireUpdate();
             }
         }
@@ -617,9 +629,14 @@ public class Data {
             int lm = lastModified;
             lastModified = Util.intValue(input.get("lastModified"),0);
             reference = Util.intValue(input.get("reference"), 0);
-            set = Util.doubleValue(input.get("set"),0);
-            drift = Util.doubleValue(input.get("drift"),0);
-            if ( lm != lastModified) {
+            double newSet = Util.doubleValue(input.get("set"), 0);
+            double newDrift = Util.doubleValue(input.get("drift"),0);
+            if ( lm != lastModified ||
+                    newSet != set ||
+                    newDrift != drift) {
+                set = newSet;
+                drift = newDrift;
+                lastModified = lm;
                 this.fireUpdate();
             }
         }
@@ -652,6 +669,8 @@ public class Data {
         private int lastModified;
         private double log;
         private double trip;
+        private int daysSince1970;
+        private double secondsSinceMidnight;
 
         public NMEA2KLog(DataKey k, String dataPath, String sourcePath) {
             super(k, dataPath, sourcePath);
@@ -667,9 +686,20 @@ public class Data {
             id = Util.intValue(input.get("id"), 0);
             int lm = lastModified;
             lastModified = Util.intValue(input.get("lastModified"),0);
-            log = Util.doubleValue(input.get("log"),0);
-            trip = Util.doubleValue(input.get("trip"),0);
-            if ( lm != lastModified) {
+            double newLog = Util.doubleValue(input.get("log"), 0);
+            double newTrip = Util.doubleValue(input.get("trip"),0);
+            int newDaysSince1970 = Util.intValue(input.get("daysSince1970"), 0);
+            double newsecondsSinceMidnight = Util.doubleValue(input.get("secondsSinceMidnight"), 0);
+            if ( lm != lastModified ||
+                    newLog != log || 
+                    newTrip != trip || 
+                    newDaysSince1970 != daysSince1970 ||
+                    newsecondsSinceMidnight != secondsSinceMidnight) {
+                log = newLog;
+                trip = newTrip;
+                daysSince1970 = newDaysSince1970;
+                secondsSinceMidnight = newsecondsSinceMidnight;
+                lastModified = lm;
                 this.fireUpdate();
             }
         }
@@ -680,6 +710,14 @@ public class Data {
 
         public double getTrip() {
             return trip;
+        }
+
+        public int getDaysSince1970() {
+            return daysSince1970;
+        }
+
+        public double getSecondsSinceMidnight() {
+            return secondsSinceMidnight;
         }
     }
 
@@ -724,8 +762,6 @@ public class Data {
         private double ageOfCorrection;
 
 
-
-
         public NMEA2KGnss(DataKey k, String dataPath, String sourcePath) {
             super(k, dataPath, sourcePath);
         }
@@ -740,21 +776,51 @@ public class Data {
             id = Util.intValue(input.get("id"),0);
             int lm = lastModified;
             lastModified = Util.intValue(input.get("lastModified"),0);
-            daysSince1970 = Util.intValue(input.get("daysSince1970"),0);
-            type = Util.intValue(input.get("type"),0);
-            method = Util.intValue(input.get("method"),0);
-            nSatellites = Util.intValue(input.get("nSatellites"),0);
-            nReferenceStations = Util.intValue(input.get("nReferenceStations"),0);
-            referenceStationType = Util.intValue(input.get("referenceStationType"),0);
-            secondsSinceMidnight = Util.doubleValue(input.get("secondsSinceMidnight"),0);
-            latitude = Util.doubleValue(input.get("latitude"),0);
-            longitude = Util.doubleValue(input.get("longitude"),0);
-            altitude = Util.doubleValue(input.get("altitude"),0);
-            hdop = Util.doubleValue(input.get("HDOP"),0);
-            pdop = Util.doubleValue(input.get("PDOP"),0);
-            geoidalSeparation = Util.doubleValue(input.get("geoidalSeparation"),0);
-            ageOfCorrection = Util.doubleValue(input.get("ageOfCorrection"),0);
-            if ( lm != lastModified) {
+            int newDaysSince1970 = Util.intValue(input.get("daysSince1970"),0);
+            int newType = Util.intValue(input.get("type"),0);
+            int newMethod = Util.intValue(input.get("method"),0);
+            int newNSatellites = Util.intValue(input.get("nSatellites"),0);
+            int newNReferenceStations = Util.intValue(input.get("nReferenceStations"),0);
+            int newReferenceStationType = Util.intValue(input.get("referenceStationType"),0);
+            double newSecondsSinceMidnight = Util.doubleValue(input.get("secondsSinceMidnight"), 0);
+            double newLatitude = Util.doubleValue(input.get("latitude"),0);
+            double newLongitude = Util.doubleValue(input.get("longitude"),0);
+            double newAltitude = Util.doubleValue(input.get("altitude"),0);
+            double newHdop = Util.doubleValue(input.get("HDOP"),0);
+            double newPdop = Util.doubleValue(input.get("PDOP"),0);
+            double newGeoidalSeparation = Util.doubleValue(input.get("geoidalSeparation"),0);
+            double newAgeOfCorrection = Util.doubleValue(input.get("ageOfCorrection"),0);
+            if ( lm != lastModified ||
+                newDaysSince1970 != daysSince1970 ||
+                newType != type ||
+                newMethod != method ||
+                newNSatellites != nSatellites ||
+                newNReferenceStations != nReferenceStations ||
+                newReferenceStationType != referenceStationType ||
+                newSecondsSinceMidnight != secondsSinceMidnight ||
+                newLatitude != latitude ||
+                newLongitude != longitude ||
+                newAltitude != altitude ||
+                newHdop != hdop ||
+                newPdop != pdop ||
+                newGeoidalSeparation != geoidalSeparation ||
+                newAgeOfCorrection != ageOfCorrection
+                    ) {
+                lastModified = lm;
+                daysSince1970 = newDaysSince1970;
+                type = newType;
+                method = newMethod;
+                nSatellites = newNSatellites;
+                nReferenceStations = newNReferenceStations;
+                referenceStationType = newReferenceStationType;
+                secondsSinceMidnight = newSecondsSinceMidnight;
+                latitude = newLatitude;
+                longitude = newLongitude;
+                altitude = newAltitude;
+                hdop = newHdop;
+                pdop = newPdop;
+                geoidalSeparation = newGeoidalSeparation;
+                ageOfCorrection = newAgeOfCorrection;
                 this.fireUpdate();
             }
         }
@@ -792,6 +858,43 @@ public class Data {
         public String getFixType() {
             return String.valueOf(type);
         }
+
+        public int getDaysSince1970() {
+            return daysSince1970;
+        }
+
+        public double getSecondsSinceMidnight() {
+            return secondsSinceMidnight;
+        }
+
+        public double getAltitude() {
+            return altitude;
+        }
+
+        public int getMethod() {
+            return method;
+        }
+
+        public double getPDOP() {
+
+            return pdop;
+        }
+
+        public double getGeoidalSeparation() {
+            return geoidalSeparation;
+        }
+
+        public int getNReferenceStations() {
+            return nReferenceStations;
+        }
+
+        public int getReferenceStationType() {
+            return referenceStationType;
+        }
+
+        public double getAgeOfCorrection() {
+            return ageOfCorrection;
+        }
     }
 
     public static class NMEA2KOutsideEnvironment extends Data.DataValue {
@@ -823,13 +926,20 @@ public class Data {
             } else {
                 timestamp = System.currentTimeMillis();
             }
-            id = Util.intValue(input.get("id"),0);
+            id = Util.intValue(input.get("id"), 0);
             int lm = lastModified;
             lastModified = Util.intValue(input.get("lastModified"),0);
-            waterTemperature = Util.doubleValue(input.get("waterTemperature"),0);
-            outsideAmbientAirTemperature = Util.doubleValue(input.get("outsideAmbientAirTemperature"),0);
-            atmosphericPressure = Util.doubleValue(input.get("atmosphericPressure"),0);
-            if ( lm != lastModified) {
+            double newWaterTemperature = Util.doubleValue(input.get("waterTemperature"), 0);
+            double newOutsideAmbientAirTemperature = Util.doubleValue(input.get("outsideAmbientAirTemperature"),0);
+            double newAtmosphericPressure = Util.doubleValue(input.get("atmosphericPressure"),0);
+            if ( lm != lastModified ||
+                    newWaterTemperature != waterTemperature ||
+                    newOutsideAmbientAirTemperature != outsideAmbientAirTemperature ||
+                    newAtmosphericPressure != atmosphericPressure ) {
+                lastModified = lm;
+                waterTemperature = newWaterTemperature;
+                outsideAmbientAirTemperature = newOutsideAmbientAirTemperature;
+                atmosphericPressure = newAtmosphericPressure;
                 this.fireUpdate();
             }
         }
@@ -870,9 +980,14 @@ public class Data {
             lastModified = Util.intValue(input.get("lastModified"),0);
             instance = Util.intValue(input.get("instance"),0);
             source = Util.intValue(input.get("source"), 0);
-            actual = Util.doubleValue(input.get("actual"),0);
-            set = Util.doubleValue(input.get("set"),0);
-            if ( lm != lastModified) {
+            double newActual = Util.doubleValue(input.get("actual"), 0);
+            double newSet = Util.doubleValue(input.get("set"),0);
+            if ( lm != lastModified ||
+                    newActual != actual ||
+                    newSet != set) {
+                lastModified = lm;
+                set = newSet;
+                actual = newActual;
                 this.fireUpdate();
             }
         }
@@ -911,8 +1026,11 @@ public class Data {
             lastModified = Util.intValue(input.get("lastModified"),0);
             instance = Util.intValue(input.get("instance"),0);
             source = Util.intValue(input.get("source"), 0);
-            actual = Util.doubleValue(input.get("actual"),0);
-            if ( lm != lastModified) {
+            double newActual = Util.doubleValue(input.get("actual"), 0);
+            if ( lm != lastModified ||
+                    newActual != actual) {
+                lastModified = lm;
+                actual = newActual;
                 this.fireUpdate();
             }
         }
@@ -952,10 +1070,15 @@ public class Data {
             int lm = lastModified;
             lastModified = Util.intValue(input.get("lastModified"),0);
             instance = Util.intValue(input.get("instance"),0);
-            source = Util.intValue(input.get("source"),0);
-            actual = Util.doubleValue(input.get("actual"), 0);
-            set = Util.doubleValue(input.get("set"),0);
-            if ( lm != lastModified) {
+            source = Util.intValue(input.get("source"), 0);
+            double  newActual = Util.doubleValue(input.get("actual"), 0);
+            double newSet = Util.doubleValue(input.get("set"),0);
+            if ( lm != lastModified ||
+                    newActual != actual ||
+                    newSet != set) {
+                lastModified = lm;
+                set = newSet;
+                actual = newActual;
                 this.fireUpdate();
             }
         }
@@ -977,8 +1100,8 @@ public class Data {
         private int lastModified;
         private int instance;
         private int source;
-        private double lattitude;
         private double longitude;
+        private double latitude;
 
         public NMEA2KPosition(DataKey k, String dataPath, String sourcePath) {
             super(k, dataPath, sourcePath);
@@ -994,12 +1117,29 @@ public class Data {
             id = Util.intValue(input.get("id"),0);
             int lm = lastModified;
             lastModified = Util.intValue(input.get("lastModified"),0);
-            source = Util.intValue(input.get("source"),0);
-            lattitude = Util.doubleValue(input.get("lattitude"),0);
-            longitude = Util.doubleValue(input.get("longitude"),0);
-            if ( lm != lastModified) {
+            source = Util.intValue(input.get("source"), 0);
+            double newLatitude = Util.doubleValue(input.get("latitude"), 0);
+            double newLongitude = Util.doubleValue(input.get("longitude"),0);
+            if ( lm != lastModified ||
+                    newLatitude != latitude ||
+                    newLongitude != longitude) {
+                lastModified = lm;
+                latitude = newLatitude;
+                longitude = newLongitude;
                 this.fireUpdate();
             }
+        }
+
+        public double getLongitude() {
+            return longitude;
+        }
+
+        public double getLatitude() {
+            return latitude;
+        }
+
+        public String getFixDate() {
+            return new Date(timestamp).toString();
         }
     }
 
@@ -1028,6 +1168,7 @@ public class Data {
             int lm = lastModified;
             lastModified = Util.intValue(input.get("lastModified"),0);
             List<Map<String, Object>> temperatures = (List<Map<String, Object>>) input.get("temperatures");
+            boolean update = false;
             for (Map<String, Object> t : temperatures) {
                 int ch = (Integer) t.get("channel");
                 OneWireTemperature a = oneWireTemp.get(ch);
@@ -1035,11 +1176,19 @@ public class Data {
                     a = new OneWireTemperature(ch);
                     oneWireTemp.put(ch, a);
                 }
-                a.temp = (Double) t.get("temp");
+                double newTempt = (Double) t.get("temp");
+                if ( newTempt != a.temp ) {
+                    a.temp = newTempt;
+                    update = true;
+                }
             }
-            if ( lm != lastModified) {
+            if ( lm != lastModified || update) {
                 this.fireUpdate();
             }
+        }
+
+        public Map<Integer,OneWireTemperature> getTemperatures() {
+            return oneWireTemp;
         }
     }
     
@@ -1215,15 +1364,38 @@ public class Data {
             }
             int lm = lastModified;
             lastModified = Util.intValue(input.get("lastModified"), 0);
-            temp = Data.Unit.C.convertToInternal(Util.doubleValue(input.get("temp"), 0));
-            pressure = Data.Unit.MBAR.convertToInternal(Util.doubleValue(input.get("pressure"),0));
-            humidity = Util.doubleValue(input.get("humidity"), 0);
-            historyInterval = Util.intValue(input.get("historyInterval"), 0);
-            history = new ArrayList<Double>();
-            history.addAll((List<Double>) input.get("history"));
-            if ( lm != lastModified) {
+            double newtemp = Data.Unit.C.convertToInternal(Util.doubleValue(input.get("temp"), 0));
+            double newpressure = Data.Unit.MBAR.convertToInternal(Util.doubleValue(input.get("pressure"), 0));
+            double newhumidity = Util.doubleValue(input.get("humidity"), 0);
+            int newhistoryInterval = Util.intValue(input.get("historyInterval"), 0);
+            ArrayList newHistory = new ArrayList<Double>();
+            newHistory.addAll((List<Double>) input.get("history"));
+            if ( lm != lastModified ||
+                    newtemp != temp ||
+                    newpressure != pressure ||
+                    newhumidity != humidity ||
+                    newhistoryInterval != historyInterval ||
+                    !listEquals(newHistory, history)) {
+                lastModified = lm;
+                temp = newtemp;
+                pressure = newpressure;
+                humidity = newhumidity;
+                historyInterval = newhistoryInterval;
+                history = newHistory;
                 this.fireUpdate();
             }
+        }
+
+        private boolean listEquals(List<Double> l1, List<Double> l2) {
+            if ( l1.size() != l2.size()) {
+                return false;
+            }
+            for(int i = 0; i < l1.size(); i++) {
+                if ( l1.get(i) != l2.get(i)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public double getPressure() {
@@ -1236,6 +1408,14 @@ public class Data {
 
         public double getHumidity() {
             return humidity;
+        }
+
+        public List<Double> getPressureHistory() {
+            return history;
+        }
+
+        public int getHistoryInterval() {
+            return historyInterval;
         }
     }
 
@@ -1271,6 +1451,7 @@ public class Data {
             int lm = lastModified;
             lastModified = Util.intValue(input.get("lastModified"),0);
             List<Map<String, Object>> voltages = (List<Map<String, Object>>) input.get("voltages");
+            boolean update = false;
             for (Map<String, Object> v : voltages) {
                 int ch = (Integer) v.get("channel");
                 ADCVoltage a = adcReadings.get(ch);
@@ -1278,13 +1459,25 @@ public class Data {
                     a = new ADCVoltage(ch);
                     adcReadings.put(ch, a);
                 }
-                a.adcr = (Double) v.get("adcr");
-                a.adcv = (Double) v.get("adcv");
-                a.v = (Double) v.get("v");
+                double adcr = (Double) v.get("adcr");
+                double adcv = (Double) v.get("adcv");
+                double vr = (Double) v.get("v");
+                if ( vr != a.v || a.adcv != adcv || a.adcr != adcr) {
+                    a.v = vr;
+                    a.adcv = adcv;
+                    a.adcr = adcr;
+                    update = true;
+
+                }
             }
-            if ( lm != lastModified) {
+            if ( lm != lastModified || update) {
+                lastModified = lm;
                 this.fireUpdate();
             }
+        }
+
+        public Map<Integer,ADCVoltage> getVoltages() {
+            return adcReadings;
         }
     }
 

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.tfd.kindle.nmea2000.Data.DataKey;
 import uk.co.tfd.kindle.nmea2000.Data.DoubleDataValue;
+import uk.co.tfd.kindle.nmea2000.can.CanMessageData;
 
 import java.util.List;
 import java.util.Map;
@@ -106,7 +107,9 @@ public class Calcs extends StatusUpdates implements Data.Listener<Data.DataValue
 
 
     public void start() {
-
+        if (magneticVariationKey == null) {
+            throw new IllegalStateException("No configuration loaded, call addConfiguration before start");
+        }
         DoubleDataValue magneticVariation = store.get(magneticVariationKey);
         magneticVariation.addListener(this);
         DoubleDataValue stw = store.get(stwKey);
@@ -143,7 +146,7 @@ public class Calcs extends StatusUpdates implements Data.Listener<Data.DataValue
         DoubleDataValue magneticVariation = store.get(magneticVariationKey);
         DoubleDataValue magneticBearing =  store.get(hdmKey);
         DoubleDataValue trueBearing =  store.get(hdtKey);
-        trueBearing.update(correctBearing(trueBearing.value - magneticVariation.value),magneticBearing.timestamp);
+        trueBearing.update(correctBearing(magneticBearing.value - magneticVariation.value),magneticBearing.timestamp);
     }
 
     @Override
@@ -160,8 +163,8 @@ public class Calcs extends StatusUpdates implements Data.Listener<Data.DataValue
         DoubleDataValue roll = store.get(rollKey);
 
 
-        DoubleDataValue aws = store.get(awsKey);
         DoubleDataValue awa = store.get(awaKey);
+        DoubleDataValue aws = store.get(awsKey);
         DoubleDataValue twa = store.get(twaKey);
         DoubleDataValue tws = store.get(twsKey);
 
@@ -176,10 +179,10 @@ public class Calcs extends StatusUpdates implements Data.Listener<Data.DataValue
         double apparentX = Math.cos(awa.value) * aws.value;
         double apparentY = Math.sin(awa.value) * aws.value;
         twa.update(Math.atan2(apparentY, -stw.value + apparentX),aws.timestamp);
-        tws.update(Math.sqrt(Math.pow(apparentY,2) + Math.pow(-stw.value +apparentX,2)), aws.timestamp);
+        tws.update(Math.sqrt(Math.pow(apparentY, 2) + Math.pow(-stw.value + apparentX, 2)), aws.timestamp);
         this.polar.calcPerformance(store);
-
     }
+
 
 
 
@@ -240,7 +243,7 @@ public class Calcs extends StatusUpdates implements Data.Listener<Data.DataValue
         private DataKey targetStwKey;
         private DataKey targetVmgKey;
         private DataKey polarVmgRatioKey;
-        private DataKey windDirectionTueKey;
+        private DataKey windDirectionTrueKey;
         private DataKey windDirectionMagneticKey;
         private DataKey oppositeTrackTrueKey;
         private DataKey oppositeTrackMagneticKey;
@@ -267,7 +270,7 @@ public class Calcs extends StatusUpdates implements Data.Listener<Data.DataValue
                 targetStwKey  = getDataKey(polarConfig, "targetStwOutput");
                 targetVmgKey  = getDataKey(polarConfig, "targetVmgOutput");
                 polarVmgRatioKey  = getDataKey(polarConfig, "polarVmgRatioOutput");
-                windDirectionTueKey  = getDataKey(polarConfig, "windDirectionTrueOutput");
+                windDirectionTrueKey  = getDataKey(polarConfig, "windDirectionTrueOutput");
                 windDirectionMagneticKey  = getDataKey(polarConfig, "windDirectionMagneticOutput");
                 oppositeTrackTrueKey  = getDataKey(polarConfig, "oppositeTrackTrueOutput");
                 oppositeTrackMagneticKey  = getDataKey(polarConfig, "oppositeTrackMagneticOutput");
@@ -484,17 +487,20 @@ public class Calcs extends StatusUpdates implements Data.Listener<Data.DataValue
                 twal = Math.PI/2;
                 // downwind scan from 90 - 180
             }
-            DoubleDataValue targetVmg = store.get(targetTwaKey);
-            DoubleDataValue targetTwa = store.get(targetStwKey);
-            DoubleDataValue targetStw = store.get(targetVmgKey);
+            DoubleDataValue targetVmg = store.get(targetVmgKey);
+            DoubleDataValue targetTwa = store.get(targetTwaKey);
+            DoubleDataValue targetStw = store.get(targetStwKey);
+            targetVmg.value = 0;
             for(double ttwa = twal; ttwa <= twah; ttwa += Math.PI/180) {
                 ia = this.findIndexes(fineTwa, ttwa);
-                double tswt = fineStw[ia[1] * fineTws.length + is[1]];
-                double tvmg = tswt*Math.cos(ttwa);
+
+
+                double tstw = fineStw[ia[1] * fineTws.length + is[1]];
+                double tvmg = tstw*Math.cos(ttwa);
                 if ( Math.abs(tvmg) > Math.abs(targetVmg.value) ) {
                     targetVmg.value = tvmg;
                     targetTwa.value = ttwa;
-                    targetStw.value = tswt;
+                    targetStw.value = tstw;
                 }
             }
             if ( twa.value < 0 ) {
@@ -513,10 +519,9 @@ public class Calcs extends StatusUpdates implements Data.Listener<Data.DataValue
             }
 
             // calculate other track
-            DoubleDataValue windDirectionTrue = store.get(windDirectionTueKey);
+            DoubleDataValue windDirectionTrue = store.get(windDirectionTrueKey);
             DoubleDataValue windDirectionMagnetic = store.get(windDirectionMagneticKey);
             DoubleDataValue oppositeTrackTrue = store.get(oppositeTrackTrueKey);
-
             windDirectionTrue.update(Calcs.correctBearing(hdt.value + twa.value), twa.timestamp);
             windDirectionMagnetic.update(Calcs.correctBearing(windDirectionTrue.value + magneticVariation.value), twa.timestamp);
             double otherTrackHeadingTrue = Calcs.correctBearing(windDirectionTrue.value + targetTwa.value);

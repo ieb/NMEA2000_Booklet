@@ -169,7 +169,6 @@ public class NMEA2000Client extends StatusUpdates  {
             try {
                 long delay = server.delay();
                 if ( delay > 0 ) {
-                    log.info("Sleep for {} ", delay);
                     Thread.sleep(delay);
                 }
             } catch (InterruptedException e) {

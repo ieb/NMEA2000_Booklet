@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.InetAddress;
 
 
 /**
@@ -47,7 +48,7 @@ public class Main {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    mainScreen.start();
+                    mainScreen.start(InetAddress.getLocalHost(), 10112);
                 } catch (IOException e1) {
                     log.error(e1.getMessage(), e);
                 }

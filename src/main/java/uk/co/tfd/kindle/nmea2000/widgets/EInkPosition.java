@@ -15,7 +15,7 @@ import static uk.co.tfd.kindle.nmea2000.Data.DataValue;
  * Created by ieb on 10/06/2020.
  */
 
-public class EInkPossition extends EInkTextBox {
+public class EInkPosition extends EInkTextBox {
 
 
     private String longitude = "---\u00B0--.---\u2032W";
@@ -23,7 +23,7 @@ public class EInkPossition extends EInkTextBox {
     private String date = "-";
 
 
-    public EInkPossition(boolean rotate, Map<String, Object> options, DisplayConversion.DisplayUnits displayUnits, Store store) {
+    public EInkPosition(boolean rotate, Map<String, Object> options, DisplayConversion.DisplayUnits displayUnits, Store store) {
         super(rotate, updateOptions(options), displayUnits, store);
     }
 
@@ -37,13 +37,13 @@ public class EInkPossition extends EInkTextBox {
         String newLongitude = longitude;
         String newLatitude = latitude;
         String newDate = date;
-        if (data instanceof Data.NMEA2KGnss) {
-            Data.NMEA2KGnss fixData = (Data.NMEA2KGnss) data;
-            newLongitude = this.displayUnits.toDispay(fixData.getLongitude(), null, Data.DataType.LONGITUDE);
-            newLatitude = this.displayUnits.toDispay(fixData.getLatitude(), null, Data.DataType.LATITUDE);
-            newDate = fixData.getFixDate();
+        if (data instanceof Data.NMEA2KPosition) {
+            Data.NMEA2KPosition positionData = (Data.NMEA2KPosition) data;
+            newLongitude = this.displayUnits.toDispay(positionData.getLongitude(), null, Data.DataType.LONGITUDE);
+            newLatitude = this.displayUnits.toDispay(positionData.getLatitude(), null, Data.DataType.LATITUDE);
+            newDate = positionData.getFixDate();
         } else {
-            throw new IllegalArgumentException("Wrong DataValue "+data.getClass()+" expected  "+Data.NMEA2KGnss.class.toString() );
+            throw new IllegalArgumentException("Wrong DataValue "+data.getClass()+" expected  "+Data.NMEA2KPosition.class.toString() );
         }
         if ( !newLongitude.equals(longitude) ||
                 !newLatitude.equals(latitude) ||
