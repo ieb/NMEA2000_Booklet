@@ -11,6 +11,7 @@ import uk.co.tfd.kindle.nmea2000.SeaSmartHandler;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 public class NavMessageHandlerTest {
 
@@ -279,5 +280,31 @@ public class NavMessageHandlerTest {
         Assert.assertTrue(lastMessage instanceof NavMessageHandler.PGN130577DirectionData);
         NavMessageHandler.PGN130577DirectionData msg = (NavMessageHandler.PGN130577DirectionData) lastMessage;
     }
+
+
+    @Test
+    public void testHeading() throws UnsupportedEncodingException {
+
+        //        [main] INFO uk.co.tfd.kindle.nmea2000.SeaSmartHandler - Added handler at 130577 1FE11
+        //  {n: 14, pgn: 127250, src: 205, msg: 'ffd6a8ff7fff7ffd'}
+        //  {n: 48, pgn: 127250, src: 205, msg: 'ff2aa9ff7fff7ffd'}
+        log.info("PGN {} {} ", 127250, Integer.toHexString(127250));
+        byte[] data = CanMessageData.asByteArray("0F,D6,A8,FF,7F,FF,7F,FD".split(","), 0);
+        log.info(" data {} ", Arrays.toString(data));
+
+        int ref = CanMessageData.get1ByteUInt(data, 7);
+        log.info(" ref {} {} ", Integer.toUnsignedString(ref,2), ref & 0x03 );
+        nmea0183CLient.processLine(Utils.addCheckSum("$PCDIN,1F112,8B8C49,18,0F,D6,A8,FF,7F,FF,7F,FD"));
+        Assert.assertTrue(lastMessage instanceof NavMessageHandler.PGN127250Heading);
+        NavMessageHandler.PGN127250Heading msg = (NavMessageHandler.PGN127250Heading) lastMessage;
+        Assert.assertEquals(15, msg.sid);
+        int angleInt = Integer.parseUnsignedInt("D6", 16) & 0xff | (Integer.parseUnsignedInt("A8", 16) & 0xff) << 8;
+        double angleDouble = angleInt*0.0001;
+        Assert.assertEquals(angleDouble, msg.heading, 0.01);
+    }
+
+
+
+
 
 }

@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.tfd.kindle.nmea2000.Data.DataKey;
 import uk.co.tfd.kindle.nmea2000.Data.DoubleDataValue;
-import uk.co.tfd.kindle.nmea2000.can.CanMessageData;
 
 import java.util.List;
 import java.util.Map;

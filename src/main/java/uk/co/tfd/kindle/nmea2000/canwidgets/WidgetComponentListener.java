@@ -2,21 +2,21 @@ package uk.co.tfd.kindle.nmea2000.canwidgets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.co.tfd.kindle.nmea2000.SeaSmartHandler;
 import uk.co.tfd.kindle.nmea2000.can.CanMessageListener;
 import uk.co.tfd.kindle.nmea2000.can.CanMessageProducer;
 
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 
-public class WidgetComponentLstener implements AncestorListener {
+/**
+ * 
+ */
+public class WidgetComponentListener implements AncestorListener {
     private final CanMessageProducer canMessageProducer;
-    private static final Logger log = LoggerFactory.getLogger(WidgetComponentLstener.class);
+    private static final Logger log = LoggerFactory.getLogger(WidgetComponentListener.class);
 
-    public WidgetComponentLstener(CanMessageProducer canMessageProducer) {
+    public WidgetComponentListener(CanMessageProducer canMessageProducer) {
         this.canMessageProducer = canMessageProducer;
     }
 

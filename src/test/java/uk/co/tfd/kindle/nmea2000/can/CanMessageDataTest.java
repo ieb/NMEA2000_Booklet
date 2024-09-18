@@ -6,11 +6,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 public class CanMessageDataTest {
 
     private static final Logger log = LoggerFactory.getLogger(CanMessageDataTest.class);
 
+    @Test
+    public void testAsByteArray() {
+        Assert.assertArrayEquals(new byte[] {0x01, (byte)0xff, (byte)0xfd}, CanMessageData.asByteArray("01,FF,FD".split(","), 0));
+    }
     @Test
     public void dumpNAValues() {
 
@@ -105,6 +110,12 @@ public class CanMessageDataTest {
         Assert.assertEquals(16,
                 CanMessageData.get1ByteInt(
                         CanMessageData.asPackedByteArray("0010010F",0, -1),1));
+        Assert.assertEquals(16,
+                CanMessageData.get1ByteInt(
+                        CanMessageData.asPackedByteArray("00100110",0, -1),3));
+        Assert.assertEquals(CanMessageData.n2kInt8NA,
+                CanMessageData.get1ByteInt(
+                        CanMessageData.asPackedByteArray("001001",0, -1),3));
         for (int i = -127; i < 127 ; i++) {
             String s = String.format("%02X", i);
             if ( s.length() == 8) {
@@ -126,14 +137,26 @@ public class CanMessageDataTest {
         Assert.assertEquals(16,
                 CanMessageData.get1ByteUInt(
                         CanMessageData.asPackedByteArray("0010010F",0, -1),1));
+        Assert.assertEquals(16,
+                CanMessageData.get1ByteUInt(
+                        CanMessageData.asPackedByteArray("0010",0, -1),1));
+        Assert.assertEquals(CanMessageData.n2kUInt8NA,
+                CanMessageData.get1ByteUInt(
+                        CanMessageData.asPackedByteArray("00",0, -1),1));
         for (int i = 0; i < 255 ; i++) {
             String s = String.format("%02X", i);
             if ( s.length() > 2) {
                 s = s.substring(s.length()-2, s.length());
             }
-            Assert.assertEquals(i,
-                    CanMessageData.get1ByteUInt(
-                            CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1));
+            String inputString = "00,01,"+s;
+            //log.info("InputString {} ", inputString);
+            byte[] inputValue = CanMessageData.asByteArray(inputString.split(","),0);
+            //log.info("Bytes {} ", Arrays.toString(inputValue));
+            Assert.assertArrayEquals("asByteArray Failed to parse", new byte[] {0x00, 0x01, (byte)(i&0xff)}, inputValue);
+            int testValue = CanMessageData.get1ByteUInt(inputValue, 2);
+
+            //log.info("Input {} {} {}", Integer.toString(i,2), Integer.toString(testValue, 2), s);
+            Assert.assertEquals(i, testValue);
         }
     }
 
@@ -151,6 +174,12 @@ public class CanMessageDataTest {
         Assert.assertEquals(16,
                 CanMessageData.get2ByteInt(
                         CanMessageData.asPackedByteArray("001000010F",0, -1),1));
+        Assert.assertEquals(16,
+                CanMessageData.get2ByteInt(
+                        CanMessageData.asPackedByteArray("001000",0, -1),1));
+        Assert.assertEquals(CanMessageData.n2kInt16NA,
+                CanMessageData.get2ByteInt(
+                        CanMessageData.asPackedByteArray("0010",0, -1),1));
         for (int i = -1024; i < 1024 ; i++) {
             String s = String.format("%04X", i);
             s = s.substring(s.length()-2,s.length())+s.substring(s.length()-4,s.length()-2);
@@ -174,6 +203,12 @@ public class CanMessageDataTest {
         Assert.assertEquals(16,
                 CanMessageData.get2ByteUInt(
                         CanMessageData.asPackedByteArray("001000010F",0, -1),1));
+        Assert.assertEquals(16,
+                CanMessageData.get2ByteUInt(
+                        CanMessageData.asPackedByteArray("001000",0, -1),1));
+        Assert.assertEquals(CanMessageData.n2kUInt16NA,
+                CanMessageData.get2ByteUInt(
+                        CanMessageData.asPackedByteArray("0010",0, -1),1));
         for (int i = 0; i < 2024 ; i++) {
             String s = String.format("%04X", i);
             s = s.substring(s.length()-2,s.length())+s.substring(s.length()-4,s.length()-2);
@@ -198,6 +233,12 @@ public class CanMessageDataTest {
         Assert.assertEquals(16,
                 CanMessageData.get3ByteInt(
                         CanMessageData.asPackedByteArray("00100000010F",0, -1),1));
+        Assert.assertEquals(16,
+                CanMessageData.get3ByteInt(
+                        CanMessageData.asPackedByteArray("00100000",0, -1),1));
+        Assert.assertEquals(CanMessageData.n2kInt24NA,
+                CanMessageData.get3ByteInt(
+                        CanMessageData.asPackedByteArray("001000",0, -1),1));
         for (int i = -8388608; i < -8388608+10024 ; i++) {
             String s = String.format("%06X", i);
             s = s.substring(s.length()-2,s.length())+s.substring(s.length()-4,s.length()-2)+s.substring(s.length()-6,s.length()-4);
@@ -231,6 +272,12 @@ public class CanMessageDataTest {
         Assert.assertEquals(16,
                 CanMessageData.get3ByteUInt(
                         CanMessageData.asPackedByteArray("00100000010F",0, -1),1));
+        Assert.assertEquals(16,
+                CanMessageData.get3ByteUInt(
+                        CanMessageData.asPackedByteArray("00100000",0, -1),1));
+        Assert.assertEquals(CanMessageData.n2kUInt24NA,
+                CanMessageData.get3ByteUInt(
+                        CanMessageData.asPackedByteArray("001000",0, -1),1));
         for (int i = 8388607-10024; i < 8388607 ; i++) {
             String s = String.format("%06X", i);
             s = s.substring(s.length()-2,s.length())
@@ -257,6 +304,12 @@ public class CanMessageDataTest {
         Assert.assertEquals(16,
                 CanMessageData.get4ByteInt(
                         CanMessageData.asPackedByteArray("0010000000010F",0, -1),1));
+        Assert.assertEquals(16,
+                CanMessageData.get4ByteInt(
+                        CanMessageData.asPackedByteArray("0010000000",0, -1),1));
+        Assert.assertEquals(CanMessageData.n2kInt32NA,
+                CanMessageData.get4ByteInt(
+                        CanMessageData.asPackedByteArray("00100000",0, -1),1));
         for (int i = -2147483648; i < -2147483648+10024 ; i++) {
             String s = String.format("%08X", i);
             s = s.substring(s.length()-2,s.length())
@@ -294,6 +347,12 @@ public class CanMessageDataTest {
         Assert.assertEquals(16,
                 CanMessageData.get4ByteUInt(
                         CanMessageData.asPackedByteArray("0010000000010F",0, -1),1));
+        Assert.assertEquals(16,
+                CanMessageData.get4ByteUInt(
+                        CanMessageData.asPackedByteArray("0010000000",0, -1),1));
+        Assert.assertEquals(CanMessageData.n2kUInt32NA,
+                CanMessageData.get4ByteUInt(
+                        CanMessageData.asPackedByteArray("00100000",0, -1),1));
         for (int i = 2147483647-10024; i < 2147483647 ; i++) {
             String s = String.format("%08X", i);
             s = s.substring(s.length()-2,s.length())
@@ -321,6 +380,12 @@ public class CanMessageDataTest {
         Assert.assertEquals(BigInteger.valueOf(16),
                 CanMessageData.get8ByteInt(
                         CanMessageData.asPackedByteArray("001000000000000000010F",0, -1),1));
+        Assert.assertEquals(BigInteger.valueOf(16),
+                CanMessageData.get8ByteInt(
+                        CanMessageData.asPackedByteArray("001000000000000000",0, -1),1));
+        Assert.assertEquals(CanMessageData.n2kInt64NA,
+                CanMessageData.get8ByteInt(
+                        CanMessageData.asPackedByteArray("0010000000000000",0, -1),1));
         for (long i = -2147483648; i < -2147483648+10024 ; i++) {
             String s = String.format("%016X", i);
             s = s.substring(s.length()-2,s.length())
@@ -366,6 +431,12 @@ public class CanMessageDataTest {
         Assert.assertEquals(BigInteger.valueOf(16),
                 CanMessageData.get8ByteUInt(
                         CanMessageData.asPackedByteArray("001000000000000000010F",0, -1),1));
+        Assert.assertEquals(BigInteger.valueOf(16),
+                CanMessageData.get8ByteUInt(
+                        CanMessageData.asPackedByteArray("001000000000000000",0, -1),1));
+        Assert.assertEquals(CanMessageData.n2kUInt64NA,
+                CanMessageData.get8ByteUInt(
+                        CanMessageData.asPackedByteArray("0010000000000000",0, -1),1));
         for (long i = 2147483647-10024; i < 2147483647 ; i++) {
             String s = String.format("%016X", i);
             s = s.substring(s.length()-2,s.length())

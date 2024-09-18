@@ -4,7 +4,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.co.tfd.kindle.nmea2000.widgets.Instruments;
 
 import javax.swing.*;
 import java.awt.CardLayout;

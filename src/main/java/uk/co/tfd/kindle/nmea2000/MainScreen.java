@@ -5,13 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.tfd.kindle.nmea2000.can.*;
 import uk.co.tfd.kindle.nmea2000.canwidgets.CanPageLayout;
+import uk.co.tfd.kindle.nmea2000.canwidgets.PolarPage;
+import uk.co.tfd.kindle.nmea2000.canwidgets.WidgetComponentListener;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+import java.awt.event.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Map;
@@ -27,6 +26,7 @@ public class MainScreen {
     private final NMEA0183Discovery discovery;
     private final Timer timer;
     private final CanMessageProducer messageProducer;
+    private final String simulatorMode = "normal";
     private String lastCommandMessage = "";
 
     public static class Theme {
@@ -97,10 +97,6 @@ public class MainScreen {
             }
         });
 
-        /*
-        store = new Store();
-        calcs = new Calcs(store);
-         */
         nmea0183Client = new NMEA0183Client();
         messageProducer = new CanMessageProducer();
         seaSmartHandler = new SeaSmartHandler(messageProducer);
@@ -126,7 +122,6 @@ public class MainScreen {
         // generally the calculations are cheap relative to the network cost so at the moment
         // they are not enabled or disabled, however they could be in the same
         // way that traffic is enabled and disabled.
-        messageProducer.addListener(new WindCalculator(messageProducer));
 
 
         discovery = new NMEA0183Discovery(nmea0183Client);
@@ -148,8 +143,36 @@ public class MainScreen {
                 log.info("Set Screensize to {} ", root.getSize());
             }
         }
-        layout.addControl(controlPage);
-        root.add(layout);
+        WidgetComponentListener lister = new WidgetComponentListener(messageProducer);
+        Polar polar = new Polar(config);
+
+
+
+
+        if ( "manual".equals(simulatorMode) ) {
+            // drive with a manual simulator
+            PolarPage polarPage = new PolarPage(false);
+            ManualPerformanceSimulator simulator = new ManualPerformanceSimulator(polar);
+            simulator.addListener(polarPage);
+            root.addKeyListener(simulator);
+            nmea0183Client.disable();
+            polarPage.addAncestorListener(lister);
+            root.add(polarPage);
+        } else if ( "random".equals(simulatorMode) ) {
+            PolarPage polarPage = new PolarPage(false);
+            Simulator simulator = new Simulator(messageProducer, polar);
+            simulator.start();
+            nmea0183Client.disable();
+            polarPage.addAncestorListener(lister);
+            root.add(polarPage);
+        } else {
+            messageProducer.addListener(new WindCalculator(messageProducer));
+            messageProducer.addListener(new PerformanceCalculator(messageProducer, polar));
+            layout.addControl(controlPage);
+            root.add(layout);
+        }
+
+
         root.doLayout();
         root.setVisible(true);
 
@@ -178,6 +201,10 @@ public class MainScreen {
                     lastCommandMessage = commandMessage;
                 }
                 seaSmartHandler.emitStatus();
+                if ( nmea0183Client.hasStalled()) {
+                    nmea0183Client.stop();
+                    nmea0183Client.start();
+                }
             }
         });
         timer.start();

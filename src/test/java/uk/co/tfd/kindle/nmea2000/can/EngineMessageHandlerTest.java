@@ -95,7 +95,7 @@ public class EngineMessageHandlerTest {
         Assert.assertEquals(328.15, msg.engineCoolantTemperature, 0.0001);
         Assert.assertEquals(14.15, msg.alternatorVoltage, 0.0001);
         Assert.assertEquals(1454100.0, msg.engineHours, 0.0001);
-        Assert.assertEquals(CanMessageData.n2kUInt8NA, msg.engineTorque, 0);
+        Assert.assertEquals(CanMessageData.n2kInt8NA, msg.engineTorque, 0);
 
     }
     @Test

@@ -271,7 +271,7 @@ public class Util {
      * Created by ieb on 09/06/2020.
      */
     public enum HAlign {
-        RIGHT, CENTER, LEFT
+        RIGHT, CENTER, LEFT, DECIMAL
     }
 
     public enum VAlign {
@@ -294,6 +294,12 @@ public class Util {
                 case RIGHT:
                     x = x - (int) width;
                     break;
+				case DECIMAL:
+					if (s.indexOf('.') > 0) {
+						width = fontMetrics.stringWidth(s);
+					}
+					x = x - (int) width;
+					break;
             }
             switch (valign) {
                 case CENTER:

@@ -15,7 +15,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BaseCanWidget extends JPanel implements CanMessageListener {
+public class BaseCanWidget extends JPanel implements CanMessageListener, CanWidget {
 
     private static final Logger log = LoggerFactory.getLogger(BaseCanWidget.class);
     private final boolean rotate;
@@ -23,6 +23,7 @@ public class BaseCanWidget extends JPanel implements CanMessageListener {
     private final double scale;
     private final double offset;
     private final String novalue;
+    private final Util.HAlign textAlign;
     Font normalFont;
     int boxWidth;
     int boxHeight;
@@ -56,6 +57,14 @@ public class BaseCanWidget extends JPanel implements CanMessageListener {
         this.novalue = Util.option(options, "novalue", "-.-");
         this.boxSize = Util.option(options, "boxSize", 100);
         this.labels = Util.option(options, "labels", null);
+        String alignment = Util.option(options, "text-align", "center");
+        if ( alignment.equals("left")) {
+            textAlign = Util.HAlign.LEFT;
+        } else if ( alignment.equals("right")) {
+            textAlign = Util.HAlign.RIGHT;
+        } else {
+            textAlign = Util.HAlign.CENTER;
+        }
 
         this.withStats = Util.option(options, "withStats",true);
 
@@ -235,15 +244,23 @@ public class BaseCanWidget extends JPanel implements CanMessageListener {
 
 
     void renderInstrument(Graphics2D g2) {
-        Rectangle2D rect = largeFont.getStringBounds(this.out, g2.getFontRenderContext());
-        if (rect.getWidth() > (boxWidth * 0.8)) {
-            Map<TextAttribute, Object> attrbutes = (Map<TextAttribute, Object>) largeFont.getAttributes();
-            attrbutes.put(TextAttribute.SIZE, (float)(fontSize *(boxWidth *0.8)/rect.getWidth()) );
-            Font f = new Font(attrbutes);
-            Util.drawString(this.out,  boxWidth / 2, boxHeight / 2, f, Util.HAlign.CENTER , Util.VAlign.CENTER, g2);
+        String[] lines = this.out.split("\n");
+
+        if ( lines.length == 2) {
+            Util.drawString(lines[0], boxWidth / 2, mediumLineSpace, mediumFont, textAlign, Util.VAlign.TOP, g2);
+            Util.drawString(lines[1], boxWidth / 2, boxHeight-mediumLineSpace, mediumFont, textAlign, Util.VAlign.BOTTOM, g2);
         } else {
-            Util.drawString(this.out, boxWidth / 2, boxHeight / 2, largeFont, Util.HAlign.CENTER, Util.VAlign.CENTER, g2);
+            Rectangle2D rect = largeFont.getStringBounds(this.out, g2.getFontRenderContext());
+            if (rect.getWidth() > (boxWidth * 0.8)) {
+                Map<TextAttribute, Object> attrbutes = (Map<TextAttribute, Object>) largeFont.getAttributes();
+                attrbutes.put(TextAttribute.SIZE, (float)(fontSize *(boxWidth *0.8)/rect.getWidth()) );
+                Font f = new Font(attrbutes);
+                Util.drawString(this.out,  boxWidth / 2, boxHeight / 2, f, textAlign , Util.VAlign.CENTER, g2);
+            } else {
+                Util.drawString(this.out, boxWidth / 2, boxHeight / 2, largeFont, textAlign, Util.VAlign.CENTER, g2);
+            }
         }
+
         if (labels != null) {
             if (!this.withStats) {
                 Util.drawString(labels.get("tl"), borderPadding, mediumLineSpace, mediumFont, Util.HAlign.LEFT, Util.VAlign.TOP, g2);
@@ -261,4 +278,8 @@ public class BaseCanWidget extends JPanel implements CanMessageListener {
     }
 
 
+    @Override
+    public JComponent getJComponent() {
+        return this;
+    }
 }

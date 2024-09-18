@@ -81,7 +81,7 @@ public class FileReaderTest {
 
     @Test
     public void testPGN127489EngineDynamicParam() throws IOException {
-        InputStream in = getClass().getResourceAsStream("/samplescandata.txt");
+        InputStream in = getClass().getResourceAsStream("/samplecandata.txt");
         Assert.assertNotNull("Cant find sample data", in);
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
         while(true) {

@@ -51,6 +51,15 @@ public class NavMessageHandler implements CanMessageHandler {
 
         public final static int PGN = 127250;
 
+        PGN127250Heading(int sid, double heading, double deviation, double variation, N2KReference.HeadingReference ref ) {
+            super(PGN, PGN, 0, (int)System.currentTimeMillis(), "N2K Heading");
+            this.sid = sid;
+            this.heading = heading;
+            this.deviation = deviation;
+            this.variation = variation;
+            this.ref = ref;
+        }
+
         PGN127250Heading(int pgn, int timeStamp, byte source, byte[] data) {
             super(PGN, pgn, source, timeStamp,"N2K Heading");
             sid = CanMessageData.get1ByteUInt(data, 0);
@@ -87,6 +96,13 @@ public class NavMessageHandler implements CanMessageHandler {
 
         public final static int PGN = 127257;
 
+        PGN127257Attitude(int sid, double yaw, double pitch, double roll) {
+            super(PGN, PGN, 0, (int) System.currentTimeMillis(), "N2K Attitude");
+            this.sid = sid;
+            this.yaw = yaw;
+            this.pitch = pitch;
+            this.roll = roll;
+        }
         PGN127257Attitude(int pgn, int timeStamp, byte source, byte[] data) {
             super(PGN, pgn, source, timeStamp,"N2K Attitude");
             sid = CanMessageData.get1ByteUInt(data, 0);
@@ -107,6 +123,13 @@ public class NavMessageHandler implements CanMessageHandler {
 
         public final static int PGN = 127258;
 
+        PGN127258MagneticVariation(int sid, double variation, int daysSince1970,  N2KReference.VariationSource source) {
+            super(PGN, PGN, 0, (int)System.currentTimeMillis(), "N2K Magnetic Variation");
+            this.sid = sid;
+            this.variation = variation;
+            this.daysSince1970 = daysSince1970;
+            this.source = source;
+        }
         PGN127258MagneticVariation(int pgn, int timeStamp, byte source, byte[] data) {
             super(PGN, pgn, source, timeStamp,"N2K Magnetic Variation");
             sid = CanMessageData.get1ByteUInt(data, 0);
@@ -126,6 +149,15 @@ public class NavMessageHandler implements CanMessageHandler {
         public final int speedDirection;
 
         public final static int PGN = 128259;
+
+        PGN128259Speed(int sid,  double waterReferenced,  double groundReferenced, N2KReference.SwrtType swrt, int speedDirection ) {
+            super(PGN, PGN, 0, (int)System.currentTimeMillis(), "N2K Speed");
+            this.sid = sid;
+            this.waterReferenced = waterReferenced;
+            this.groundReferenced = groundReferenced;
+            this.swrt = swrt;
+            this.speedDirection = speedDirection;
+        }
 
         PGN128259Speed(int pgn, int timeStamp, byte source, byte[] data) {
             super(PGN, pgn, source, timeStamp,"N2K Speed");
@@ -321,6 +353,13 @@ public class NavMessageHandler implements CanMessageHandler {
 
         public final static int PGN = 130306;
 
+        PGN130306Wind(int sid,  double windAngle, double windSpeeed, N2KReference.WindReference windReference ) {
+            super(PGN, PGN, 0, (int)System.currentTimeMillis(),"Wind");
+            this.sid = sid;
+            this.windSpeed = windSpeeed;
+            this.windAngle = windAngle;
+            this.windReference = windReference;
+        }
         PGN130306Wind(int pgn, int timeStamp, byte source, byte[] data) {
             super(PGN, pgn, source, timeStamp,"Wind");
             sid = CanMessageData.get1ByteUInt(data, 0);

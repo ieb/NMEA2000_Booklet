@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,15 +15,17 @@ import java.util.Map;
  */
 public class NMEA0183Client extends StatusUpdates implements Runnable {
 
-    private static final Logger log = LoggerFactory.getLogger(NMEA2000Discovery.class);
+    private static final Logger log = LoggerFactory.getLogger(NMEA0183Client.class);
 
     private Map<String, NMEA0183Handler> handlers = new HashMap<>();
     private boolean running = false;
+    private boolean disabled = false;
     private Thread thread = null;
     private InetAddress address;
     private int port;
     private OutputStream outputStream;
     private String lastSentence;
+    private long lastRead;
 
     public NMEA0183Client(InetAddress address, int port) {
         this.address = address;
@@ -43,25 +46,43 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
     }
 
     public void setPort(int port) {
+        if ( disabled || running) {
+            log.info("Stop client before changing port.");
+            return;
+        }
         this.port = port;
     }
 
     public void setAddress(InetAddress address) {
+        if ( disabled || running) {
+            log.info("Stop client before changing address.");
+            return;
+        }
         this.address = address;
     }
 
     public void start() {
-        if ( !running && address != null) {
+        if ( !disabled && !running && address != null) {
             Thread thread = new Thread(this);
             running = true;
             thread.start();
+        } else {
+            log.info("Stop client before starting.");
         }
     }
 
     public void stop() {
-
         running = false;
         outputStream = null;
+    }
+
+    public void disable() {
+        stop();
+        disabled = true;
+    }
+
+    public boolean hasStalled() {
+        return ((System.currentTimeMillis() - lastRead) > 30000);
     }
 
 
@@ -69,6 +90,7 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
         Socket socket = null;
         while(running) {
             try {
+                lastRead = System.currentTimeMillis();
                 socket = new Socket(address, port);
                 InputStream inputStream = socket.getInputStream();
                 outputStream = socket.getOutputStream();
@@ -87,7 +109,8 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
                     throw new RuntimeException(e);
                 }
             } catch (Exception e) {
-                log.warn("Client error ",e);
+                log.warn("Client error {} ",e.getMessage(), e);
+                log.debug("Client error cause ",e);
             } finally {
                 if (socket != null) {
                     try {
@@ -106,7 +129,8 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
         }
     }
     public void processLine(String line) throws UnsupportedEncodingException {
-        if ( line.startsWith("$") ) {
+        lastRead = System.currentTimeMillis();
+        if ( line != null && line.startsWith("$") ) {
             // perhaps NMEA, check the checksum first.
             if ( checkSumOk(line)) {
                 String talkerId = line.substring(1,3);
@@ -124,6 +148,7 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
     public void send(String sentence) throws IOException {
         lastSentence = sentence;
         if ( outputStream != null) {
+            log.info("Sending {} {}", sentence, Arrays.toString(sentence.getBytes("ASCII")));
             outputStream.write(sentence.getBytes("ASCII"));
             outputStream.write(new byte[]{ '\r', '\n'});
         }

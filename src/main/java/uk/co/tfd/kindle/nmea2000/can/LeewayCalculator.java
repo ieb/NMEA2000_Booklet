@@ -1,35 +1,25 @@
 package uk.co.tfd.kindle.nmea2000.can;
 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Field;
 
-/**
- * If this is added as a listener it will emit CanMessage implementations of the following PGNs
- * 130306 True Boat wind when BoatSpeed + Apparent Wind are received.
- */
-public class WindCalculator implements CanMessageListener {
+public class LeewayCalculator implements CanMessageListener {
 
     //private static final Logger log = LoggerFactory.getLogger(WindCalculator.class);
     private final CanMessageProducer producer;
     private double awa = CanMessageData.n2kDoubleNA;
     private double aws = CanMessageData.n2kDoubleNA;
     private double stw = CanMessageData.n2kDoubleNA;
-    private double twa = CanMessageData.n2kDoubleNA;
-    private double tws = CanMessageData.n2kDoubleNA;
+    private double roll = CanMessageData.n2kDoubleNA;
+    private double leeway = CanMessageData.n2kDoubleNA;
     private long lastWindUpdate = 0;
     private long lastStwUpdate = 0;
     private int sid = 0;
     private int timestamp = 0;
+    private long lastRollUpdate = 0;
 
-
-    public WindCalculator(CanMessageProducer producer) {
-
+    public LeewayCalculator(CanMessageProducer producer) {
         this.producer = producer;
     }
-
 
     /**
      * From a listener point of view, this
@@ -54,28 +44,24 @@ public class WindCalculator implements CanMessageListener {
 
     }
 
-    public void calculateTrueWind() {
+    public void calculateLeeway() {
         if (awa == CanMessageData.n2kDoubleNA
                 || aws == CanMessageData.n2kDoubleNA
-                || stw == CanMessageData.n2kDoubleNA) {
-            twa = CanMessageData.n2kDoubleNA;
-            tws = CanMessageData.n2kDoubleNA;
+                || stw == CanMessageData.n2kDoubleNA
+                || roll == CanMessageData.n2kDoubleNA) {
+            leeway = CanMessageData.n2kDoubleNA;
         } else {
-            if ( stw < 0.2/CanMessageData.scaleToKnots) {
-                twa = awa;
-                tws = aws;
-            } else {
-                double apparentX = Math.cos(awa) * aws;
-                double apparentY = Math.sin(awa) * aws;
-                twa = Math.atan2(apparentY, -stw + apparentX);  // twa in radian
-                tws = Math.sqrt(Math.pow(apparentY, 2) + Math.pow(-stw + apparentX, 2)); // tws in m/s
+            if (aws < 30.0/1.943844) {
+                if (Math.abs(awa) < Math.PI/2 && stw > 0.5) {
+                    // This comes from Pedrick see http://www.sname.org/HigherLogic/System/DownloadDocumentFile.ashx?DocumentFileKey=5d932796-f926-4262-88f4-aaca17789bb0
+                    // for aws < 30 and awa < 90. UK  =15 for masthead and 5 for fractional
+                    leeway = (5 * roll / (stw * stw));
+                } else {
+                    leeway = 0;
+                }
+                CanMessage leewayMessage = new PGN128000Leeway(sid, timestamp, leeway);
+                producer.emitMessage(leewayMessage);
             }
-            CanMessage trueWind = new PGN130306Wind(sid, timestamp, twa, tws, N2KReference.WindReference.TrueBoat,
-                    stw,
-                    awa,
-                    aws);
-            //log.info("True Wind {} ", trueWind);
-            producer.emitMessage(trueWind);
         }
     }
 
@@ -89,7 +75,7 @@ public class WindCalculator implements CanMessageListener {
                 sid = wind.sid;
                 timestamp = wind.timestamp;
                 lastWindUpdate = System.currentTimeMillis();
-                calculateTrueWind();
+                calculateLeeway();
             }
         } else if (message instanceof NavMessageHandler.PGN128259Speed) {
             NavMessageHandler.PGN128259Speed speed = (NavMessageHandler.PGN128259Speed) message;
@@ -97,7 +83,13 @@ public class WindCalculator implements CanMessageListener {
             sid = speed.sid;
             timestamp = speed.timestamp;
             lastStwUpdate = System.currentTimeMillis();
-            calculateTrueWind();
+            calculateLeeway();
+        } else if (message instanceof NavMessageHandler.PGN127257Attitude) {
+            NavMessageHandler.PGN127257Attitude attitude = (NavMessageHandler.PGN127257Attitude) message;
+            roll = attitude.roll;
+            sid = attitude.sid;
+            lastRollUpdate = System.currentTimeMillis();
+            calculateLeeway();
         } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
             if ( System.currentTimeMillis() - lastWindUpdate  > 30000 ) {
                 awa = CanMessageData.n2kDoubleNA;
@@ -106,46 +98,37 @@ public class WindCalculator implements CanMessageListener {
             if ( System.currentTimeMillis() - lastStwUpdate  > 30000 ) {
                 stw = CanMessageData.n2kDoubleNA;
             }
+            if ( System.currentTimeMillis() - lastRollUpdate  > 30000 ) {
+                roll = CanMessageData.n2kDoubleNA;
+            }
         }
     }
 
-    public static class PGN130306Wind implements CanMessage {
+    public static class PGN128000Leeway implements CanMessage {
         public final int pgn;
         public final int src = -1;
-        public final String messageName = "Calculated Wind";
+        public final String messageName = "Calculated Leeway";
         public final int timestamp;
         public final int sid;
-        public final N2KReference.WindReference windReference;
-        public final double windSpeed;
-        public final double windAngle;
+        public final double leeway;
 
-        public final static int PGN = 130306;
-        public final double stw;
-        public final double awa;
-        public final double aws;
+        public final static int PGN = 128000;
+
+        PGN128000Leeway(int sid, int timeStamp, double leeway) {
+            this.pgn = PGN;
+            this.sid = sid;
+            this.timestamp = timeStamp;
+            this.leeway = leeway;
+        }
+
+
 
         public static int[] getSourcePGNS() {
             return new int[]{
                     NavMessageHandler.PGN130306Wind.PGN,
-                    NavMessageHandler.PGN128259Speed.PGN
+                    NavMessageHandler.PGN128259Speed.PGN,
+                    NavMessageHandler.PGN127257Attitude.PGN
             };
-        }
-
-
-
-        PGN130306Wind(int sid, int timeStamp, double windAngle, double windSpeed, N2KReference.WindReference reference,
-                      double stw,
-                      double awa,
-                      double aws) {
-            this.pgn = PGN;
-            this.sid = sid;
-            this.timestamp = timeStamp;
-            this.windAngle = windAngle;
-            this.windSpeed = windSpeed;
-            this.stw = stw;
-            this.awa = awa;
-            this.aws = aws;
-            this.windReference = reference;
         }
 
         @Override
@@ -171,6 +154,5 @@ public class WindCalculator implements CanMessageListener {
         }
 
     }
-
 
 }

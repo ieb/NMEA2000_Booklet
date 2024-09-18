@@ -5,12 +5,20 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * This class acts as a message bus informing listeners of messages posted onto the bus.
+ * Listeners can be added and can request pgns are allowed to flow. A reference count is
+ * maintained in streamPgns of the messages that have been requested by listeners.
+ */
 public class CanMessageProducer {
 
     private static final Logger log = LoggerFactory.getLogger(CanMessageProducer.class);
     private CanMessageListener[] listeners = new CanMessageListener[0];
     private Map<Integer, Integer> streamPgns = new HashMap<>();
     private Set<Integer> pgnFilter = Collections.EMPTY_SET;
+
+    public CanMessageProducer() {
+    }
 
     public synchronized  void  addListener(CanMessageListener listener) {
         CanMessageListener[] cml = new CanMessageListener[listeners.length+1];
@@ -47,8 +55,10 @@ public class CanMessageProducer {
     }
     public void emitMessage(CanMessage message) {
         int pgn = message.getPgn();
-        if (pgnFilter.size() == 0 || pgnFilter.contains(pgn)) {
+        // messages with pgn < 999 are internally generated.
+        if (pgn < 999 || pgnFilter.size() == 0 || pgnFilter.contains(pgn)) {
             for(CanMessageListener l : listeners) {
+                //log.info("Sendign message to {}  message:{} ", l, message);
                 l.onMessage(message);
             }
         } else {
@@ -101,4 +111,5 @@ public class CanMessageProducer {
     public Set<Integer> getPgnFilter() {
         return pgnFilter;
     }
+
 }

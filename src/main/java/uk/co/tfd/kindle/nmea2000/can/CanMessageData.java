@@ -27,6 +27,16 @@ public class CanMessageData {
     public final static double offsetCelcius = -273.15;
     public final static double scaleToNm = 0.0005399568; //1.0/1852.0
 
+
+    public static boolean isNa(double ... va) {
+        for(double v : va) {
+            if ( v == CanMessageData.n2kDoubleNA) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static byte[] asByteArray(String[] parts, int startAt) {
         byte[] a = new byte[parts.length-startAt];
         for ( int i = 0; i < a.length; i++) {
@@ -314,7 +324,7 @@ public class CanMessageData {
     }
 
     public static int get1ByteUInt(byte[] message, int byteOffset) {
-        if (message.length < byteOffset + 2) {
+        if (message.length < byteOffset + 1) {
             return n2kUInt8NA;
         }
         if ((message[byteOffset] & 0xff) == 0xff ) {

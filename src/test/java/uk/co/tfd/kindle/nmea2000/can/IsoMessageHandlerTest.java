@@ -80,7 +80,7 @@ public class IsoMessageHandlerTest {
         Assert.assertTrue(lastMessage instanceof IsoMessageHandler.PGN60928IsoAddressClaim);
         IsoMessageHandler.PGN60928IsoAddressClaim mgs1 = (IsoMessageHandler.PGN60928IsoAddressClaim) lastMessage;
         Assert.assertEquals(24, mgs1.src);
-        Assert.assertEquals(N2KReference.Industry.Unknown, mgs1.industryGroup);
+        Assert.assertEquals(N2KReference.Industry.Global, mgs1.industryGroup);
         nmea0183CLient.processLine( Utils.addCheckSum("$PCDIN,EE00,8B8C49,2,6C,AB,6C,E7,1E,96,A0,C0"));
         Assert.assertTrue(lastMessage instanceof IsoMessageHandler.PGN60928IsoAddressClaim);
         mgs1 = (IsoMessageHandler.PGN60928IsoAddressClaim) lastMessage;

@@ -42,12 +42,21 @@ public class SeaSmartHandler extends StatusUpdates implements NMEA0183Handler {
               handler = handlers.get(-1);
           }
           if ( handler != null) {
-
-              // only create the CanMessage if it can be handled.
-              CanMessage message = handler.handleMessage(pgn,
-                  toUint(parts[2]),
-                  (byte) toUint(parts[3]),
-                  asByteArray(parts, 4));
+              CanMessage message = null;
+              if (parts.length == 5) {
+                  // packed form
+                  message = handler.handleMessage(pgn,
+                      toUint(parts[2]),
+                      (byte) toUint(parts[3]),
+                      CanMessageData.asPackedByteArray(parts[4],0, parts[4].length()));
+              } else {
+                  // comma seperated form.
+                  message = handler.handleMessage(pgn,
+                      toUint(parts[2]),
+                      (byte) toUint(parts[3]),
+                      CanMessageData.asByteArray(parts, 4));
+              }
+              // only create the CanM(essage if it can be handled.
               if  (message == null) {
                   status.dropped.incrementAndGet();
               } else {
@@ -74,9 +83,6 @@ public class SeaSmartHandler extends StatusUpdates implements NMEA0183Handler {
         return Integer.parseInt(field, 16);
     }
 
-    private byte[] asByteArray(String[] parts, int startAt) {
-        return CanMessageData.asByteArray(parts, startAt);
-    }
 
     public void addIgnore(int[] array) {
     }
@@ -86,6 +92,13 @@ public class SeaSmartHandler extends StatusUpdates implements NMEA0183Handler {
     }
 
 
+    /**
+     * Generate a command message to send to the server containing the PGNs that
+     * the client needs based on the active components listening to the canMessageProducer.
+     * This is typically the messages required to feed the widgets that are currently showing.
+     * Doing this avoids the can device emitting more messages than are necessary.
+     * @return
+     */
     public String getCommandMessage() {
         List<String> pgns = new ArrayList<>();
         for (Integer pgn: canMessageProducer.getPgnFilter()) {

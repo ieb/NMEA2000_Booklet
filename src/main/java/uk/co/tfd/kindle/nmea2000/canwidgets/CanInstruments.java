@@ -2,11 +2,11 @@ package uk.co.tfd.kindle.nmea2000.canwidgets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.co.tfd.kindle.nmea2000.SeaSmartHandler;
+import uk.co.tfd.kindle.nmea2000.can.CanMessageListener;
 import uk.co.tfd.kindle.nmea2000.can.CanMessageProducer;
-import uk.co.tfd.kindle.nmea2000.can.IsoMessageHandler;
 
-import java.awt.event.ComponentListener;
+import javax.swing.*;
+import javax.xml.bind.JAXBContext;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -19,12 +19,12 @@ public class CanInstruments {
     private static final Logger log = LoggerFactory.getLogger(CanInstruments.class);
     private final CanInstrument<BaseCanWidget> blank;
     Map<String, CanInstrument> map = new HashMap<String, CanInstrument>();
-    private WidgetComponentLstener visibilityListener;
+    private WidgetComponentListener visibilityListener;
 
 
 
 
-    public static class CanInstrument<T extends BaseCanWidget> {
+    public static class CanInstrument<T extends CanWidget> {
         private final Class<T> widget;
         private final Constructor<T> constructor;
 
@@ -41,7 +41,7 @@ public class CanInstruments {
 
 
     public CanInstruments(CanMessageProducer canMessageProducer) throws NoSuchMethodException {
-        this.visibilityListener = new WidgetComponentLstener(canMessageProducer);
+        this.visibilityListener = new WidgetComponentListener(canMessageProducer);
         map.put("rpm", new CanInstrument(EngineView.EngineRpm.class));
         map.put("engineHours", new CanInstrument(EngineView.EngineHours.class));
         map.put("alternatorTemp", new CanInstrument(EngineView.AlternatorTemperature.class));
@@ -68,17 +68,18 @@ public class CanInstruments {
         map.put("position", new CanInstrument(NavView.Position.class));
 
         map.put("status", new CanInstrument(SystemView.CanBusStatus.class));
+        map.put("polarpage", new CanInstrument(PolarPage.class));
 
         blank = new CanInstrument<>(BaseCanWidget.class);
         map.put("blank",blank);
 
     }
 
-    public BaseCanWidget create(String key, boolean rotation) {
+    public CanWidget create(String key, boolean rotation) {
         CanInstrument i = map.get(key);
         if ( i != null ) {
             try {
-                BaseCanWidget w =  i.create(rotation);
+                CanWidget w =  i.create(rotation);
                 log.info("Loading card key:{} Widget:{}",key, w.getClass());
                 w.addAncestorListener(visibilityListener);
                 return w;

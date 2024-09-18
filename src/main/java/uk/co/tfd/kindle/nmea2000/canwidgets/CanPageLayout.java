@@ -258,7 +258,7 @@ public class CanPageLayout extends JPanel implements MouseListener, MouseMotionL
                         for (int r = 0 ; r < nrows; r++) {
                             String name = grid.get(r).get(c);
                             log.debug("Adding Rotated {} {} {}  ", r, c, name);
-                            card.add(instruments.create(name, rotatePage), i++);
+                            card.add(instruments.create(name, rotatePage).getJComponent(), i++);
                         }
 
                     }
@@ -268,7 +268,7 @@ public class CanPageLayout extends JPanel implements MouseListener, MouseMotionL
                         for (int c = 0 ; c < ncols; c++) {
                             String name = grid.get(r).get(c);
                             log.debug("Adding {} {} {}  ", r, c, name);
-                            card.add(instruments.create(name, rotatePage), i++);
+                            card.add(instruments.create(name, rotatePage).getJComponent(), i++);
                         }
                     }
                 }

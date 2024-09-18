@@ -1,5 +1,7 @@
 package uk.co.tfd.kindle.nmea2000.canwidgets;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.co.tfd.kindle.nmea2000.can.*;
 
 import java.text.DecimalFormat;
@@ -20,9 +22,8 @@ public class NavView {
             labels.put("bl", "Rudder");
             labels.put("br", "deg");
             options.put("labels", labels);
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN127245Rudder.PGN));
             options.put("scale", CanMessageData.scaleToDegrees);
-            DecimalFormat df = new DecimalFormat("#0.0");
+            DecimalFormat df = new DecimalFormat("#0");
             df.setPositivePrefix("S");
             df.setNegativePrefix("P");
             options.put("dataFormat", df);
@@ -34,8 +35,10 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN127245Rudder) {
                 NavMessageHandler.PGN127245Rudder rudder = (NavMessageHandler.PGN127245Rudder) message;
-                newOut = displayFormat(rudder.rudderPosition);
-                lastUpdate = System.currentTimeMillis();
+                if (rudder.rudderPosition != CanMessageData.n2kDoubleNA){
+                    newOut = displayFormat(rudder.rudderPosition);
+                    lastUpdate = System.currentTimeMillis();
+                }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
                 if ( System.currentTimeMillis() - lastUpdate  > 30000 ) {
                     newOut = "-.-";
@@ -61,7 +64,6 @@ public class NavView {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "Heading ");
             labels.put("br", "deg mag");
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN127250Heading.PGN));
             options.put("labels", labels);
             options.put("scale", CanMessageData.scaleToDegrees);
             options.put("dataFormat", new DecimalFormat("#0"));
@@ -74,7 +76,7 @@ public class NavView {
             String newOut = out;
             if (message instanceof NavMessageHandler.PGN127250Heading) {
                 NavMessageHandler.PGN127250Heading heading = (NavMessageHandler.PGN127250Heading) message;
-                if (heading.ref == N2KReference.HeadingReference.Magnetic) {
+                if (heading.ref == N2KReference.HeadingReference.Magnetic && heading.heading != CanMessageData.n2kDoubleNA) {
                     newOut = displayFormat(heading.heading);
                     lastUpdate = System.currentTimeMillis();
                 }
@@ -102,7 +104,6 @@ public class NavView {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "Speed ");
             labels.put("br", "kn");
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN128259Speed.PGN));
             options.put("labels", labels);
             options.put("scale", CanMessageData.scaleToKnots);
             options.put("dataFormat", new DecimalFormat("#0.00"));
@@ -114,8 +115,10 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN128259Speed) {
                 NavMessageHandler.PGN128259Speed speed = (NavMessageHandler.PGN128259Speed) message;
-                newOut = displayFormat(speed.waterReferenced);
-                lastUpdate = System.currentTimeMillis();
+                if (speed.waterReferenced != CanMessageData.n2kDoubleNA) {
+                    newOut = displayFormat(speed.waterReferenced);
+                    lastUpdate = System.currentTimeMillis();
+                }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
                 if ( System.currentTimeMillis() - lastUpdate  > 30000 ) {
                     newOut = "-.-";
@@ -140,7 +143,6 @@ public class NavView {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "Depth ");
             labels.put("br", "m");
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN128267WaterDepth.PGN));
             options.put("labels", labels);
             options.put("dataFormat", new DecimalFormat("#0.0"));
             options.put("withStats", false);
@@ -151,8 +153,10 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN128267WaterDepth) {
                 NavMessageHandler.PGN128267WaterDepth depth = (NavMessageHandler.PGN128267WaterDepth) message;
-                newOut = displayFormat(depth.depthBelowTransducer);
-                lastUpdate = System.currentTimeMillis();
+                if (depth.depthBelowTransducer != CanMessageData.n2kDoubleNA) {
+                    newOut = displayFormat(depth.depthBelowTransducer);
+                    lastUpdate = System.currentTimeMillis();
+                }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
                 if ( System.currentTimeMillis() - lastUpdate  > 30000 ) {
                     newOut = "-.-";
@@ -177,9 +181,8 @@ public class NavView {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "Roll");
             labels.put("br", "deg");
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN127257Attitude.PGN));
             options.put("labels", labels);
-            DecimalFormat df = new DecimalFormat("#0.0");
+            DecimalFormat df = new DecimalFormat("#0");
             df.setPositivePrefix("S");
             df.setNegativePrefix("P");
             options.put("dataFormat", df);
@@ -192,8 +195,10 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN127257Attitude) {
                 NavMessageHandler.PGN127257Attitude attitude = (NavMessageHandler.PGN127257Attitude) message;
-                newOut = displayFormat(attitude.roll);
-                lastUpdate = System.currentTimeMillis();
+                if (attitude.roll != CanMessageData.n2kDoubleNA) {
+                    newOut = displayFormat(attitude.roll);
+                    lastUpdate = System.currentTimeMillis();
+                }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
                 if ( System.currentTimeMillis() - lastUpdate  > 30000 ) {
                     newOut = "-.-";
@@ -218,7 +223,6 @@ public class NavView {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "XTE");
             labels.put("br", "Nm");
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN129283CrossTrackError.PGN));
             options.put("labels", labels);
             DecimalFormat df = new DecimalFormat("#0.0");
             options.put("dataFormat", df);
@@ -231,8 +235,10 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN129283CrossTrackError) {
                 NavMessageHandler.PGN129283CrossTrackError xte = (NavMessageHandler.PGN129283CrossTrackError) message;
-                newOut = displayFormat(xte.xte);
-                lastUpdate = System.currentTimeMillis();
+                if (xte.xte != CanMessageData.n2kDoubleNA) {
+                    newOut = displayFormat(xte.xte);
+                    lastUpdate = System.currentTimeMillis();
+                }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
                 if ( System.currentTimeMillis() - lastUpdate  > 30000 ) {
                     newOut = "-.-";
@@ -257,7 +263,6 @@ public class NavView {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "Log");
             labels.put("br", "Nm");
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN128275DistanceLog.PGN));
             options.put("labels", labels);
             DecimalFormat df = new DecimalFormat("#0.0");
             options.put("dataFormat", df);
@@ -270,8 +275,10 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN128275DistanceLog) {
                 NavMessageHandler.PGN128275DistanceLog log = (NavMessageHandler.PGN128275DistanceLog) message;
-                newOut = displayFormat(log.log);
-                lastUpdate = System.currentTimeMillis();
+                if (log.log != CanMessageData.n2kDoubleNA) {
+                    newOut = displayFormat(log.log);
+                    lastUpdate = System.currentTimeMillis();
+                }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
                 if ( System.currentTimeMillis() - lastUpdate  > 30000 ) {
                     newOut = "-.-";
@@ -297,7 +304,6 @@ public class NavView {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "SOG");
             labels.put("br", "Kn");
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN129026COGSOGRapid.PGN));
             options.put("labels", labels);
             DecimalFormat df = new DecimalFormat("#0.0");
             options.put("dataFormat", df);
@@ -310,8 +316,10 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN129026COGSOGRapid) {
                 NavMessageHandler.PGN129026COGSOGRapid sog = (NavMessageHandler.PGN129026COGSOGRapid) message;
-                newOut = displayFormat(sog.sog);
-                lastUpdate = System.currentTimeMillis();
+                if (sog.sog != CanMessageData.n2kDoubleNA) {
+                    newOut = displayFormat(sog.sog);
+                    lastUpdate = System.currentTimeMillis();
+                }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
                 if ( System.currentTimeMillis() - lastUpdate  > 30000 ) {
                     newOut = "-.-";
@@ -337,9 +345,8 @@ public class NavView {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "COG");
             labels.put("br", "deg");
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN129026COGSOGRapid.PGN));
             options.put("labels", labels);
-            DecimalFormat df = new DecimalFormat("#0.0");
+            DecimalFormat df = new DecimalFormat("#0");
             options.put("dataFormat", df);
             options.put("scale", CanMessageData.scaleToDegrees);
             options.put("withStats", false);
@@ -350,8 +357,10 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN129026COGSOGRapid) {
                 NavMessageHandler.PGN129026COGSOGRapid cog = (NavMessageHandler.PGN129026COGSOGRapid) message;
-                newOut = displayFormat(cog.cog);
-                lastUpdate = System.currentTimeMillis();
+                if (cog.cog != CanMessageData.n2kDoubleNA) {
+                    newOut = displayFormat(cog.cog);
+                    lastUpdate = System.currentTimeMillis();
+                }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
                 if ( System.currentTimeMillis() - lastUpdate  > 30000 ) {
                     newOut = "-.-";
@@ -376,7 +385,6 @@ public class NavView {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "AWA");
             labels.put("br", "deg");
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN130306Wind.PGN));
             options.put("labels", labels);
             DecimalFormat df = new DecimalFormat("#0");
             df.setNegativePrefix("P");
@@ -391,7 +399,7 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN130306Wind) {
                 NavMessageHandler.PGN130306Wind wind = (NavMessageHandler.PGN130306Wind) message;
-                if ( wind.windReference == N2KReference.WindReference.Apparent ) {
+                if ( wind.windReference == N2KReference.WindReference.Apparent && wind.windAngle != CanMessageData.n2kDoubleNA) {
                     newOut = displayFormat(wind.windAngle);
                     lastUpdate = System.currentTimeMillis();
                 }
@@ -419,7 +427,6 @@ public class NavView {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "AWS");
             labels.put("br", "kn");
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN130306Wind.PGN));
             options.put("labels", labels);
             DecimalFormat df = new DecimalFormat("#0.0");
             options.put("dataFormat", df);
@@ -432,8 +439,8 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN130306Wind) {
                 NavMessageHandler.PGN130306Wind wind = (NavMessageHandler.PGN130306Wind) message;
-                if ( wind.windReference == N2KReference.WindReference.Apparent ) {
-                    newOut = displayFormat(wind.windAngle);
+                if ( wind.windReference == N2KReference.WindReference.Apparent && wind.windSpeed != CanMessageData.n2kDoubleNA  ) {
+                    newOut = displayFormat(wind.windSpeed);
                     lastUpdate = System.currentTimeMillis();
                 }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
@@ -454,13 +461,12 @@ public class NavView {
 
         public TrueWindAngle(boolean rotate) {
             super(rotate, updateMap(new HashMap<>()));
-            pgns = WindCalculator.getSourcePgns();
+            pgns = WindCalculator.PGN130306Wind.getSourcePGNS();
         }
         public static Map<String, Object> updateMap(Map<String, Object> options) {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "TWA");
             labels.put("br", "deg");
-            labels.put("tl", Arrays.toString(WindCalculator.getSourcePgns()));
             options.put("labels", labels);
             DecimalFormat df = new DecimalFormat("#0");
             df.setNegativePrefix("P");
@@ -473,9 +479,9 @@ public class NavView {
         @Override
         public boolean needsUpdate(CanMessage message) {
             String newOut = out;
-            if ( message instanceof NavMessageHandler.PGN130306Wind) {
-                NavMessageHandler.PGN130306Wind wind = (NavMessageHandler.PGN130306Wind) message;
-                if ( wind.windReference == N2KReference.WindReference.TrueBoat ) {
+            if ( message instanceof WindCalculator.PGN130306Wind) {
+                WindCalculator.PGN130306Wind wind = (WindCalculator.PGN130306Wind) message;
+                if ( wind.windReference == N2KReference.WindReference.TrueBoat && wind.windAngle != CanMessageData.n2kDoubleNA ) {
                     newOut = displayFormat(wind.windAngle);
                     lastUpdate = System.currentTimeMillis();
                 }
@@ -497,14 +503,13 @@ public class NavView {
 
         public TrueWindSpeed(boolean rotate) {
             super(rotate, updateMap(new HashMap<>()));
-            pgns = WindCalculator.getSourcePgns();
+            pgns = WindCalculator.PGN130306Wind.getSourcePGNS();
 
         }
         public static Map<String, Object> updateMap(Map<String, Object> options) {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "TWS");
             labels.put("br", "kn");
-            labels.put("tl", Arrays.toString(WindCalculator.getSourcePgns()));
             options.put("labels", labels);
             DecimalFormat df = new DecimalFormat("#0.0");
             options.put("dataFormat", df);
@@ -515,10 +520,10 @@ public class NavView {
         @Override
         public boolean needsUpdate(CanMessage message) {
             String newOut = out;
-            if ( message instanceof NavMessageHandler.PGN130306Wind) {
-                NavMessageHandler.PGN130306Wind wind = (NavMessageHandler.PGN130306Wind) message;
-                if ( wind.windReference == N2KReference.WindReference.TrueBoat ) {
-                    newOut = displayFormat(wind.windAngle);
+            if ( message instanceof WindCalculator.PGN130306Wind) {
+                WindCalculator.PGN130306Wind wind = (WindCalculator.PGN130306Wind) message;
+                if ( wind.windReference == N2KReference.WindReference.TrueBoat && wind.windSpeed != CanMessageData.n2kDoubleNA) {
+                    newOut = displayFormat(wind.windSpeed);
                     lastUpdate = System.currentTimeMillis();
                 }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
@@ -548,7 +553,6 @@ public class NavView {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "Position");
             labels.put("br", "kn");
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN129025RapidPosition.PGN));
             options.put("labels", labels);
             DecimalFormat df = new DecimalFormat("#0.0");
             options.put("withStats", false);
@@ -557,7 +561,7 @@ public class NavView {
 
         public String formatLatitude(double latitude) {
             if ( latitude == CanMessageData.n2kDoubleNA) {
-                return "--\u00B0--.---\u2032N";
+                return "--\u00B0 --.---\u2032 N";
             }
             String NS = "N";
             if ( latitude < 0) {
@@ -566,13 +570,13 @@ public class NavView {
             }
             double d = Math.floor(latitude);
             double m = (60.0*(latitude-d));
-            return formatDegLat.format(d) + "\u00B0" + formatMin.format(m) + "\u2032" + NS;
+            return formatDegLat.format(d) + "\u00B0 " + formatMin.format(m) + "\u2032 " + NS;
         }
 
 
         public String formatLongitude(double longitude) {
             if ( longitude == CanMessageData.n2kDoubleNA) {
-                return "---\u00B0--.---\u2032E";
+                return "---\u00B0 --.---\u2032 E";
             }
             String EW = "E";
             if (longitude < 0) {
@@ -581,7 +585,7 @@ public class NavView {
             }
             double d = Math.floor(longitude);
             double m = (60.0*(longitude-d));
-            return formatDegLong.format(d) + "\u00B0" + formatMin.format(m) + "\u2032" + EW;
+            return formatDegLong.format(d) + "\u00B0 " + formatMin.format(m) + "\u2032 " + EW;
         }
 
 
@@ -590,11 +594,13 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN129025RapidPosition) {
                 NavMessageHandler.PGN129025RapidPosition position = (NavMessageHandler.PGN129025RapidPosition) message;
-                newOut = formatLatitude(position.latitude)+"\n"+formatLongitude(position.longitude);
-                lastUpdate = System.currentTimeMillis();
+                if ( position.longitude != CanMessageData.n2kDoubleNA && position.longitude != CanMessageData.n2kDoubleNA ) {
+                    newOut = formatLatitude(position.latitude) + "\n" + formatLongitude(position.longitude);
+                    lastUpdate = System.currentTimeMillis();
+                }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
                 if ( System.currentTimeMillis() - lastUpdate  > 30000 ) {
-                    newOut = "--\u00B0--.---\u2032N\n\"---\u00B0--.---\u2032E";
+                    newOut = "--\u00B0 --.---\u2032 N\n---\u00B0 --.---\u2032 E";
                 }
             }
             if (!newOut.equals(this.out)) {
@@ -619,7 +625,6 @@ public class NavView {
             labels.put("bl", "Set");
             labels.put("br", "deg");
             options.put("labels", labels);
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN130577DirectionData.PGN));
             DecimalFormat df = new DecimalFormat("#0");
             options.put("dataFormat", df);
             options.put("scale", CanMessageData.scaleToDegrees);
@@ -631,8 +636,10 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN130577DirectionData) {
                 NavMessageHandler.PGN130577DirectionData direction = (NavMessageHandler.PGN130577DirectionData) message;
-                newOut = displayFormat(direction.set);
-                lastUpdate = System.currentTimeMillis();
+                if (direction.set != CanMessageData.n2kDoubleNA) {
+                    newOut = displayFormat(direction.set);
+                    lastUpdate = System.currentTimeMillis();
+                }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
                 if ( System.currentTimeMillis() - lastUpdate  > 30000 ) {
                     newOut = "-.-";
@@ -658,7 +665,6 @@ public class NavView {
             Map<String, String> labels = new HashMap<>();
             labels.put("bl", "Drift");
             labels.put("br", "Kn");
-            labels.put("tl", String.valueOf(NavMessageHandler.PGN130577DirectionData.PGN));
             options.put("labels", labels);
             DecimalFormat df = new DecimalFormat("#0.0");
             options.put("dataFormat", df);
@@ -671,8 +677,10 @@ public class NavView {
             String newOut = out;
             if ( message instanceof NavMessageHandler.PGN130577DirectionData) {
                 NavMessageHandler.PGN130577DirectionData direction = (NavMessageHandler.PGN130577DirectionData) message;
-                newOut = displayFormat(direction.drift);
-                lastUpdate = System.currentTimeMillis();
+                if (direction.drift != CanMessageData.n2kDoubleNA) {
+                    newOut = displayFormat(direction.drift);
+                    lastUpdate = System.currentTimeMillis();
+                }
             } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
                 if ( System.currentTimeMillis() - lastUpdate  > 30000 ) {
                     newOut = "-.-";

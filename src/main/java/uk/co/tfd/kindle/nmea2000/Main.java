@@ -44,7 +44,7 @@ public class Main {
                 System.exit(0);
             }
         });
-        timer = new Timer(500, new ActionListener() {
+        timer = new Timer(5000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
