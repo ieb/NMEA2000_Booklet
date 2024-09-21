@@ -33,6 +33,7 @@ public class SeaSmartHandler extends StatusUpdates implements NMEA0183Handler {
     public void parseMessage(String line) {
       if (line.startsWith("$PCDIN,")) {
           String[] parts = line.substring(0,line.lastIndexOf('*')).split(",");
+          //log.info("Got sentence {} ", line);
           int pgn = toUint(parts[1]);
           if ( ignoreSet.contains(pgn)) {
               return;
@@ -60,6 +61,7 @@ public class SeaSmartHandler extends StatusUpdates implements NMEA0183Handler {
               if  (message == null) {
                   status.dropped.incrementAndGet();
               } else {
+                  //log.info("Got message {} ", message);
                   status.recieved.incrementAndGet();
                   canMessageProducer.emitMessage(message);
               }

@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Created by ieb on 19/06/2020.
  */
-public class NMEA0183Discovery {
+public class NMEA0183Discovery  extends StatusUpdates {
     private static final Logger log = LoggerFactory.getLogger(NMEA0183Discovery.class);
     public static final String CAN_TCP_TCP_LOCAL = "_can-tcp._tcp.local.";
     private final NMEA0183Client client;
@@ -50,6 +50,7 @@ public class NMEA0183Discovery {
                         InetAddress inaddr = addr.getAddress();
                         if (inaddr instanceof Inet4Address) {
                             in = inaddr;
+                            updateStatus("Discovering CanTCP Server on "+in+" "+name);
                             log.info("Discovering CanTCP Server on {} {} ", in, name);
                             break;
                         }
@@ -63,6 +64,7 @@ public class NMEA0183Discovery {
         }
         if (in == null) {
             in = InetAddress.getLocalHost();
+            updateStatus("Discovering CanTCP Server on "+in);
             log.info("Discovering CanTCP Server default interface {} ",in);
         }
 
@@ -107,7 +109,7 @@ public class NMEA0183Discovery {
 
                 int port = info.getPort();
 
-                log.debug("Remove Http Info {} ", info);
+                log.debug("Remove CanTcp Info {} ", info);
                 client.stop();
                 client.setAddress(null);
                 client.setPort(-1);
@@ -119,11 +121,12 @@ public class NMEA0183Discovery {
                 ServiceInfo info = serviceEvent.getInfo();
                 InetAddress host = info.getInetAddresses()[0];
                 int port = info.getPort();
+                updateStatus("Server resolved at  "+host+":"+port);
                 client.stop();
                 client.setAddress(host);
                 client.setPort(port);;
                 client.start();
-                log.info("CanTCP Info {} ", info);
+                log.info("Resolved CanTCP Info {} ", info);
             }
         };
 

@@ -1,16 +1,13 @@
 package uk.co.tfd.kindle.nmea2000.canwidgets;
 
-import com.sun.corba.se.impl.orbutil.graph.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.FormattedFloatingDecimal;
 import uk.co.tfd.kindle.nmea2000.Util;
 import uk.co.tfd.kindle.nmea2000.can.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.font.TextAttribute;
-import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,19 +20,20 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
 
 
 
-    private final static BasicStroke heavyStroke = new BasicStroke(2.0f);
+    private final static BasicStroke normalStroke = new BasicStroke(2.0f);
+    private final static BasicStroke heavyStroke = new BasicStroke(4.0f);
 
     private final static float dash1[] = {10.0f};
-    private final static BasicStroke dashedStroke = new BasicStroke(1.0f,
+    private final static BasicStroke dashedStroke = new BasicStroke(2.0f,
             BasicStroke.CAP_BUTT,
             BasicStroke.JOIN_MITER,
             10.0f, dash1, 0.0f);
-    private final int fontSize;
-    private final Font largeFont;
-    private final Font normalFont;
-    private final Font mediumFont;
-    private final Font smallFont;
-    private final Font tinyFont;
+    private int fontSize;
+    private Font largeValues;
+    private Font smallValues;
+    private Font labelsFont;
+    private Font ringFont;
+    private final boolean rotate;
     private double[] twaHistory = new double[10];
     private double[] stwHistory = new double[10];
     private double twa = CanMessageData.n2kDoubleNA;
@@ -43,42 +41,20 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
     private double stw = CanMessageData.n2kDoubleNA;
     private double awa = CanMessageData.n2kDoubleNA;
     private double aws = CanMessageData.n2kDoubleNA;
+    private double vmg = CanMessageData.n2kDoubleNA;
     private double polarSpeed = CanMessageData.n2kDoubleNA;
     private double polarSpeedRatio = CanMessageData.n2kDoubleNA;
     private Polar.PolarTarget upwindTarget = Polar.PolarTarget.polarTargetNA;
     private Polar.PolarTarget downwindTarget = Polar.PolarTarget.polarTargetNA;;
     private long lastUpdate = 0;
     private String out = "-.-";
+    private int boxSize = 0;
+    private double ringSize = 450/2;
 
 
     public PolarPage(boolean rotate) {
-        this.setLayout(new BorderLayout());
-
-        double large = (0.8*((double) Util.DEFAULT_SCREEN_RESOLUTION/(double)Util.getScreenResolution()))*200;
-
-        if ( Util.isKindle() ) {
-            large = large*15/25;
-        }
-
-        double normal = large/2.0;
-        double medium = large/6.0;
-        double small = large/8.0;
-        double tiny = large/10.0;
-        this.fontSize = (int)(large);
-
-        Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
-        attributes.put(TextAttribute.FAMILY, "Arial");
-        attributes.put(TextAttribute.SIZE, (float)large);
-        this.largeFont = new Font(attributes);
-        attributes.put(TextAttribute.SIZE, (float)normal);
-        this.normalFont = new Font(attributes);
-        attributes.put(TextAttribute.SIZE, (float)medium);
-        this.mediumFont = new Font(attributes);
-        attributes.put(TextAttribute.SIZE, (float)small);
-        this.smallFont = new Font(attributes);
-        attributes.put(TextAttribute.SIZE, (float)tiny);
-        this.tinyFont = new Font(attributes);
-
+        this.rotate = rotate;
+        log.info("Created polar page");
     }
 
 
@@ -103,6 +79,7 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
     @Override
     public void onMessage(CanMessage message) {
         if ( needsUpdate(message)) {
+            //log.info("Repaint requested");
             this.repaint();
         }
     }
@@ -117,6 +94,7 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
                 stw = performance.stw;
                 awa = performance.awa;
                 aws = performance.aws;
+                vmg = performance.vmg;
                 polarSpeed = performance.polarSpeed;
                 downwindTarget = performance.downwindTarget;
                 upwindTarget = performance.upwindTarget;
@@ -127,8 +105,8 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
                         twa*CanMessageData.scaleToDegrees,
                         tws*CanMessageData.scaleToKnots,
                         stw*CanMessageData.scaleToKnots);
-                log.info("Update Polar {} ", newOut);
-                log.info("Targets {} {} ", upwindTarget, downwindTarget);
+                log.debug("Update Polar {} ", newOut);
+                log.debug("Targets {} {} ", upwindTarget, downwindTarget);
             }
         } else {
             if ( System.currentTimeMillis() - lastUpdate  > 30000 ) {
@@ -138,6 +116,7 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
                 stw = CanMessageData.n2kDoubleNA;
                 awa = CanMessageData.n2kDoubleNA;
                 aws = CanMessageData.n2kDoubleNA;
+                vmg = CanMessageData.n2kDoubleNA;
                 polarSpeed = CanMessageData.n2kDoubleNA;
                 downwindTarget = Polar.PolarTarget.polarTargetNA;
                 upwindTarget = Polar.PolarTarget.polarTargetNA;
@@ -147,7 +126,7 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
             }
         }
         if (!newOut.equals(this.out)) {
-            log.info("Redraw {} {} ", this.out, newOut);
+            //log.info("Redraw {} {} ", this.out, newOut);
             this.out = newOut;
             return true;
         }
@@ -156,30 +135,20 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
     }
 
     private void drawRing(Graphics2D g2, String label, int cx, int cy, int radius) {
-        int windowDeg = 0;
-        if ( label != null) {
-            FontMetrics fm = g2.getFontMetrics();
-            Rectangle2D bounds = fm.getStringBounds(label, g2);
-
-            int w = (int) (bounds.getWidth());
-            int h = (int) (bounds.getHeight());
-            g2.drawString(label, -w/2, (h/2)-(radius));
-            windowDeg = (int)(180*Math.atan2(w+10, radius)/Math.PI);
-        }
-        // x y is top left, angle starts at 90 and arc is anti-clockwise. Its a joke of an api.
-        // why not center x, center y, radius, 0 up and clockwise, like most other apis ????
-        g2.drawArc(cx-(radius),cy-(radius), radius*2,radius*2,90+windowDeg,360-(windowDeg*2));
+        g2.setStroke(dashedStroke);
+        g2.drawArc(cx-(radius),cy-(radius), radius*2,radius*2,0,360);
+        g2.setStroke(normalStroke);
+    }
+    private void labelRing(Graphics2D g2, String label, int cx, int cy, int radius) {
+        Util.drawString(label, 0, -radius, ringFont, Util.HAlign.CENTER, Util.VAlign.CENTER, g2);
+        Util.drawString(label, 0, radius, ringFont, Util.HAlign.CENTER, Util.VAlign.CENTER, g2);
     }
 
     private void drawRadial(Graphics2D g2, int angle, int length, String label) {
         double a = (((double)angle)*Math.PI/180.0);
         g2.rotate(a);
         g2.drawLine(0,0, 0, -length );
-        FontMetrics fm = g2.getFontMetrics();
-        Rectangle2D bounds = fm.getStringBounds(label, g2);
-        int w = (int) (bounds.getWidth());
-        int h = (int) (bounds.getHeight());
-        g2.drawString(label, -w/2, -(h/2)-(length));
+        Util.drawString(label, 0, -length, ringFont, Util.HAlign.CENTER, Util.VAlign.BOTTOM, g2);
         g2.rotate(-a);
     }
     private void plotCurve(Graphics2D g2, double[] twa, double[] stw) {
@@ -201,7 +170,9 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
         }
         int y = knotsScale(vmg*CanMessageData.scaleToKnots);
         int x = (int) (Math.tan(target.twa)*1.0*y);
+        g2.setStroke(heavyStroke);
         g2.drawLine(0, -y, x, -y );
+        g2.setStroke(normalStroke);
     }
 
     private void plotPolarSpeed(Graphics2D g2) {
@@ -211,175 +182,229 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
         g2.rotate(twa);
         int y = knotsScale(polarSpeed*CanMessageData.scaleToKnots);
         int y1 = knotsScale(stw*CanMessageData.scaleToKnots);
+        g2.setStroke(heavyStroke);
         g2.drawLine(0,-y/2,0, -y);
         g2.drawArc(-(y),-(y), y*2,y*2,100,-20);
         y = (y * 8)/10;
         g2.drawArc(-(y),-(y), y*2,y*2,95,-10);
-        g2.fillOval(-4, -y1-4, 8, 8);
+        g2.fillArc(-10, -y1-10,20, 20, 0, 360);
+        g2.setStroke(normalStroke);
         g2.rotate(-twa);
     }
 
     public void plotData(Graphics2D g2) {
-        /*
-        FontMetrics fm = g2.getFontMetrics();
-        Rectangle2D bounds = fm.getStringBounds("polarStw: ", g2);
-        int h = (int) (bounds.getHeight());
-        int w = (int) (bounds.getWidth());
-        bounds = fm.getStringBounds("000.", g2);
-        int wd = (int) (bounds.getWidth());
-        int x = -200;
-        int xd = -200+w+wd;
-        g2.drawString("Actuals", x,300);
-        g2.drawString("stw:", x,300+1*h);
-        g2.drawString("polarStw:", x,300+2*h);
-        g2.drawString("polar %:", x,300+3*h);
+        // the ring radius is at 485
+        g2.translate(-480,500);
+        boxPerformance(g2);
+        g2.translate(500,0);
+        boxTarget(g2);
+        g2.translate(-500,180);
+        boxWindAparant(g2);
+        g2.translate(500,0);
+        boxWindTrue(g2);
+        g2.translate(-20,-680);
+    }
 
-        Util.drawString(formatValue("%4.1f", stw, CanMessageData.scaleToKnots),
-                xd, 300+1*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
-        Util.drawString(formatValue("%4.1f", polarSpeed, CanMessageData.scaleToKnots),
-                xd, 300+2*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
-        Util.drawString(formatValue("%4.1f %%", polarSpeedRatio, 100),
-                xd, 300+3*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
+    private void boxPerformance(Graphics2D g2) {
 
+        draw3CellBox(g2, "Performance",
+                new String[] {
+                        "polar %",
+                        "polar kn",
+                        "stw kn",
+                },
+                new String[] {
+                        "%3.0f",
+                        "%3.1f",
+                        "%3.1f"
+                },
+                new double[] {
+                        polarSpeedRatio,
+                        stw,
+                        polarSpeed
+                },
+                new double[] {
+                        100.0,
+                        CanMessageData.scaleToKnots,
+                        CanMessageData.scaleToKnots
+                },
+                1.0
+                );
+    }
 
-        x=-200;
-        xd=-200+2*wd;
-        int xg=100;
-        g2.drawString("twa:", x,300+5*h);
-        g2.drawString("tws:", x+xg ,300+5*h);
-        g2.drawString("awa:", x+2*xg,300+5*h);
-        g2.drawString("aws:", x+3*xg,300+5*h);
-        Util.drawString(formatValue("%.0f", twa, CanMessageData.scaleToDegrees),
-                xd, 300+5*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
-        Util.drawString(formatValue("%4.1f", tws, CanMessageData.scaleToKnots),
-                xd+xg, 300+5*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
-        Util.drawString(formatValue("%4.0f", awa, CanMessageData.scaleToDegrees),
-                xd+2*xg, 300+5*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
-        Util.drawString(formatValue("%4.1f", aws, CanMessageData.scaleToKnots),
-                xd+3*xg, 300+5*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
-
-
-
-
-
-
-        bounds = fm.getStringBounds("vmg: ", g2);
-        w = (int) (bounds.getWidth());
-        x = -80;
-        xd = -80+w+wd;
-        
-        g2.drawString("Downwind Target", x,300);
-        g2.drawString("stw:", x,300+1*h);
-        g2.drawString("vmg:", x,300+2*h);
-        g2.drawString("twa:", x,300+3*h);
-
-        Util.drawString(formatValue("%4.1f", downwindTarget.stw, CanMessageData.scaleToKnots),
-                xd, 300+1*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
-        Util.drawString(formatValue("%4.1f", downwindTarget.vmg, CanMessageData.scaleToKnots),
-                xd, 300+2*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
-        Util.drawString(formatValue("%4.0f", downwindTarget.twa, CanMessageData.scaleToDegrees),
-                xd, 300+3*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
-
-        x = 60;
-        xd = 60+w+wd;
-        g2.drawString("Upwind Target", x,300);
-        g2.drawString("stw:", x,300+1*h);
-        g2.drawString("vmg:", x,300+2*h);
-        g2.drawString("twa:", x,300+3*h);
-        Util.drawString(formatValue("%4.1f", upwindTarget.stw, CanMessageData.scaleToKnots),
-                xd, 300+1*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
-        Util.drawString(formatValue("%4.1f", upwindTarget.vmg, CanMessageData.scaleToKnots),
-                xd, 300+2*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
-        Util.drawString(formatValue("%4.0f", upwindTarget.twa, CanMessageData.scaleToDegrees),
-                xd, 300+3*h,
-                smallFont,
-                Util.HAlign.DECIMAL, Util.VAlign.BOTTOM, g2);
-        */
-
-        g2.translate(-250,230);
+    private void draw3CellBox(Graphics2D g2,
+                              String title,
+                              String[] labels,
+                              String[] formats,
+                              double[] values,
+                              double[] factors,
+                              double mainValueScale) {
         // 3 cell box for speed.
-        Util.drawString(formatValue("%3.0f", polarSpeedRatio, 100),
-                57, 45,
-                normalFont,
-                Util.HAlign.CENTER, Util.VAlign.CENTER, g2);
-        Util.drawString(formatValue("%4.1f", stw, CanMessageData.scaleToKnots),
-                160, 20,
-                mediumFont,
-                Util.HAlign.CENTER, Util.VAlign.CENTER, g2);
-        Util.drawString(formatValue("%4.1f", polarSpeed, CanMessageData.scaleToKnots),
-                160, 70,
-                mediumFont,
-                Util.HAlign.CENTER, Util.VAlign.CENTER, g2);
-        Util.drawString("Performance", 10, 5, tinyFont, Util.HAlign.LEFT, Util.VAlign.TOP, g2);
-        Util.drawString("polar %", 10, 100, tinyFont, Util.HAlign.LEFT, Util.VAlign.BOTTOM, g2);
-        Util.drawString("polar kn", 130, 50, tinyFont, Util.HAlign.LEFT, Util.VAlign.BOTTOM, g2);
-        Util.drawString("stw kn", 130, 100, tinyFont, Util.HAlign.LEFT, Util.VAlign.BOTTOM, g2);
-        g2.drawRoundRect(0, 0, 200, 100, 15,15);
-        g2.drawLine(120, 0, 120, 100);
-        g2.drawLine(120, 50, 200, 50);
-        g2.translate(250,-230);
 
-        g2.translate(-45,230);
-        // 3 cell box for speed.
+        int boxWidth = 450;
+        int boxHeight = 170;
+        int cellSplit = (450*55)/100;
+        int mainValueAlign = cellSplit/2;
+        int subValueAlign = boxWidth-10;
+        g2.translate(mainValueAlign, boxHeight/2-5);
+        g2.scale(mainValueScale, mainValueScale);
+        Util.drawString(formatValue(formats[0], values[0], factors[0]),
+                0, 0,
+                largeValues,
+                Util.HAlign.CENTER, Util.VAlign.CENTER, g2);
+        g2.scale(1.0/mainValueScale, 1.0/mainValueScale);
+        g2.translate(-mainValueAlign, -boxHeight/2+5);
+
+        Util.drawString(formatValue(formats[1], values[1], factors[1]),
+                subValueAlign, boxHeight/4-15,
+                smallValues,
+                Util.HAlign.DECIMAL, Util.VAlign.CENTER, g2);
+        Util.drawString(formatValue(formats[2], values[2], factors[2]),
+                subValueAlign, 3*boxHeight/4-15,
+                smallValues,
+                Util.HAlign.DECIMAL, Util.VAlign.CENTER, g2);
+        Util.drawString(title, 10, 5, labelsFont, Util.HAlign.LEFT, Util.VAlign.TOP, g2);
+        Util.drawString(labels[0], 10, boxHeight-3, labelsFont, Util.HAlign.LEFT, Util.VAlign.BOTTOM, g2);
+        Util.drawString(labels[1], cellSplit+5, (boxHeight/2)-5, labelsFont, Util.HAlign.LEFT, Util.VAlign.BOTTOM, g2);
+        Util.drawString(labels[2], cellSplit+5, (boxHeight)-5, labelsFont, Util.HAlign.LEFT, Util.VAlign.BOTTOM, g2);
+
+        g2.drawRoundRect(0, 0, boxWidth, boxHeight, 15,15);
+        g2.drawLine(cellSplit, 0, cellSplit, boxHeight);
+        g2.drawLine(cellSplit, boxHeight/2, boxWidth, boxHeight/2);
+    }
+    private void boxTarget(Graphics2D g2) {
         Polar.PolarTarget target = upwindTarget;
-        String label = "Upwind stw kn";
+        String label = "Upwind twa";
         if ( Math.abs(twa) > Math.PI/2) {
             target = downwindTarget;
-            label = "Downwind stw kn";
+            label = "Downwind twa";
         }
-        Util.drawString(formatValue("%3.1f", target.stw, CanMessageData.scaleToKnots),
-                55, 45,
-                normalFont,
-                Util.HAlign.CENTER, Util.VAlign.CENTER, g2);
-        Util.drawString(formatValue("%3.0f", target.twa, CanMessageData.scaleToDegrees),
-                180, 20,
-                mediumFont,
-                Util.HAlign.DECIMAL, Util.VAlign.CENTER, g2);
-        Util.drawString(formatValue("%3.1f", target.vmg, CanMessageData.scaleToKnots),
-                180, 70,
-                mediumFont,
-                Util.HAlign.DECIMAL, Util.VAlign.CENTER, g2);
-        Util.drawString("Target", 10, 5, tinyFont, Util.HAlign.LEFT, Util.VAlign.TOP, g2);
-        Util.drawString(label, 10, 100, tinyFont, Util.HAlign.LEFT, Util.VAlign.BOTTOM, g2);
-        Util.drawString("twa deg", 130, 50, tinyFont, Util.HAlign.LEFT, Util.VAlign.BOTTOM, g2);
-        Util.drawString("vmg kn", 130, 100, tinyFont, Util.HAlign.LEFT, Util.VAlign.BOTTOM, g2);
-        g2.drawRoundRect(0, 0, 200, 100, 15,15);
-        g2.drawLine(120, 0, 120, 100);
-        g2.drawLine(120, 50, 200, 50);
-        g2.translate(45,-230);
+        double twaFactor = CanMessageData.scaleToDegrees;
+        if ( target.twa < 0) {
+            twaFactor = - twaFactor;
+        }
 
+        draw3CellBox(g2, "Target",
+                new String[] {
+                        label,
+                        "vmg kn",
+                        "stw kn"
+                },
+                new String[] {
+                        "%3.0f",
+                        "%3.1f",
+                        "%3.1f"
+                },
+                new double[] {
+                        target.twa,
+                        target.vmg,
+                        target.stw
+                },
+                new double[] {
+                        twaFactor,
+                        CanMessageData.scaleToKnots,
+                        CanMessageData.scaleToKnots
+                },
+                1.0
+        );
+    }
+
+    private void boxWindTrue(Graphics2D g2) {
+
+        // 3 cell box for speed.
+        double mainLabelScale = 1.0;
+        if ( Math.abs(twa*CanMessageData.scaleToDegrees) >= 99) {
+            mainLabelScale = 0.75;
+        }
+        double twaFactor = CanMessageData.scaleToDegrees;
+        String format = "S%1.0f";
+        String mainLabel = "twa Stbd";
+        if ( twa < 0 ) {
+            twaFactor = -CanMessageData.scaleToDegrees;
+            format = "P%1.0f";
+            mainLabel = "twa Port";
+        }
+        double vmgFactor = CanMessageData.scaleToKnots;
+        if ( vmg < 0 ) {
+            vmgFactor = -vmgFactor;
+        }
+        draw3CellBox(g2, "True Wind",
+                new String[] {
+                        mainLabel,
+                        "tws kn",
+                        "vmg kn"
+                },
+                new String[] {
+                        format,
+                        "%3.1f",
+                        "%3.1f"
+                },
+                new double[] {
+                        twa,
+                        tws,
+                        vmg
+                },
+                new double[] {
+                        twaFactor,
+                        CanMessageData.scaleToKnots,
+                        vmgFactor
+                },
+                mainLabelScale
+        );
 
     }
+
+    private void boxWindAparant(Graphics2D g2) {
+
+        // 3 cell box for speed.
+        double mainValueScale = 1.0;
+        if ( Math.abs(awa*CanMessageData.scaleToDegrees) >= 99) {
+            mainValueScale = 0.75;
+        }
+        double awaFactor = CanMessageData.scaleToDegrees;
+        String format = "S%1.0f";
+        String mainLabel = "awa Stbd";
+        if ( awa < 0 ) {
+            awaFactor = -CanMessageData.scaleToDegrees;
+            format = "P%1.0f";
+            mainLabel = "twa Port";
+        }
+        double vmgFactor = CanMessageData.scaleToKnots;
+        if ( vmg < 0 ) {
+            vmgFactor = -vmgFactor;
+        }
+        draw3CellBox(g2, "Apparent Wind",
+                new String[] {
+                        mainLabel,
+                        "tws kn",
+                        "vmg kn"
+                },
+                new String[] {
+                        format,
+                        "%3.1f",
+                        "%3.1f"
+                },
+                new double[] {
+                        awa,
+                        aws,
+                        vmg
+                },
+                new double[] {
+                        awaFactor,
+                        CanMessageData.scaleToKnots,
+                        vmgFactor
+                },
+                mainValueScale
+        );
+
+    }
+
 
     private String formatValue(String format, double value, double factor) {
         return  (value == CanMessageData.n2kDoubleNA)?"--":String.format(format, value*factor);
     }
     public int knotsScale(double kn) {
-        double k = (kn*450.0/2.0)/14.0;
+        double k = (kn*ringSize)/14.0;
         return (int) k;
     }
 
@@ -388,42 +413,125 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
         super.paint(g);
     }
 
+    private void recalcSize() {
+        int wBoxSize, hBoxSize;
+        if ( rotate ) {
+            wBoxSize = (int)(this.getWidth()/1.3);
+            hBoxSize = (int)(this.getHeight()/2.2);
+        } else {
+            wBoxSize = (int)(this.getWidth()/2.2);
+            hBoxSize = (int)(this.getHeight()/1.4);
+
+        }
+        int nBoxSize = Math.min(wBoxSize, hBoxSize);
+
+
+
+        if ( nBoxSize != this.boxSize ) {
+            log.debug("Box size w{} h{} n{} ", wBoxSize, hBoxSize, nBoxSize);
+            this.boxSize = nBoxSize;
+            //this.radius = this.boxSize/8;
+
+            //if ( rotate ) {
+            //    this.boxWidth = (int) (boxSize * 2.2);
+            //    this.boxHeight = (int) (boxSize * 1.3);
+            //} else {
+            //    this.boxWidth = (int) (boxSize * 2.2);
+            //    this.boxHeight = (int) (boxSize * 1.4);
+            //}
+
+
+
+            double largeValuesSize = (0.8*((double) Util.DEFAULT_SCREEN_RESOLUTION/(double)Util.getScreenResolution()))*200;
+
+            if ( Util.isKindle() ) {
+                largeValuesSize = largeValuesSize*13/25;
+            }
+
+
+            double smallValuesSize = largeValuesSize/4.0;
+            double ringSize = largeValuesSize/5.0;
+            double labelFontSize = largeValuesSize/6.0;
+            this.fontSize = (int)(largeValuesSize);
+
+            // the sizes in the map must be floats to get pixel heights on
+            // a kindle otherwise the nearest point size will be selected.
+            Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
+            attributes.put(TextAttribute.FAMILY, "Arial");
+            attributes.put(TextAttribute.SIZE, (float)largeValuesSize);
+            this.largeValues = new Font(attributes); // main values
+            attributes.put(TextAttribute.SIZE, (float)smallValuesSize);
+            this.smallValues = new Font(attributes);
+            attributes.put(TextAttribute.SIZE, (float)labelFontSize);
+            this.labelsFont = new Font(attributes);
+            attributes.put(TextAttribute.SIZE, (float)ringSize);
+            this.ringFont = new Font(attributes);
+
+            log.info("Large values front {} ", largeValues);
+            log.info("Small values front {} ", smallValues);
+            log.info("labels front {} ", labelsFont);
+            log.info("Ring font {} ", ringFont);
+
+            //this.mediumLineSpace = boxHeight /4;
+            //this.smallLineSpace = boxHeight /8;
+            //this.borderPadding = boxWidth / 30;
+            //log.debug("NewBox e{} h{} ",boxWidth, boxHeight);
+            //log.debug("Fonts s{} m{} l{} ", smallFont, mediumFont, largeFont);
+            //log.debug("Lines s{} m{} padding{}", smallLineSpace, mediumLineSpace, borderPadding);
+        }
+    }
     @Override
     public void paintComponent(Graphics graphics) {
+        recalcSize();
 
         Graphics2D g2 = (Graphics2D) graphics;
         Color foreground = this.getForeground();
         Color background = this.getBackground();
+
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(background);
+        g2.setBackground(foreground);
+        g2.fillRect(0, 0 ,this.getWidth(),this.getHeight());
         g2.setColor(foreground);
         g2.setBackground(background);
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.clearRect(0, 0 ,this.getWidth(),this.getHeight());
+
+
+        //log.info("Screen size{} screen resolition {} ", Toolkit.getDefaultToolkit().getScreenSize(), Toolkit.getDefaultToolkit().getScreenResolution());
+        //log.info("Window size {} {} ", this.getWidth(), this.getHeight());
+        //  Kindle PW4 sizejava.awt.Dimension[width=1072,height=1448] screen resolition 300
 
         int width = this.getWidth();
-        g2.translate(width/2,width/2);
-        int knotsScale = 900/14;
-        Stroke defaultStroke = g2.getStroke();
-        g2.setStroke(dashedStroke);
+        double screenScale = (double)width/1072.0;
+        this.ringSize = 1072.0*0.45;
+        g2.scale(screenScale, screenScale);
+
+        // 14kn == 485 radius
+
+        g2.translate(1072/2,1072/2);
         for (int i = 2; i < 13; i+=2) {
             drawRing(g2, String.valueOf(i),0, 0, knotsScale(i));
         }
         drawRing(g2, String.valueOf(14),0, 0, knotsScale(14));
-        g2.setStroke(defaultStroke);
         for (int i = 30; i < 180; i+=30) {
             drawRadial(g2, i, knotsScale(14.0), "S"+String.valueOf(i));
         }
         for (int i = -30; i > -180; i-=30) {
             drawRadial(g2, i, knotsScale(14.0), "P"+String.valueOf(-i));
         }
+        for (int i = 2; i < 13; i+=2) {
+            labelRing(g2, String.valueOf(i),0, 0, knotsScale(i));
+        }
+        labelRing(g2, String.valueOf(14),0, 0, knotsScale(14));
+
         //plotCurve(g2, twaHistory, stwHistory);
-        g2.setStroke(heavyStroke);
         plotVMG(g2, upwindTarget);
         plotVMG(g2, downwindTarget);
         plotPolarSpeed(g2);
         plotData(g2);
-        g2.setStroke(defaultStroke);
         g2.setColor(foreground);
         g2.setBackground(background);
+        //log.info("Rendering done");
+        g2.scale(1.0/screenScale, 1.0/screenScale);
     }
 
 

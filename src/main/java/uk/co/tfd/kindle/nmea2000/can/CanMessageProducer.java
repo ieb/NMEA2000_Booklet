@@ -16,6 +16,7 @@ public class CanMessageProducer {
     private CanMessageListener[] listeners = new CanMessageListener[0];
     private Map<Integer, Integer> streamPgns = new HashMap<>();
     private Set<Integer> pgnFilter = Collections.EMPTY_SET;
+    private int drops = 0;
 
     public CanMessageProducer() {
     }
@@ -57,12 +58,13 @@ public class CanMessageProducer {
         int pgn = message.getPgn();
         // messages with pgn < 999 are internally generated.
         if (pgn < 999 || pgnFilter.size() == 0 || pgnFilter.contains(pgn)) {
+            //log.info("Sendign message  message:{} ",message);
             for(CanMessageListener l : listeners) {
-                //log.info("Sendign message to {}  message:{} ", l, message);
                 l.onMessage(message);
             }
         } else {
-            log.info("Emit drop for filtered pgn:{} {} ", pgn);
+            drops++;
+            //log.info("Emit drop for filtered pgn:{} {} ", pgn);
             for(CanMessageListener l : listeners) {
                 l.onDrop(pgn);
             }

@@ -12,7 +12,7 @@ import java.lang.reflect.Field;
  */
 public class WindCalculator implements CanMessageListener {
 
-    //private static final Logger log = LoggerFactory.getLogger(WindCalculator.class);
+    private static final Logger log = LoggerFactory.getLogger(WindCalculator.class);
     private final CanMessageProducer producer;
     private double awa = CanMessageData.n2kDoubleNA;
     private double aws = CanMessageData.n2kDoubleNA;
@@ -74,7 +74,6 @@ public class WindCalculator implements CanMessageListener {
                     stw,
                     awa,
                     aws);
-            //log.info("True Wind {} ", trueWind);
             producer.emitMessage(trueWind);
         }
     }

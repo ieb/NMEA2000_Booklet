@@ -2,6 +2,7 @@ package uk.co.tfd.kindle.nmea2000.canwidgets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.co.tfd.kindle.nmea2000.Configuration;
 import uk.co.tfd.kindle.nmea2000.can.CanMessageListener;
 import uk.co.tfd.kindle.nmea2000.can.CanMessageProducer;
 
@@ -105,8 +106,8 @@ public class CanInstruments {
     }
 
 
-    public void addConfiguration(Map<String, Object> configuration) {
-        // any custom instruments here.
+    public void addCustomConfiguration(Configuration config) {
+        Map<String, Object> configuration = config.getConfiguration();
         if (configuration.containsKey("instruments")) {
             Map<String, Map<String, Object>> instruments = (Map<String, Map<String, Object>>) configuration.get("instruments");
             for(Map.Entry<String, Map<String, Object>> e :  instruments.entrySet() ) {

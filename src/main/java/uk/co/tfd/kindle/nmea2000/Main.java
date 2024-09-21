@@ -37,17 +37,18 @@ public class Main {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         MainScreen mainScreen = new MainScreen(frame,
-                "src/test/resources/config.json",
+                "src/test/resources/badconfig.json",
                 new MainScreen.MainScreenExit() {
             @Override
             public void exit() {
                 System.exit(0);
             }
         });
-        timer = new Timer(5000, new ActionListener() {
+        timer = new Timer(30000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+
                     mainScreen.start(InetAddress.getLocalHost(), 10112);
                 } catch (IOException e1) {
                     log.error(e1.getMessage(), e);

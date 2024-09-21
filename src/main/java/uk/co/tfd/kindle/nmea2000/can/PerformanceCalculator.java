@@ -146,7 +146,7 @@ public class PerformanceCalculator implements CanMessageListener {
         if ( changes.shouldSend() ) {
             lastMessageSend = changes.getTimestamp();
             PerformanceCanMessage performanceCanMessage = new PerformanceCanMessage(this);
-            log.info("Emit Performance Message {} ", performanceCanMessage);
+            log.debug("Emit Performance Message {} ", performanceCanMessage);
             producer.emitMessage(performanceCanMessage);
         }
     }
@@ -169,7 +169,7 @@ public class PerformanceCalculator implements CanMessageListener {
                 sid = trueWind.sid;
                 timestamp = trueWind.timestamp;
                 lastWindUpdate = System.currentTimeMillis();
-                log.info("Updated Wind {} ", message );
+                log.debug("Updated Wind {} ", message );
                 recalculate = true;
             }
         } else if (message instanceof LeewayCalculator.PGN128000Leeway) {
@@ -216,7 +216,7 @@ public class PerformanceCalculator implements CanMessageListener {
             if ( variation.variation != CanMessageData.n2kDoubleNA) {
                 variationInput = variation.variation;
                 lastVariationUpdate = System.currentTimeMillis();
-                log.info("Updated Variationng {} ", message );
+                log.debug("Updated Variationng {} ", message );
                 recalculate = true;
             }
         } else if (message instanceof IsoMessageHandler.CanBusStatus ) {

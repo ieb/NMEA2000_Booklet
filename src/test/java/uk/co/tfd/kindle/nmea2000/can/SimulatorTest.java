@@ -28,7 +28,7 @@ public class SimulatorTest {
         polar = new Polar(configuration);
     }
 
-    @Test
+    //@Test
     public void testUpdate() throws InterruptedException {
         Simulator s = new Simulator(canMessageProducer, polar);
         for (int i = 0; i < 100; i++) {

@@ -80,7 +80,7 @@ public class PolatTest {
     public  void testCheckVmg1() throws IOException {
         Polar p = new Polar(configuration);
         p.setDebug(true);
-        Polar.PolarTarget t = p.calcPolarTarget(10 / CanMessageData.scaleToKnots, 45 / CanMessageData.scaleToDegrees, 45 / CanMessageData.scaleToDegrees);
+        Polar.PolarTarget t = p.calcPolarTarget(10 / CanMessageData.scaleToKnots, 45 / CanMessageData.scaleToDegrees);
         log.info("Polar Target {} ", t);
     }
 

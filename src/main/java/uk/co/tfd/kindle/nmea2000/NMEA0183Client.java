@@ -2,6 +2,7 @@ package uk.co.tfd.kindle.nmea2000;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.nio.cs.ext.ISO2022_CN;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -9,6 +10,7 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * SeaSmart client opens a connection to a socket, recieves messages, and sends them to the store.
@@ -18,7 +20,6 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(NMEA0183Client.class);
 
     private Map<String, NMEA0183Handler> handlers = new HashMap<>();
-    private boolean running = false;
     private boolean disabled = false;
     private Thread thread = null;
     private InetAddress address;
@@ -26,6 +27,7 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
     private OutputStream outputStream;
     private String lastSentence;
     private long lastRead;
+    private Socket socket = null;
 
     public NMEA0183Client(InetAddress address, int port) {
         this.address = address;
@@ -46,7 +48,7 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
     }
 
     public void setPort(int port) {
-        if ( disabled || running) {
+        if ( socket != null) {
             log.info("Stop client before changing port.");
             return;
         }
@@ -54,25 +56,30 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
     }
 
     public void setAddress(InetAddress address) {
-        if ( disabled || running) {
+        if ( socket != null) {
             log.info("Stop client before changing address.");
             return;
         }
         this.address = address;
     }
 
-    public void start() {
-        if ( !disabled && !running && address != null) {
-            Thread thread = new Thread(this);
-            running = true;
+    public synchronized void start() {
+        if ( socket == null && thread == null && address != null) {
+
+            thread = new Thread(this);
             thread.start();
         } else {
-            log.info("Stop client before starting.");
+            log.info("Stop client before starting. disabled:{} running:{} address:{} ", disabled, socket, address );
         }
     }
 
-    public void stop() {
-        running = false;
+    public boolean isRunning() {
+        return thread != null;
+    }
+
+    public synchronized void stop() {
+        checkSocketClosed();
+        thread = null;
         outputStream = null;
     }
 
@@ -85,46 +92,52 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
         return ((System.currentTimeMillis() - lastRead) > 30000);
     }
 
+    private synchronized  void checkSocketClosed() {
+        if (socket != null) {
+            try {
+                socket.close();
+                socket = null;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    private synchronized  void openSocket() throws IOException {
+        checkSocketClosed();
+        updateStatus("Opening socket on "+address+":"+port);
+        log.info("Opening socket on {} {} ", address, port);
+        socket = new Socket(address, port);
+        updateStatus("Connected to "+address+":"+port);
+        log.info("Connected to {} {} ", address, port);
+    }
 
     public void run()  {
-        Socket socket = null;
-        while(running) {
+        try {
+            lastRead = System.currentTimeMillis();
+            openSocket();
+            InputStream inputStream = socket.getInputStream();
+            outputStream = socket.getOutputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            if (lastSentence != null) {
+                send(lastSentence);
+            }
+            while (socket != null) {
+                processLine(reader.readLine());
+            }
+
+            log.info("Disconnected from {}:{}", address, port);
+        } catch (Exception e) {
+            updateStatus("Client Error "+e.getMessage());
+            log.warn("Client error {} ", e.getMessage(), e);
+            log.debug("Client error cause ", e);
+        } finally {
+            checkSocketClosed();
+            updateStatus("Disconnected from "+address+":"+port);
+            log.info("Disconnected from {}:{}", address, port);
             try {
-                lastRead = System.currentTimeMillis();
-                socket = new Socket(address, port);
-                InputStream inputStream = socket.getInputStream();
-                outputStream = socket.getOutputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                log.info("Connected to {}:{}", address, port);
-                if ( lastSentence != null ) {
-                    send(lastSentence);
-                }
-                while (running) {
-                    processLine(reader.readLine());
-                }
-                log.info("Disconnected from {}:{}", address, port);
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            } catch (Exception e) {
-                log.warn("Client error {} ",e.getMessage(), e);
-                log.debug("Client error cause ",e);
-            } finally {
-                if (socket != null) {
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                log.info("Disconnected from {}:{}", address, port);
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                log.info("Thread end interrupted");
             }
         }
     }
@@ -148,7 +161,7 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
     public void send(String sentence) throws IOException {
         lastSentence = sentence;
         if ( outputStream != null) {
-            log.info("Sending {} {}", sentence, Arrays.toString(sentence.getBytes("ASCII")));
+            log.info("Sending {}", sentence);
             outputStream.write(sentence.getBytes("ASCII"));
             outputStream.write(new byte[]{ '\r', '\n'});
         }

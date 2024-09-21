@@ -123,7 +123,7 @@ public class Polar {
             vmgTarget[i] = p.twa;
             vmgTarget[tws.length+i] = p.stw;
             vmgTarget[tws.length*2+i] = p.vmg;
-            log.info("Target {} {} ", String.format("%4.2f",tws[i]*CanMessageData.scaleToKnots), p);
+            log.debug("Target {} {} ", String.format("%4.2f",tws[i]*CanMessageData.scaleToKnots), p);
         }
         return vmgTarget;
     }

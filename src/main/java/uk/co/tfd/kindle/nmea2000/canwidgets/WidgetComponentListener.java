@@ -23,8 +23,9 @@ public class WidgetComponentListener implements AncestorListener {
     @Override
     public void ancestorAdded(AncestorEvent event) {
         Component c = event.getComponent();
-        log.info("Component visible {}",c);
+        log.info("Component showing {}",c);
         if ( c instanceof CanMessageListener) {
+            log.info("Adding PGNS to list {} ",((CanMessageListener)c).getPgns() );
             canMessageProducer.addListener((CanMessageListener)c);
             canMessageProducer.addPgnsToStream(((CanMessageListener)c).getPgns());
         }
@@ -33,15 +34,16 @@ public class WidgetComponentListener implements AncestorListener {
     @Override
     public void ancestorRemoved(AncestorEvent event) {
         Component c = event.getComponent();
-        log.info("Component hidden {}",c);
-        if ( c instanceof CanMessageListener ) {
-            canMessageProducer.removeListener((CanMessageListener)c);
-            canMessageProducer.removePgnsFromStream(((CanMessageListener)c).getPgns());
+        log.debug("Component hidden {}",c);
+        if (c instanceof CanMessageListener) {
+            log.info("Remove PGNS from list {} ",((CanMessageListener)c).getPgns() );
+            canMessageProducer.removeListener((CanMessageListener) c);
+            canMessageProducer.removePgnsFromStream(((CanMessageListener) c).getPgns());
         }
     }
 
     @Override
     public void ancestorMoved(AncestorEvent event) {
-        log.info("Ancestor moved {}",event);
+        //log.info("Ancestor moved {}",event);
     }
 }

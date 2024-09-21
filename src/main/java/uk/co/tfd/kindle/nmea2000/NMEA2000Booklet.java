@@ -74,6 +74,7 @@ public class NMEA2000Booklet extends AbstractBooklet implements ActionListener {
 				rootContainer = container;
 				return container;
 			} catch (Throwable t) {
+                log.error("Failed to get UI container ", t);
 				throw new RuntimeException(t.toString());
 			}
 		}
@@ -118,6 +119,7 @@ public class NMEA2000Booklet extends AbstractBooklet implements ActionListener {
 	private void initializeUI() throws IOException, NoSuchMethodException, ParseException {
 
 
+
         //  log.debug("Screen size{} screen resolition {} ", Toolkit.getDefaultToolkit().getScreenSize(), Toolkit.getDefaultToolkit().getScreenResolution());
         //  Kindle PW4 sizejava.awt.Dimension[width=1072,height=1448] screen resolition 300
         log.debug("Starting Up");
@@ -147,7 +149,7 @@ public class NMEA2000Booklet extends AbstractBooklet implements ActionListener {
 			}
 		});
         listComponentTree(root,"->");
-		mainScreen.start(null, -1);
+		//mainScreen.start(null, -1);
         // main screen is now referenced by Swing and a Thread.
         // no refrence held here.
 	}

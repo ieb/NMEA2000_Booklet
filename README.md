@@ -130,6 +130,21 @@ eg
 
 
 192.168.15.244 is the USBNet IP address of the Kindle when plugged in.
+Installation will look something like below.
+
+         x stop/waiting
+         [FBInk] Detected a Kindle PaperWhite 4 (0PP -> 0x2F7 => Moonshine on Rex)
+         [FBInk] Enabled Kindle Rex platform quirks
+         [FBInk] Clock tick frequency appears to be 100 Hz
+         [FBInk] Screen density set to 300 dpi
+         [FBInk] Variable fb info: 1072x1448, 8bpp @ rotation: 3 (Counter Clockwise, 270°)
+         [FBInk] Fontsize set to 24x24 (IBM base glyph size: 8x8)
+         [FBInk] Line length: 44 cols, Page size: 60 rows
+         [FBInk] Vertical fit isn't perfect, shifting rows down by 4 pixels
+         [FBInk] Fixed fb info: ID is "mxc_epdc_fb", length of fb mem: 6782976 bytes & line length: 1088 bytes
+         [FBInk] Pen colors set to #000000 for the foreground and #FFFFFF for the background
+         [CLI] This is a non-interactive SSH session and stdin is *currently* empty, enforcing non-blocking behavior by aborting early!
+         x start/running, process 21298
 
 ## Logs
 
@@ -143,13 +158,13 @@ see src/test/resources/config.json for an example.
 
 ## CanDiagnose servers
 
-Build and run https://github.com/ieb/CanDiagnose connected to your NMEA2000 network, emiting the same data as in src/test/resources/data/*.json
-Configure the booklet as in src/test/resources/config.json
+Build and run https://github.com/ieb/N2KNMMEA0183Wifi on an ESP32 connected to your NMEA2000 network. It exposes http,websocket,
+tcp and udp servers, as well as a mDNS responder. The tcp server emits NMEA0183 traffic and switches to N2K over SeaSmart sentences
+on recpiept of a $PCDCM,1,0*58 message (or any other $PCDCM message from the kindle).
 
-By default the booklet will discover the NMEA2000 server using mDNS, although if that doesnt work
-you can configutre a list of servers to try and connect to. The booklet will attempt to connect
-to each server in turn, backing off from failed servers for 30s. Process is displayed on the UI
-status screen with diagnostics going into the log file.
+By default the booklet will discover the NMEA2000 server using mDNS, discovering _can-tcp._tcp.local, typically on port 10110.
+On connect the booklet sends a $PCDCM message with a list of PGNs to filter on, or a zero list for no filtering. This
+switches the ESP32 into SeaSmart mode. 
 
 For mDNS to work on the Kindle the IP firewall on the kindle must be adjusted to allow the multicast packets on port 5353 be be sent and recieved. If running on a isolated network with 
 no default router dont forget to add a default route to the routing table on the NMEA2000 server 

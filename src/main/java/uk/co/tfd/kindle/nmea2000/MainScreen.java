@@ -86,6 +86,7 @@ public class MainScreen {
 
             @Override
             public void exit() {
+
                 if ( timer != null) {
                     timer.stop();
                 }
@@ -125,26 +126,28 @@ public class MainScreen {
 
 
         discovery = new NMEA0183Discovery(nmea0183Client);
+        discovery.addStatusUpdateListener(controlPage);
         discovery.startDiscovery();
 
 
-        layout = new CanPageLayout(configFile, messageProducer);
+        layout = new CanPageLayout(messageProducer);
         layout.setPreferredSize(root.getMaximumSize());
 
 
+        Configuration config = new Configuration(configFile);
+        layout.loadConfiguration(config);
 
-        String configSource = layout.loadConfig();
-        controlPage.onStatusChange("Config from " + configSource);
-        Map<String, Object> config = layout.getConfiguration();
+        controlPage.onStatusChange("Config from " + config.getConfigName());
         if ( !Util.isKindle() ) {
-            Map<String, Object> screensize = (Map<String, Object>) config.get("screensize");
-            if ( screensize != null) {
-                root.setSize(Integer.valueOf(String.valueOf(screensize.get("w")))/2, Integer.valueOf(String.valueOf(screensize.get("h")))/2);
+            Dimension d = config.getScreenSize();
+            if ( d != null) {
+                root.setSize(d.width/2, d.height/2);
                 log.info("Set Screensize to {} ", root.getSize());
             }
         }
-        WidgetComponentListener lister = new WidgetComponentListener(messageProducer);
-        Polar polar = new Polar(config);
+        WidgetComponentListener listener = new WidgetComponentListener(messageProducer);
+        controlPage.addAncestorListener(listener);
+        Polar polar = new Polar(config.getConfiguration());
 
 
 
@@ -156,14 +159,14 @@ public class MainScreen {
             simulator.addListener(polarPage);
             root.addKeyListener(simulator);
             nmea0183Client.disable();
-            polarPage.addAncestorListener(lister);
+            polarPage.addAncestorListener(listener);
             root.add(polarPage);
         } else if ( "random".equals(simulatorMode) ) {
             PolarPage polarPage = new PolarPage(false);
             Simulator simulator = new Simulator(messageProducer, polar);
             simulator.start();
             nmea0183Client.disable();
-            polarPage.addAncestorListener(lister);
+            polarPage.addAncestorListener(listener);
             root.add(polarPage);
         } else {
             messageProducer.addListener(new WindCalculator(messageProducer));
@@ -173,8 +176,13 @@ public class MainScreen {
         }
 
 
+
+
         root.doLayout();
         root.setVisible(true);
+        layout.showControlPage();
+
+
 
         /*
         calcs.addStatusUpdateListener(controlPage);
@@ -223,11 +231,13 @@ public class MainScreen {
 
 
     public void start(InetAddress address, int port) throws IOException {
-        log.info("Starting");
-        nmea0183Client.setAddress(address);
-        nmea0183Client.setPort(port);
-        nmea0183Client.start();
-        log.info("Started");
+        if ( !nmea0183Client.isRunning() ) {
+            log.info("Starting on {} {} ", address, port);
+            nmea0183Client.setAddress(address);
+            nmea0183Client.setPort(port);
+            nmea0183Client.start();
+            log.info("Started");
+        }
     }
 
 

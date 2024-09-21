@@ -44,7 +44,7 @@ public class Util {
                         System.err.println(methods[i].getParameterCount());
                         System.err.println(booklet);
                         System.err.println("---------------------------------------");
-						bc = (BookletContext) methods[i].invoke(booklet, null);
+						bc = (BookletContext) methods[i].invoke(booklet, (Object[])null);
                         System.err.println("OOOOOOOOOOOOOOOOOOOOOOOOOOO");
                         System.err.println(bc);
                     } catch (IllegalAccessException e) {
@@ -90,7 +90,7 @@ public class Util {
             //new Logger().append("Found getUIContainer method as " + getUIContainer.toString());
 			BookletContext bc = Util.obGetBookletContext(1, booklet);
             System.err.println("OOOOOOOOOOOOOOOOOOOOOOOOOOO");
-            Container rootContainer = (Container) getUIContainer.invoke(bc, null);
+            Container rootContainer = (Container) getUIContainer.invoke(bc, (Object[])null);
             System.err.println("OOOOOOOOOOOOOOOOOOOOOOOOOOO");
             return rootContainer;
 		}

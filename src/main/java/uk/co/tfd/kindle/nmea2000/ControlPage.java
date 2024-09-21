@@ -2,6 +2,7 @@ package uk.co.tfd.kindle.nmea2000;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.co.tfd.kindle.nmea2000.can.*;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 /**
  * Created by ieb on 20/06/2020.
  */
-public class ControlPage extends JPanel implements StatusUpdates.StatusUpdateListener {
+public class ControlPage extends JPanel implements StatusUpdates.StatusUpdateListener, CanMessageListener {
     private static Logger log = LoggerFactory.getLogger(ControlPage.class);
     private final JButton invertButton;
     private final JButton exitButton;
@@ -22,6 +23,37 @@ public class ControlPage extends JPanel implements StatusUpdates.StatusUpdateLis
     private final JPanel titles;
     private final JTextArea statusMessages;
     private final JPanel buttons;
+    private final JButton connectButton;
+    private final JButton disconnectButton;
+
+    @Override
+    public int[] getPgns() {
+        log.info("Requested pgns");
+        return new int[] {
+                WindCalculator.PGN130306Wind.PGN
+        };
+    }
+
+    @Override
+    public void onDrop(int pgn) {
+
+    }
+
+    @Override
+    public void onUnhandled(int pgn) {
+
+    }
+
+    @Override
+    public void onMessage(CanMessage message) {
+        if (message instanceof NavMessageHandler.PGN130306Wind) {
+            NavMessageHandler.PGN130306Wind wind = (NavMessageHandler.PGN130306Wind) message;
+            if (wind.windReference == N2KReference.WindReference.Apparent) {
+                log.info("Got wind {}", wind);
+            }
+        } else if (message instanceof IsoMessageHandler.CanBusStatus ) {
+        }
+    }
 
 
     public interface ControlHook {
@@ -73,6 +105,11 @@ public class ControlPage extends JPanel implements StatusUpdates.StatusUpdateLis
                 controlHook.exit();
             }
         });
+
+        connectButton = new JButton("Connect");
+        disconnectButton = new JButton("Disconnect");
+
+
         title = new JLabel("NMEA2000 Eink for Kindle");
         title.setHorizontalAlignment(JLabel.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 20));
@@ -88,7 +125,7 @@ public class ControlPage extends JPanel implements StatusUpdates.StatusUpdateLis
         this.add(titles, BorderLayout.PAGE_START);
 
         statusMessages = new JTextArea();
-        statusMessages.setFont(new Font("Arial", Font.PLAIN, 8));
+        statusMessages.setFont(new Font("Arial", Font.PLAIN, 10));
         statusMessages.setLineWrap(true);
         statusMessages.setEditable(false);
         statusMessages.setHighlighter(null);
@@ -96,7 +133,9 @@ public class ControlPage extends JPanel implements StatusUpdates.StatusUpdateLis
         this.add(statusMessages, BorderLayout.CENTER);
 
         buttons = new ThemePanel(new BorderLayout());
-        //buttons.add(invertButton, BorderLayout.LINE_START);
+        buttons.add(invertButton, BorderLayout.LINE_START);
+        buttons.add(connectButton, BorderLayout.LINE_START);
+        buttons.add(disconnectButton, BorderLayout.LINE_START);
         buttons.add(exitButton, BorderLayout.LINE_END);
         this.add(buttons, BorderLayout.PAGE_END);
     }
