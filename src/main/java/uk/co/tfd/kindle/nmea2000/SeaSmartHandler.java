@@ -74,6 +74,12 @@ public class SeaSmartHandler extends StatusUpdates implements NMEA0183Handler {
       };
     }
 
+
+    public String getStatusMessage() {
+        return String.format("CAN rx:%d err:%d", status.recieved.get(), status.dropped.get());
+    }
+
+
     public void emitStatus() {
         canMessageProducer.emitMessage(status);
     }

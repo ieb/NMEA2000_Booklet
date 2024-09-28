@@ -3,7 +3,6 @@ package uk.co.tfd.kindle.nmea2000.canwidgets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.tfd.kindle.nmea2000.Configuration;
-import uk.co.tfd.kindle.nmea2000.can.CanMessageListener;
 import uk.co.tfd.kindle.nmea2000.can.CanMessageProducer;
 
 import javax.swing.*;
@@ -60,7 +59,7 @@ public class CanInstruments {
         map.put("tws", new CanInstrument(NavView.TrueWindSpeed.class));
         map.put("twa", new CanInstrument(NavView.TrueWindAngle.class));
         map.put("xte", new CanInstrument(NavView.CrossTrackError.class));
-        map.put("dpt", new CanInstrument(NavView.Depth.class));
+        map.put("dbt", new CanInstrument(NavView.Depth.class));
         map.put("log", new CanInstrument(NavView.DistanceLog.class));
         map.put("hdm", new CanInstrument(NavView.HeadingMagnetic.class));
         map.put("roll", new CanInstrument(NavView.Roll.class));

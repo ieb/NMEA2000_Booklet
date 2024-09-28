@@ -20,7 +20,7 @@ public class MainServer {
 
     }
 
-    public void run(String sourceFile) throws IOException {
+    public void run(String ... sourceFiles) throws IOException {
         ServerSocket server = null;
         Socket socket = null;
         try {
@@ -77,7 +77,13 @@ public class MainServer {
                         }
                     });
                     reader.start();
+                    int fileNo = 0;
                     while (true) {
+                        fileNo++;
+                        if ( fileNo >= sourceFiles.length ) {
+                            fileNo = 0;
+                        }
+                        String sourceFile = sourceFiles[fileNo];
                         sendFile(sourceFile, out);
                         Thread.sleep(5000);
                     }
@@ -235,7 +241,7 @@ public class MainServer {
 
     public static void main(String argv[]) throws IOException {
         MainServer mainServer = new MainServer();
-        mainServer.run("src/test/resources/samplecandata2.txt");
+        mainServer.run("src/test/resources/samplecandata2.txt", "src/test/resources/samplecandata.txt" );
     }
 
 }

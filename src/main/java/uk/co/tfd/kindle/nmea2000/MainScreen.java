@@ -33,12 +33,15 @@ public class MainScreen {
         private final Color foreground;
         private final Color background;
         private final Color controlForeground;
+        private final Color controlBackground;
 
-        public Theme( Color foreground, Color background, Color controlForeground) {
+        public Theme( Color foreground, Color background, Color controlForeground
+                , Color controlBackground) {
 
             this.foreground = foreground;
             this.background = background;
             this.controlForeground = controlForeground;
+            this.controlBackground = controlBackground;
 
         }
 
@@ -53,19 +56,22 @@ public class MainScreen {
         public Color getForeground() {
             return foreground;
         }
+
+        public Color getControlBackground() { return controlBackground;
+        }
     }
 
     private static Theme[] THEMES = {
-            new Theme(Color.BLACK, Color.WHITE, Color.BLACK),
-            new Theme(Color.WHITE, Color.BLACK, Color.GRAY),
-            new Theme(Color.RED, Color.BLACK, Color.GRAY),
-            new Theme(new Color(33, 158, 121), Color.BLACK,Color.GRAY),
-            new Theme(new Color(148, 146, 38), Color.BLACK,Color.GRAY)
+            new Theme(Color.BLACK, Color.WHITE, Color.BLACK, Color.WHITE),
+            new Theme(Color.WHITE, Color.BLACK, Color.WHITE, Color.DARK_GRAY),
+            new Theme(Color.RED, Color.BLACK, Color.RED, Color.DARK_GRAY),
+            new Theme(new Color(33, 158, 121), Color.BLACK,new Color(33, 158, 121), Color.DARK_GRAY),
+            new Theme(new Color(148, 146, 38), Color.BLACK,new Color(148, 146, 38), Color.DARK_GRAY)
     };
     private int NTHEMES = 5;
     private int theme;
 
-    private final CanPageLayout layout;
+    private final CanPageLayout mainPanel;
     private final ControlPage controlPage;
 
     public interface MainScreenExit {
@@ -75,12 +81,13 @@ public class MainScreen {
 
     public MainScreen(Container root, String configFile,  MainScreenExit exitHook) throws IOException, NoSuchMethodException, ParseException {
 
+
         controlPage = new ControlPage(new ControlPage.ControlHook() {
             @Override
             public void invertColors() {
                 theme = (theme+1)%NTHEMES;
-                layout.setForeground(THEMES[theme].getForeground());
-                layout.setBackground(THEMES[theme].getBackground());
+                mainPanel.setForeground(THEMES[theme].getForeground());
+                mainPanel.setBackground(THEMES[theme].getBackground());
                 controlPage.setTheme(THEMES[theme]);
             }
 
@@ -98,8 +105,39 @@ public class MainScreen {
             }
         });
 
-        nmea0183Client = new NMEA0183Client();
         messageProducer = new CanMessageProducer();
+        mainPanel = new CanPageLayout(messageProducer, controlPage);
+        mainPanel.setPreferredSize(root.getMaximumSize());
+        root.add(mainPanel);
+        mainPanel.setForeground(THEMES[theme].getForeground());
+        mainPanel.setBackground(THEMES[theme].getBackground());
+        controlPage.setTheme(THEMES[theme]);
+
+        mainPanel.showPage("control");
+        // the CanPageLayout layout must be set visible before it will show.
+        // failing to do this leads to a blank screen on the kindle, but on OSX no problem.
+        mainPanel.setVisible(true);
+        root.doLayout();
+        root.setVisible(true);
+
+
+        Configuration config = new Configuration(configFile);
+        if ( !Util.isKindle() ) {
+            Dimension d = config.getScreenSize();
+            if ( d != null) {
+                root.setSize(d.width/2, d.height/2);
+                log.info("Set Screensize to {} ", root.getSize());
+            }
+        }
+        controlPage.onStatusChange("Config from " + config.getConfigName());
+
+
+
+
+        // now setup components etc.
+
+
+        nmea0183Client = new NMEA0183Client();
         seaSmartHandler = new SeaSmartHandler(messageProducer);
 
         nmea0183Client.addHandler("DIN", seaSmartHandler);
@@ -130,21 +168,10 @@ public class MainScreen {
         discovery.startDiscovery();
 
 
-        layout = new CanPageLayout(messageProducer);
-        layout.setPreferredSize(root.getMaximumSize());
 
 
-        Configuration config = new Configuration(configFile);
-        layout.loadConfiguration(config);
+        mainPanel.loadConfiguration(config);
 
-        controlPage.onStatusChange("Config from " + config.getConfigName());
-        if ( !Util.isKindle() ) {
-            Dimension d = config.getScreenSize();
-            if ( d != null) {
-                root.setSize(d.width/2, d.height/2);
-                log.info("Set Screensize to {} ", root.getSize());
-            }
-        }
         WidgetComponentListener listener = new WidgetComponentListener(messageProducer);
         controlPage.addAncestorListener(listener);
         Polar polar = new Polar(config.getConfiguration());
@@ -171,16 +198,10 @@ public class MainScreen {
         } else {
             messageProducer.addListener(new WindCalculator(messageProducer));
             messageProducer.addListener(new PerformanceCalculator(messageProducer, polar));
-            layout.addControl(controlPage);
-            root.add(layout);
         }
 
 
 
-
-        root.doLayout();
-        root.setVisible(true);
-        layout.showControlPage();
 
 
 
@@ -209,6 +230,7 @@ public class MainScreen {
                     lastCommandMessage = commandMessage;
                 }
                 seaSmartHandler.emitStatus();
+                controlPage.updateConnectionMessage(nmea0183Client.getStatusMessage()+" "+seaSmartHandler.getStatusMessage());
                 if ( nmea0183Client.hasStalled()) {
                     nmea0183Client.stop();
                     nmea0183Client.start();

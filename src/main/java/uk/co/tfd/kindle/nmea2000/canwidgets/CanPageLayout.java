@@ -1,31 +1,30 @@
 package uk.co.tfd.kindle.nmea2000.canwidgets;
 
+import com.amazon.agui.swing.ComplexStateModel;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.co.tfd.kindle.nmea2000.Configuration;
-import uk.co.tfd.kindle.nmea2000.SeaSmartHandler;
-import uk.co.tfd.kindle.nmea2000.Util;
+import uk.co.tfd.kindle.nmea2000.*;
 import uk.co.tfd.kindle.nmea2000.can.CanMessageListener;
 import uk.co.tfd.kindle.nmea2000.can.CanMessageProducer;
 
 import javax.swing.*;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
+
+import static uk.co.tfd.kindle.nmea2000.Util.scaleKindle;
 
 public class CanPageLayout extends JPanel implements MouseListener, MouseMotionListener {
 
@@ -37,42 +36,42 @@ public class CanPageLayout extends JPanel implements MouseListener, MouseMotionL
      */
     private static final Logger log = LoggerFactory.getLogger(CanPageLayout.class);
     private int pageNo;
-    private final CardLayout layout;
     private final CanInstruments instruments;
     private int pressedAt;
     private int dragStartX;
     private int pagesCount;
     private int dragStartY;
 
-    private java.util.List<Map<String, Object>> pageList = new ArrayList<Map<String, Object>>();
     private boolean rotate = false;
     private boolean dragging = false;
-    private JPanel control;
+    private ControlPage control;
+    private Map<String, JPanel> cards = new HashMap<String, JPanel>();
 
-    public CanPageLayout(CanMessageProducer canMessageProducer) throws NoSuchMethodException {
+    public CanPageLayout(CanMessageProducer canMessageProducer, ControlPage controlPage) throws NoSuchMethodException {
         this.instruments = new CanInstruments(canMessageProducer);
-        layout = new CardLayout();
-        this.setLayout(layout);
+        this.setLayout(null);
         this.pageNo = 0;
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
 
-    }
-
-    public void addControl(JPanel control) {
-        this.control = control;
+        this.control = controlPage;
         this.control.addMouseListener(this);
         this.control.addMouseMotionListener(this);
-        this.add("control", control);
+        this.add(control);
+        cards.put("control", control);
+
     }
 
-    @Override
-    public void doLayout() {
-        log.info("Do Layout called");
-        super.doLayout();
-    }
-    public void showControlPage() {
-        layout.show(this, "control");
+    public void showPage(String name) {
+        if ( cards.containsKey(name)) {
+            for(Map.Entry<String, JPanel> e : cards.entrySet()) {
+                e.getValue().setVisible(false);
+            }
+            cards.get(name).setVisible(true);
+            log.info("Page should be showing now {}", name);
+        } else {
+            log.error("Page not found {}", name);
+        }
     }
 
     @Override
@@ -109,56 +108,11 @@ public class CanPageLayout extends JPanel implements MouseListener, MouseMotionL
             log.debug("Not dragging");
             return;
         }
-        int distanceX = e.getX() - dragStartX;
         int distanceY = e.getY() - dragStartY;
-        log.debug("Dragging {} {}", distanceX, distanceY );
-        if (rotate) {
-            if (distanceX < -200) {
-                layout.show(this, "control");
-                rotate = false;
-                dragging = false;
-            } else if (distanceY > 200) {
-                pageNo--;
-                if (pageNo < 0) {
-                    pageNo = pagesCount - 1;
-                }
-                layout.show(this, "page" + pageNo);
-                rotate = Util.option(pageList.get(pageNo), "rotate", false);
-                dragging = false;
-
-            } else if (distanceY < -200) {
-                pageNo++;
-                if (pageNo == pagesCount) {
-                    pageNo = 0;
-                }
-                layout.show(this, "page" + pageNo);
-                rotate = Util.option(pageList.get(pageNo), "rotate", false);
-                dragging = false;
-            }
-
-        } else {
-            if (distanceY < -200) {
-                layout.show(this, "control");
-                rotate = false;
-                dragging = false;
-            } else if (distanceX < -200) {
-                pageNo--;
-                if (pageNo < 0) {
-                    pageNo = pagesCount - 1;
-                }
-                layout.show(this, "page" + pageNo);
-                rotate = Util.option(pageList.get(pageNo), "rotate", false);
-                dragging = false;
-
-            } else if (distanceX > 200) {
-                pageNo++;
-                if (pageNo == pagesCount) {
-                    pageNo = 0;
-                }
-                layout.show(this, "page" + pageNo);
-                rotate = Util.option(pageList.get(pageNo), "rotate", false);
-                dragging = false;
-            }
+        if (distanceY > 200) {
+            showPage("control");
+            rotate = false;
+            dragging = false;
         }
     }
 
@@ -168,16 +122,22 @@ public class CanPageLayout extends JPanel implements MouseListener, MouseMotionL
     }
     public void loadConfiguration(Configuration config) {
         instruments.addCustomConfiguration(config);
-        pageList.clear();
         Map<String, Object> configuration = config.getConfiguration();
         java.util.List<Map<String, Object>> pages = (java.util.List<Map<String, Object>>) configuration.get("pages");
         pagesCount = 0;
         for (Map<String, Object> page : pages) {
+            // create the card and register it
             Card card = new Card();
-            pageList.add(page);
-            page.put("card", card);
-            this.add("page" + pagesCount, card);
+            String pageName = "page" + pagesCount;
+            control.addMenuItem(pagesCount, (String)page.get("id"), new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    showPage(pageName);
+                }
+            });
+
             pagesCount++;
+            // build card contents
             int i = 0;
             boolean rotatePage = Util.option(page, "rotate", false);
             java.util.List<java.util.List<String>> grid = (java.util.List<java.util.List<String>>) page.get("instruments");
@@ -210,13 +170,16 @@ public class CanPageLayout extends JPanel implements MouseListener, MouseMotionL
                     }
                 }
             }
+            this.add(card);
+            card.setBounds(0,0, Util.scaleKindle(Util.KINDLE_FRAME_WIDTH), Util.scaleKindle(Util.KINDLE_FRAME_HEIGHT));
+            card.setVisible(false);
+            cards.put(pageName, card);
             log.info("Loaded Page {} c{} r{} ", page.get("id"), ncols, nrows);
         }
     }
 
     @Override
     public void setForeground(Color fg) {
-        super.setForeground(fg);
         for(Component c: this.getComponents()) {
             c.setForeground(fg);
         }
@@ -226,6 +189,7 @@ public class CanPageLayout extends JPanel implements MouseListener, MouseMotionL
     public void setBackground(Color bg) {
         super.setBackground(bg);
         for(Component c: this.getComponents()) {
+            log.info("Setting BG for {} ", c);
             c.setBackground(bg);
         }
     }

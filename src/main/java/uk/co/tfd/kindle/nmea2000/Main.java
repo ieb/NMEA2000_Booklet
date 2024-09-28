@@ -35,7 +35,7 @@ public class Main {
 
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
+        frame.setSize(600, 800);
         MainScreen mainScreen = new MainScreen(frame,
                 "src/test/resources/badconfig.json",
                 new MainScreen.MainScreenExit() {
@@ -44,7 +44,7 @@ public class Main {
                 System.exit(0);
             }
         });
-        timer = new Timer(30000, new ActionListener() {
+        timer = new Timer(5000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {

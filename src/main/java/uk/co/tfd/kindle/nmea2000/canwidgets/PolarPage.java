@@ -449,7 +449,7 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
             }
 
 
-            double smallValuesSize = largeValuesSize/4.0;
+            double smallValuesSize = largeValuesSize/2.0;
             double ringSize = largeValuesSize/5.0;
             double labelFontSize = largeValuesSize/6.0;
             this.fontSize = (int)(largeValuesSize);
@@ -467,10 +467,10 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget  
             attributes.put(TextAttribute.SIZE, (float)ringSize);
             this.ringFont = new Font(attributes);
 
-            log.info("Large values front {} ", largeValues);
-            log.info("Small values front {} ", smallValues);
-            log.info("labels front {} ", labelsFont);
-            log.info("Ring font {} ", ringFont);
+            log.info("Large values front {} {} ", largeValuesSize, largeValues);
+            log.info("Small values front {} {} ", smallValuesSize, smallValues);
+            log.info("labels front {} {} ", labelFontSize,  labelsFont);
+            log.info("Ring font {} {} ", ringSize, ringFont);
 
             //this.mediumLineSpace = boxHeight /4;
             //this.smallLineSpace = boxHeight /8;

@@ -26,8 +26,10 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
     private int port;
     private OutputStream outputStream;
     private String lastSentence;
-    private long lastRead;
+    private long lastRead = System.currentTimeMillis();
     private Socket socket = null;
+    private int recieved = 0;
+    private int sent = 0;
 
     public NMEA0183Client(InetAddress address, int port) {
         this.address = address;
@@ -102,6 +104,13 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
             }
         }
     }
+
+    public String getStatusMessage() {
+        String state = socket==null?"disconnected":"connected";
+        int age = (int)((System.currentTimeMillis() - lastRead)/1000);
+        return String.format("Client %s tx:%d rx:%d age:%d", state, sent, recieved, age );
+    }
+
     private synchronized  void openSocket() throws IOException {
         checkSocketClosed();
         updateStatus("Opening socket on "+address+":"+port);
@@ -144,6 +153,7 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
     public void processLine(String line) throws UnsupportedEncodingException {
         lastRead = System.currentTimeMillis();
         if ( line != null && line.startsWith("$") ) {
+            recieved++;
             // perhaps NMEA, check the checksum first.
             if ( checkSumOk(line)) {
                 String talkerId = line.substring(1,3);
@@ -162,6 +172,7 @@ public class NMEA0183Client extends StatusUpdates implements Runnable {
         lastSentence = sentence;
         if ( outputStream != null) {
             log.info("Sending {}", sentence);
+            sent++;
             outputStream.write(sentence.getBytes("ASCII"));
             outputStream.write(new byte[]{ '\r', '\n'});
         }

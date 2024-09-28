@@ -9,12 +9,17 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.font.TextAttribute;
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -25,8 +30,47 @@ public class Util {
     public static int DEFAULT_SCREEN_RESOLUTION = 111;
     private static int screenResolution = DEFAULT_SCREEN_RESOLUTION; // default for awt on OSX.
 
+	public static final int KINDLE_FRAME_WIDTH = 1072;
+	public static final int KINDLE_FRAME_HEIGHT = 1390;
 
-    public static BookletContext obGetBookletContext(int j, AbstractBooklet booklet){
+
+	public static int scaleKindle(int xy) {
+		if ( kindle ) {
+			return xy;
+		} else {
+			return (int)((535.0/1072.0)*xy);
+		}
+	}
+
+	public static Font createFont(float sz) {
+		if (isKindle()) {
+			sz = sz*0.53f;
+		}
+		Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
+		attributes.put(TextAttribute.FAMILY, "Arial");
+		attributes.put(TextAttribute.SIZE, sz);
+		return new Font(attributes);
+	}
+	public static Font createExtraBoldFont(float sz) {
+		if (isKindle()) {
+			sz = sz*0.53f;
+		}
+		Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
+		attributes.put(TextAttribute.FAMILY, "Arial");
+		attributes.put(TextAttribute.SIZE, sz);
+		attributes.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_EXTRABOLD);
+		return new Font(attributes);
+	}
+
+	public static int descaleKindle(int xy) {
+		if ( kindle ) {
+			return xy;
+		} else {
+			return (int)( ((1072.0/535.0)) * xy);
+		}
+	}
+
+	public static BookletContext obGetBookletContext(int j, AbstractBooklet booklet){
 		BookletContext bc = null;
 		Method[] methods = AbstractBooklet.class.getDeclaredMethods();
 		for (int i = 0; i < methods.length; i++) {
@@ -215,6 +259,8 @@ public class Util {
         return kindle;
     }
 
+
+
     public static void setKindle(boolean kindleValue) {
         kindle = kindleValue;
     }
@@ -264,6 +310,27 @@ public class Util {
 			return Double.parseDouble((String)v);
 		} else {
 			return i;
+		}
+	}
+
+	public static void addMouseTracker(JPanel component) {
+		if ( !kindle ) {
+			final JLabel mousePosition = new JLabel("0,0");
+			component.add(mousePosition);
+			Dimension s = mousePosition.getPreferredSize();
+			mousePosition.setBounds(scaleKindle(100), scaleKindle(KINDLE_FRAME_HEIGHT) - 50, 100, 50);
+
+			component.addMouseMotionListener(new MouseMotionListener() {
+				@Override
+				public void mouseDragged(MouseEvent e) {
+
+				}
+
+				@Override
+				public void mouseMoved(MouseEvent e) {
+					mousePosition.setText(String.format("%d, %d", descaleKindle(e.getX()), descaleKindle(e.getY())));
+				}
+			});
 		}
 	}
 
@@ -318,5 +385,32 @@ public class Util {
         }
 
     }
+
+
+	// kindle boundary
+	public static void drawGrid(Graphics g) {
+		if ( !kindle) {
+			g.drawRect(0, 0, scaleKindle(KINDLE_FRAME_WIDTH), scaleKindle(KINDLE_FRAME_HEIGHT));
+			for (int i = 0; i < KINDLE_FRAME_HEIGHT; i += 100) {
+				g.drawLine(0, scaleKindle(i), scaleKindle(KINDLE_FRAME_WIDTH), scaleKindle(i));
+			}
+			for (int i = 0; i < KINDLE_FRAME_WIDTH; i += 100) {
+				g.drawLine(scaleKindle(i), 0, scaleKindle(i), scaleKindle(KINDLE_FRAME_HEIGHT));
+			}
+			g.setColor(Color.RED);
+			g.drawLine(scaleKindle(KINDLE_FRAME_WIDTH / 2), 0, scaleKindle(KINDLE_FRAME_WIDTH / 2), scaleKindle(KINDLE_FRAME_HEIGHT));
+			g.drawLine(0, scaleKindle(KINDLE_FRAME_HEIGHT / 2), KINDLE_FRAME_WIDTH, scaleKindle(Util.KINDLE_FRAME_HEIGHT / 2));
+			g.setColor(Color.BLACK);
+		}
+	}
+
+	public static void testFontSizes(Graphics g) {
+		for (int i = 8; i < 40; i++) {
+			g.setFont(Util.createFont((1.0f*i)));
+			g.drawString(String.format("F%d", i), scaleKindle(100), scaleKindle(100+(i-8)*40));
+		}
+	}
+
+
 
 }

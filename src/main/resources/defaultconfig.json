@@ -544,62 +544,51 @@
   "comment" : "",
   "pages" : [
     {
-      "id" : "engine",
+      "id" : "Engine",
+      "hspace" : 5,
+      "vspace" : 5,
+      "rotate": true,
+      "instruments" : [
+        [ "dbt", "rpm", "stw"],
+        [ "coolantTemp", "exhaustTemp", "alternatorTemp" ],
+        [ "sog", "engineHours", "fuelLevel"  ]
+      ]
+    },
+    {
+      "id" : "COG/SOG",
       "hspace" : 5,
       "vspace" : 5,
       "rotate": false,
       "instruments" : [
-        [ "rpm", "coolantTemp"],
-        [ "engineHours", "fuelLevel" ],
-        [ "status", "alternatorTemp" ]
+        ["dbt", "position", "log" ],
+        ["cog", "hdm", "awa" ],
+        ["sog", "stw", "aws" ]
       ]
     },
     {
-      "id" : "page2",
+      "id" : "Wind",
       "hspace" : 5,
       "vspace" : 5,
-      "rotate": false,
+      "rotate": true,
       "instruments" : [
-        ["status", "exhaustTemp" ],
-        ["engineRoomTemp", "stw" ],
-        [ "boatSet", "xte" ]
+        ["dbt", "position", "stw" ],
+        ["cog", "tws", "awa"],
+        ["sog", "aws", "aws" ]
       ]
     },
     {
-      "id" : "page3",
+      "id" : "Nav",
       "hspace" : 5,
       "vspace" : 5,
-      "rotate": false,
+      "rotate": true,
       "instruments" : [
-        ["status", "position" ],
-        ["cog", "sog" ],
-        ["dpt", "log" ]
+        ["dbt", "position","log" ],
+        ["cog", "hdm", "roll" ],
+        ["sog", "rudderAngle", "boatDrift" ]
       ]
     },
     {
-      "id" : "page4",
-      "hspace" : 5,
-      "vspace" : 5,
-      "rotate": false,
-      "instruments" : [
-        ["status", "position" ],
-        ["twa", "tws" ],
-        ["awa", "aws" ]
-      ]
-    },
-    {
-      "id" : "page5",
-      "hspace" : 5,
-      "vspace" : 5,
-      "rotate": false,
-      "instruments" : [
-        ["status", "hdm" ],
-        ["roll", "rudderAngle" ],
-        ["boatDrift", "position" ]
-      ]
-    },
-    {
-      "id" : "aapolar",
+      "id" : "Polar",
       "hspace" : 5,
       "vspace" : 5,
       "rotate": false,
