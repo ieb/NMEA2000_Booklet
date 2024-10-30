@@ -69,6 +69,7 @@ public class CanInstruments {
 
         map.put("status", new CanInstrument(SystemView.CanBusStatus.class));
         map.put("polarpage", new CanInstrument(PolarPage.class));
+        map.put("enginepage", new CanInstrument(EnginePage.class));
 
         blank = new CanInstrument<>(BaseCanWidget.class);
         map.put("blank",blank);

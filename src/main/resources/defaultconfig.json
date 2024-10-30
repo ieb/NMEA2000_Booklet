@@ -592,9 +592,14 @@
       "hspace" : 5,
       "vspace" : 5,
       "rotate": false,
-      "instruments" : [
-        ["polarpage"]
-      ]
+      "page": "polarpage"
+    },
+    {
+      "id" : "Engine",
+      "hspace" : 5,
+      "vspace" : 5,
+      "rotate": true,
+      "page": "enginepage"
     }
   ]
 }

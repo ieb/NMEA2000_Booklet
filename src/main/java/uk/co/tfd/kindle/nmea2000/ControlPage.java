@@ -9,13 +9,11 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.font.TextAttribute;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import static uk.co.tfd.kindle.nmea2000.Util.*;
+import static uk.co.tfd.kindle.nmea2000.Util.scaleKindle;
 
 /**
  * Created by ieb on 20/06/2020.
@@ -184,6 +182,9 @@ public class ControlPage extends JPanel implements StatusUpdates.StatusUpdateLis
         exitButton.setBounds(scaleKindle(850), scaleKindle(1276), buttonSize*2, buttonSize );
 
         //Util.addMouseTracker(this);
+
+
+
     }
 
     public void updateConnectionMessage(String connectionMessage) {

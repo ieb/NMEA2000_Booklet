@@ -26,7 +26,7 @@ import java.awt.GridLayout;
 
 import static uk.co.tfd.kindle.nmea2000.Util.scaleKindle;
 
-public class CanPageLayout extends JPanel implements MouseListener, MouseMotionListener {
+public class CanPageLayout extends JPanel  {
 
 
 
@@ -37,29 +37,54 @@ public class CanPageLayout extends JPanel implements MouseListener, MouseMotionL
     private static final Logger log = LoggerFactory.getLogger(CanPageLayout.class);
     private int pageNo;
     private final CanInstruments instruments;
-    private int pressedAt;
-    private int dragStartX;
     private int pagesCount;
     private int dragStartY;
 
-    private boolean rotate = false;
-    private boolean dragging = false;
     private ControlPage control;
     private Map<String, JPanel> cards = new HashMap<String, JPanel>();
+    private JPanel visiblePage;
 
     public CanPageLayout(CanMessageProducer canMessageProducer, ControlPage controlPage) throws NoSuchMethodException {
         this.instruments = new CanInstruments(canMessageProducer);
         this.setLayout(null);
         this.pageNo = 0;
-        this.addMouseListener(this);
-        this.addMouseMotionListener(this);
+        this.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                int distanceY = e.getY() - dragStartY;
+                if (distanceY > 200) {
+                    showPage("control");
+                }
+                super.mouseDragged(e);
+                if ( visiblePage instanceof MouseMotionListener ) {
+                    ((MouseMotionListener) visiblePage).mouseMoved(e);
+                }
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                dragStartY = e.getY();
+                super.mouseMoved(e);
+                if ( visiblePage instanceof MouseMotionListener ) {
+                    ((MouseMotionListener) visiblePage).mouseMoved(e);
+                }
+            }
+        });
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                log.info("Clicked {}", visiblePage);
+                if ( visiblePage instanceof MouseListener ) {
+                    ((MouseListener) visiblePage).mouseClicked(e);
+                }
+                super.mouseClicked(e);
+            }
+        });
+
 
         this.control = controlPage;
-        this.control.addMouseListener(this);
-        this.control.addMouseMotionListener(this);
         this.add(control);
         cards.put("control", control);
-
     }
 
     public void showPage(String name) {
@@ -67,58 +92,12 @@ public class CanPageLayout extends JPanel implements MouseListener, MouseMotionL
             for(Map.Entry<String, JPanel> e : cards.entrySet()) {
                 e.getValue().setVisible(false);
             }
-            cards.get(name).setVisible(true);
+            visiblePage = cards.get(name);
+            visiblePage.setVisible(true);
             log.info("Page should be showing now {}", name);
         } else {
             log.error("Page not found {}", name);
         }
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        dragStartX = e.getX();
-        dragStartY = e.getY();
-        log.debug("Clicked {} ", dragStartX);
-        dragging = true;
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        log.debug("Released {} ", dragStartX);
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        if ( !dragging ) {
-            log.debug("Not dragging");
-            return;
-        }
-        int distanceY = e.getY() - dragStartY;
-        if (distanceY > 200) {
-            showPage("control");
-            rotate = false;
-            dragging = false;
-        }
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-
     }
     public void loadConfiguration(Configuration config) {
         instruments.addCustomConfiguration(config);
@@ -127,7 +106,6 @@ public class CanPageLayout extends JPanel implements MouseListener, MouseMotionL
         pagesCount = 0;
         for (Map<String, Object> page : pages) {
             // create the card and register it
-            Card card = new Card();
             String pageName = "page" + pagesCount;
             control.addMenuItem(pagesCount, (String)page.get("id"), new AbstractAction() {
                 @Override
@@ -140,41 +118,49 @@ public class CanPageLayout extends JPanel implements MouseListener, MouseMotionL
             // build card contents
             int i = 0;
             boolean rotatePage = Util.option(page, "rotate", false);
-            java.util.List<java.util.List<String>> grid = (java.util.List<java.util.List<String>>) page.get("instruments");
-            int nrows = grid.size();
-            int ncols = grid.get(0).size();
-            long hgap = Util.option(page, "hspace", 10L);
-            long vgap = Util.option(page, "vspace", 10L);
-            if ( rotatePage ) {
-                card.setLayout(new GridLayout((int) ncols, (int) nrows, (int) hgap, (int) vgap));
-            } else {
-                card.setLayout(new GridLayout((int) nrows, (int) ncols, (int) hgap, (int) vgap));
-            }
-
-            if ( rotatePage ) {
-                for (int c = ncols-1 ; c >= 0; c--) {
-                    for (int r = 0 ; r < nrows; r++) {
-                        String name = grid.get(r).get(c);
-                        log.debug("Adding Rotated {} {} {}  ", r, c, name);
-                        card.add(instruments.create(name, rotatePage).getJComponent(), i++);
-                    }
-
+            JPanel card = null;
+            if ( page.containsKey("instruments") ) {
+                java.util.List<java.util.List<String>> grid = (java.util.List<java.util.List<String>>) page.get("instruments");
+                int nrows = grid.size();
+                int ncols = grid.get(0).size();
+                long hgap = Util.option(page, "hspace", 10L);
+                long vgap = Util.option(page, "vspace", 10L);
+                card = new Card();
+                if (rotatePage) {
+                    card.setLayout(new GridLayout((int) ncols, (int) nrows, (int) hgap, (int) vgap));
+                } else {
+                    card.setLayout(new GridLayout((int) nrows, (int) ncols, (int) hgap, (int) vgap));
                 }
 
-            } else {
-                for (int r = 0 ; r < nrows; r++) {
-                    for (int c = 0 ; c < ncols; c++) {
-                        String name = grid.get(r).get(c);
-                        log.debug("Adding {} {} {}  ", r, c, name);
-                        card.add(instruments.create(name, rotatePage).getJComponent(), i++);
+                if (rotatePage) {
+                    for (int c = ncols - 1; c >= 0; c--) {
+                        for (int r = 0; r < nrows; r++) {
+                            String name = grid.get(r).get(c);
+                            log.debug("Adding Rotated {} {} {}  ", r, c, name);
+                            card.add(instruments.create(name, rotatePage).getJComponent(), i++);
+                        }
+
+                    }
+
+                } else {
+                    for (int r = 0; r < nrows; r++) {
+                        for (int c = 0; c < ncols; c++) {
+                            String name = grid.get(r).get(c);
+                            log.debug("Adding {} {} {}  ", r, c, name);
+                            card.add(instruments.create(name, rotatePage).getJComponent(), i++);
+                        }
                     }
                 }
+                log.info("Loaded Page {} c{} r{} ", page.get("id"), ncols, nrows);
+            } else if (page.containsKey("page")) {
+                card  = (JPanel) instruments.create((String) page.get("page"), rotatePage);
             }
-            this.add(card);
-            card.setBounds(0,0, Util.scaleKindle(Util.KINDLE_FRAME_WIDTH), Util.scaleKindle(Util.KINDLE_FRAME_HEIGHT));
-            card.setVisible(false);
-            cards.put(pageName, card);
-            log.info("Loaded Page {} c{} r{} ", page.get("id"), ncols, nrows);
+            if ( card != null ) {
+                this.add(card);
+                card.setBounds(0, 0, Util.scaleKindle(Util.KINDLE_FRAME_WIDTH), Util.scaleKindle(Util.KINDLE_FRAME_HEIGHT));
+                card.setVisible(false);
+                cards.put(pageName, card);
+            }
         }
     }
 

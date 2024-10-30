@@ -27,6 +27,7 @@ public class MainScreen {
     private final Timer timer;
     private final CanMessageProducer messageProducer;
     private final String simulatorMode = "normal";
+    private final Timer timer2;
     private String lastCommandMessage = "";
 
     public static class Theme {
@@ -108,17 +109,10 @@ public class MainScreen {
         messageProducer = new CanMessageProducer();
         mainPanel = new CanPageLayout(messageProducer, controlPage);
         mainPanel.setPreferredSize(root.getMaximumSize());
-        root.add(mainPanel);
         mainPanel.setForeground(THEMES[theme].getForeground());
         mainPanel.setBackground(THEMES[theme].getBackground());
         controlPage.setTheme(THEMES[theme]);
 
-        mainPanel.showPage("control");
-        // the CanPageLayout layout must be set visible before it will show.
-        // failing to do this leads to a blank screen on the kindle, but on OSX no problem.
-        mainPanel.setVisible(true);
-        root.doLayout();
-        root.setVisible(true);
 
 
         Configuration config = new Configuration(configFile);
@@ -179,6 +173,7 @@ public class MainScreen {
 
 
 
+
         if ( "manual".equals(simulatorMode) ) {
             // drive with a manual simulator
             PolarPage polarPage = new PolarPage(false);
@@ -199,8 +194,19 @@ public class MainScreen {
             messageProducer.addListener(new WindCalculator(messageProducer));
             messageProducer.addListener(new PerformanceCalculator(messageProducer, polar));
         }
+        // set the theme on the main pannel again, so that all the components
+        // get the current theme
+        mainPanel.setForeground(THEMES[theme].getForeground());
+        mainPanel.setBackground(THEMES[theme].getBackground());
 
 
+        mainPanel.showPage("control");
+        // the CanPageLayout layout must be set visible before it will show.
+        // failing to do this leads to a blank screen on the kindle, but on OSX no problem.
+        mainPanel.setVisible(true);
+        root.add(mainPanel);
+        root.doLayout();
+        root.setVisible(true);
 
 
 
@@ -239,6 +245,24 @@ public class MainScreen {
         });
         timer.start();
 
+        timer2 = new Timer(5000, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    MainScreen.this.stop();
+                    MainScreen.this.start(InetAddress.getByAddress(new byte[] {(byte)192,(byte)168,1,116}), 10112);
+                } catch (IOException e1) {
+                    log.error(e1.getMessage(), e);
+                }
+                timer2.stop();
+            }
+        });
+        /*
+        timer2.start();
+
+         */
+
 
 
 
@@ -249,6 +273,11 @@ public class MainScreen {
         nmea0183Client.stop();
         nmea0183Client.setAddress(null);
         nmea0183Client.setPort(-1);
+     }
+
+     public void restart() {
+         nmea0183Client.stop();
+         nmea0183Client.start();
      }
 
 

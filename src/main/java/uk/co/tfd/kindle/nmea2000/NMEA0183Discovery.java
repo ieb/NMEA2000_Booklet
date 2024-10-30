@@ -29,108 +29,137 @@ public class NMEA0183Discovery  extends StatusUpdates {
     }
 
     public void startDiscovery() throws IOException {
-        InetAddress in = null;
-
-        // find the lowest numbered ingerface that supports multicast and is up.
-        // this is on the basis that default interfaces will be first.
-        List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-        interfaces.sort(new Comparator<NetworkInterface>() {
+        Thread t  = new Thread() {
             @Override
-            public int compare(NetworkInterface o1, NetworkInterface o2) {
-                return o1.getIndex() - o2.getIndex();
-            }
-        });
-        for (NetworkInterface intf : interfaces) {
-            log.debug("Interface {} ", intf);
-            if (intf.isUp() && intf.supportsMulticast() && !intf.isLoopback()) {
-                String name = intf.getName();
-                // only use names that are expected to be connected to a valid network.
-                if (name.startsWith("en") || name.startsWith("wlan") || name.startsWith("eth")) {
-                    for (InterfaceAddress addr : intf.getInterfaceAddresses()) {
-                        InetAddress inaddr = addr.getAddress();
-                        if (inaddr instanceof Inet4Address) {
-                            in = inaddr;
-                            updateStatus("Discovering CanTCP Server on "+in+" "+name);
-                            log.info("Discovering CanTCP Server on {} {} ", in, name);
-                            break;
+            public void run() {
+                InetAddress in = null;
+
+                // find the lowest numbered ingerface that supports multicast and is up.
+                // this is on the basis that default interfaces will be first.
+                List<NetworkInterface> interfaces = null;
+                try {
+                    interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+                } catch (SocketException e) {
+                    throw new RuntimeException(e);
+                }
+                interfaces.sort(new Comparator<NetworkInterface>() {
+                    @Override
+                    public int compare(NetworkInterface o1, NetworkInterface o2) {
+                        return o1.getIndex() - o2.getIndex();
+                    }
+                });
+                for (NetworkInterface intf : interfaces) {
+                    log.debug("Interface {} ", intf);
+                    try {
+                        if (intf.isUp() && intf.supportsMulticast() && !intf.isLoopback()) {
+                            String name = intf.getName();
+                            // only use names that are expected to be connected to a valid network.
+                            if (name.startsWith("en") || name.startsWith("wlan") || name.startsWith("eth")) {
+                                for (InterfaceAddress addr : intf.getInterfaceAddresses()) {
+                                    InetAddress inaddr = addr.getAddress();
+                                    if (inaddr instanceof Inet4Address) {
+                                        in = inaddr;
+                                        updateStatus("Discovering CanTCP Server on "+in+" "+name);
+                                        log.info("Discovering CanTCP Server on {} {} ", in, name);
+                                        break;
+                                    }
+                                }
+                            }
+                            if (in != null) {
+                                break;
+                            }
                         }
+                    } catch (SocketException s) {
+                        log.error("Failed to check interface ",s);
+                    }
+
+                }
+                if (in == null) {
+                    try {
+                        in = InetAddress.getLocalHost();
+                        updateStatus("Discovering CanTCP Server on " + in);
+                        log.info("Discovering CanTCP Server default interface {} ", in);
+                    } catch (UnknownHostException ex) {
+                        log.error("Lookup failure ",ex);
+
                     }
                 }
-                if (in != null) {
-                    break;
+                log.info("Create jmdns");
+                try {
+                    jmdns = JmDNS.create(in);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-            }
+                log.info("Created");
 
-        }
-        if (in == null) {
-            in = InetAddress.getLocalHost();
-            updateStatus("Discovering CanTCP Server on "+in);
-            log.info("Discovering CanTCP Server default interface {} ",in);
-        }
+                /*
+                tcpListener = new ServiceListener() {
 
-        jmdns = JmDNS.create(in);
+                    @Override
+                    public void serviceAdded(ServiceEvent serviceEvent) {
 
-        /*
-        tcpListener = new ServiceListener() {
+                    }
 
-            @Override
-            public void serviceAdded(ServiceEvent serviceEvent) {
+                    @Override
+                    public void serviceRemoved(ServiceEvent serviceEvent) {
+                        log.info("Remove Http Info {} ", serviceEvent.getInfo());
+                        ServiceInfo info = serviceEvent.getInfo();
+                        String host = info.getHostAddresses()[0];
+                        client.removeServer(host);
+                    }
 
-            }
+                    @Override
+                    public void serviceResolved(ServiceEvent serviceEvent) {
+                        ServiceInfo info = serviceEvent.getInfo();
+                        String host = info.getHostAddresses()[0];
+                        client.addTcp(host, host, info.getPort());
+                        log.debug("TCP Info {} ", info);
+                    }
+                };
+                */
+                log.info("Create tcpListener");
+                tcpListener = new ServiceListener() {
+                    @Override
+                    public void serviceAdded(ServiceEvent serviceEvent) {
 
-            @Override
-            public void serviceRemoved(ServiceEvent serviceEvent) {
-                log.info("Remove Http Info {} ", serviceEvent.getInfo());
-                ServiceInfo info = serviceEvent.getInfo();
-                String host = info.getHostAddresses()[0];
-                client.removeServer(host);
-            }
+                    }
 
-            @Override
-            public void serviceResolved(ServiceEvent serviceEvent) {
-                ServiceInfo info = serviceEvent.getInfo();
-                String host = info.getHostAddresses()[0];
-                client.addTcp(host, host, info.getPort());
-                log.debug("TCP Info {} ", info);
-            }
-        };
-        */
-        tcpListener = new ServiceListener() {
-            @Override
-            public void serviceAdded(ServiceEvent serviceEvent) {
+                    @Override
+                    public void serviceRemoved(ServiceEvent serviceEvent) {
 
-            }
+                        ServiceInfo info = serviceEvent.getInfo();
+                        String host = info.getHostAddresses()[0];
 
-            @Override
-            public void serviceRemoved(ServiceEvent serviceEvent) {
+                        int port = info.getPort();
 
-                ServiceInfo info = serviceEvent.getInfo();
-                String host = info.getHostAddresses()[0];
+                        log.debug("Remove CanTcp Info {} ", info);
+                        client.stop();
+                        client.setAddress(null);
+                        client.setPort(-1);
 
-                int port = info.getPort();
+                    }
 
-                log.debug("Remove CanTcp Info {} ", info);
-                client.stop();
-                client.setAddress(null);
-                client.setPort(-1);
+                    @Override
+                    public void serviceResolved(ServiceEvent serviceEvent) {
+                        ServiceInfo info = serviceEvent.getInfo();
+                        InetAddress host = info.getInetAddresses()[0];
+                        int port = info.getPort();
+                        updateStatus("Server resolved at  "+host+":"+port);
+                        client.stop();
+                        client.setAddress(host);
+                        client.setPort(port);;
+                        client.start();
+                        log.info("Resolved CanTCP Info {} ", info);
+                    }
+                };
+                log.info("Add service listener ");
 
-            }
-
-            @Override
-            public void serviceResolved(ServiceEvent serviceEvent) {
-                ServiceInfo info = serviceEvent.getInfo();
-                InetAddress host = info.getInetAddresses()[0];
-                int port = info.getPort();
-                updateStatus("Server resolved at  "+host+":"+port);
-                client.stop();
-                client.setAddress(host);
-                client.setPort(port);;
-                client.start();
-                log.info("Resolved CanTCP Info {} ", info);
+                jmdns.addServiceListener(CAN_TCP_TCP_LOCAL, tcpListener);
+                log.info("Discovery Started ");
             }
         };
+        t.start();
 
-        jmdns.addServiceListener(CAN_TCP_TCP_LOCAL, tcpListener);
     }
 
     public void endDiscovery() {

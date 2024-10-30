@@ -313,17 +313,20 @@ public class Util {
 		}
 	}
 
+	/**
+	 * Note using this will block nav on the parent frame.s
+	 * @param component
+	 */
 	public static void addMouseTracker(JPanel component) {
 		if ( !kindle ) {
 			final JLabel mousePosition = new JLabel("0,0");
 			component.add(mousePosition);
 			Dimension s = mousePosition.getPreferredSize();
-			mousePosition.setBounds(scaleKindle(100), scaleKindle(KINDLE_FRAME_HEIGHT) - 50, 100, 50);
+			mousePosition.setBounds(scaleKindle(10), scaleKindle(KINDLE_FRAME_HEIGHT) - 50, 100, 50);
 
 			component.addMouseMotionListener(new MouseMotionListener() {
 				@Override
 				public void mouseDragged(MouseEvent e) {
-
 				}
 
 				@Override
@@ -333,6 +336,7 @@ public class Util {
 			});
 		}
 	}
+
 
 	/**
      * Created by ieb on 09/06/2020.
@@ -385,6 +389,20 @@ public class Util {
         }
 
     }
+
+	public static void drawStringRotated(String text, int x, int y, Font font, Graphics2D g) {
+		Graphics2D g2 = (Graphics2D) g;
+		g2.rotate(-Math.PI / 2.0);
+		FontMetrics fontMetrics = g2.getFontMetrics();
+		Rectangle2D r = font.getStringBounds(text, g2.getFontRenderContext());
+		x = x - (int) (r.getWidth()/2.0);
+		y = y + (int) (fontMetrics.getAscent()/2.0);
+		g2.setClip((int)(-r.getWidth()/2.0), (int)(-r.getHeight()/2.0), (int)r.getWidth(), (int)r.getHeight());
+		g2.clearRect(x, y - fontMetrics.getAscent(),(int)r.getWidth(),(int)r.getHeight());
+		g2.drawString(text, x, y);
+
+		g2.rotate(Math.PI / 2.0);
+	}
 
 
 	// kindle boundary

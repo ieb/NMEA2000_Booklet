@@ -11,11 +11,14 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.InetAddress;
 
-
 /**
- * Created by ieb on 06/06/2020.
+ * Disconnects every 5s to simulate failure and test the firmware, not exactly chaos, but enough to stress the
+ * esp32 logic.
  */
-public class Main {
+public class MainChaosClient {
+
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
+    private static Timer timer;
 
     static {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
@@ -25,9 +28,6 @@ public class Main {
         System.setProperty("org.slf4j.simpleLogger.dateTimeFormat","yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     }
-
-    private static final Logger log = LoggerFactory.getLogger(Main.class);
-    private static Timer timer;
 
     public static void main(String[] args) throws ParseException, IOException, NoSuchMethodException {
         Util.setKindle(false); // Kindle AWT implementation has some non standard behaviour.
@@ -39,24 +39,21 @@ public class Main {
         MainScreen mainScreen = new MainScreen(frame,
                 "src/test/resources/badconfig.json",
                 new MainScreen.MainScreenExit() {
-            @Override
-            public void exit() {
-                System.exit(0);
-            }
-        });
-        timer = new Timer(30000, new ActionListener() {
+                    @Override
+                    public void exit() {
+                        System.exit(0);
+                    }
+                });
+        timer = new Timer(5000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    log.info("Forcing start on 10112, if not started");
-                    mainScreen.start(InetAddress.getLocalHost(), 10112);
-                } catch (IOException e1) {
-                    log.error(e1.getMessage(), e);
-                }
-                timer.stop();
+                log.info("Restarting");
+                mainScreen.restart();
             }
         });
         timer.start();
 
     }
+
+
 }
