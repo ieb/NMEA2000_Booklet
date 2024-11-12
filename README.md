@@ -22,20 +22,16 @@ lasts for many many hours.
 
 Photos are from the desktop version, however the Kindle UI is the same.
 
-<img alt="Front Page" src="screenshots/Screenshot 2024-11-12 at 08.33.16.png" height="200"/>
-<img alt="Polar Page" height="200" src="screenshots/Screenshot 2024-11-12 at 08.28.20.png"/>
-<img alt="Performance Graphs" height="200" src="screenshots/Screenshot 2024-11-12 at 08.28.36.png"/>
-<img alt="Engine Dials" height="200" src="screenshots/Screenshot 2024-11-12 at 08.28.47.png"/>
-<img alt="Boxes" height="200" src="screenshots/Screenshot 2024-11-12 at 08.27.47.png"/>
+<div>
+<img alt="Front Page" src="screenshots/Screenshot 2024-11-12 at 08.33.16.png" height="200"/><img alt="Polar Page" height="200" src="screenshots/Screenshot 2024-11-12 at 08.28.20.png"/><img alt="Performance Graphs" height="200" src="screenshots/Screenshot 2024-11-12 at 08.28.36.png"/><img alt="Engine Dials" height="200" src="screenshots/Screenshot 2024-11-12 at 08.28.47.png"/><img alt="Boxes" height="200" src="screenshots/Screenshot 2024-11-12 at 08.27.47.png"/>
+</div>
 
 
 Some older Kindle UI photos
 
-<img height="300" src="screenshots/IMG_20200626_090431.jpg"/>
-<img height="300" src="screenshots/IMG_20200626_090444.jpg"/>
-<img height="300" src="screenshots/IMG_20200626_090450.jpg"/>
-<img height="300" src="screenshots/IMG_20200626_090456.jpg"/>
-<img height="300" src="screenshots/IMG_20200626_090502.jpg"/>
+<div>
+<img height="300" src="screenshots/IMG_20200626_090431.jpg"/><img height="300" src="screenshots/IMG_20200626_090444.jpg"/><img height="300" src="screenshots/IMG_20200626_090450.jpg"/><img height="300" src="screenshots/IMG_20200626_090456.jpg"/><img height="300" src="screenshots/IMG_20200626_090502.jpg"/>
+</div>
 
 # Developing
 
