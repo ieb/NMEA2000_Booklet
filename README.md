@@ -20,7 +20,16 @@ Dont expect fantastic graphics animations. Kindle screens are great in full sunl
 and requires careful slow redrawing to avoid shadows and ink left behind. The Paperwhite 4 is IP68 waterproof and the battery
 lasts for many many hours. 
 
-Photos are from the SKignalK booklet but the UI is the same.
+Photos are from the desktop version, however the Kindle UI is the same.
+
+![Front Page](screenshots/Screenshot 2024-11-12 at 08.33.16.png)
+![Polar Page](screenshots/Screenshot 2024-11-12 at 08.28.20.png)
+![Performance Graphs](screenshots/Screenshot 2024-11-12 at 08.28.36.png)
+![Engine Dials](screenshots/Screenshot 2024-11-12 at 08.28.47.png)
+![Boxes](screenshots/Screenshot 2024-11-12 at 08.27.47.png)
+
+
+Some older Kindle UI photos
 
 ![](screenshots/IMG_20200626_090431.jpg)
 ![](screenshots/IMG_20200626_090444.jpg)
