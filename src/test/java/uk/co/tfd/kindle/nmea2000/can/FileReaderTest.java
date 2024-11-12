@@ -38,6 +38,7 @@ public class FileReaderTest {
         canMessageProducer = new CanMessageProducer();
         seaSmartHandler = new SeaSmartHandler(canMessageProducer);
         nmea0183CLient.addHandler("DIN", seaSmartHandler);
+        seaSmartHandler.addHandler(new ElectricalMessageHandler());
         seaSmartHandler.addHandler(new EngineMessageHandler());
         seaSmartHandler.addHandler(new IsoMessageHandler());
         seaSmartHandler.addHandler(new NavMessageHandler());

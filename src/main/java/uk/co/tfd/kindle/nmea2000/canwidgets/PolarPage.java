@@ -83,17 +83,19 @@ public class PolarPage extends JPanel implements CanMessageListener, CanWidget, 
         y = 40+pad;
         performanceGraph.setBounds(Util.scaleKindle(x), Util.scaleKindle(y), Util.scaleKindle(w), Util.scaleKindle(h));
 
+        trueWindAngleGraph = new GraphBoxes.RelativeAngleGraph("twa");
+        this.add(trueWindAngleGraph);
+        trueWindAngleGraph.setVisible(false);
+        y = y+335;
+        trueWindAngleGraph.setBounds(Util.scaleKindle(x), Util.scaleKindle(y), Util.scaleKindle(w), Util.scaleKindle(h));
+
+
         aparentWindAngleGraph = new GraphBoxes.RelativeAngleGraph("awa");
         this.add(aparentWindAngleGraph);
         aparentWindAngleGraph.setVisible(false);
         y = y+335;
         aparentWindAngleGraph.setBounds(Util.scaleKindle(x), Util.scaleKindle(y), Util.scaleKindle(w), Util.scaleKindle(h));
 
-        trueWindAngleGraph = new GraphBoxes.RelativeAngleGraph("twa");
-        this.add(trueWindAngleGraph);
-        trueWindAngleGraph.setVisible(false);
-        y = y+335;
-        trueWindAngleGraph.setBounds(Util.scaleKindle(x), Util.scaleKindle(y), Util.scaleKindle(w), Util.scaleKindle(h));
 
 
         depthGraph = new GraphBoxes.DepthGraph();

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.List;
 
 public class CanMessageData {
     private static final Logger log = LoggerFactory.getLogger(CanMessageData.class);
@@ -355,4 +356,5 @@ public class CanMessageData {
         }
         return output.toString();
     }
+
 }

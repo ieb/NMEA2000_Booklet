@@ -553,6 +553,95 @@ public class N2KReference {
         }
 
     }
+    public enum BatteryVoltage {
+        UNDEFINED(-1, "Undefined"),
+        BatteryVoltage6V(0, "6V"),
+        BatteryVoltage12V(1, "12V"),
+        BatteryVoltage24V(2, "24V"),
+        BatteryVoltage32V(3, "32V"),
+        BatteryVoltage36(4, "36V"),
+        BatteryVoltage42V(5, "42V"),
+        BatteryVoltage48V(6, "48V");
+        public final int id;
+        public final String name;
+        BatteryVoltage(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+
+        public String toString() {
+            return "name:"+name+" (id:"+id+")";
+        }
+        public static BatteryVoltage lookup(int value) {
+            for(BatteryVoltage e: values()) {
+                if (e.id == value) {
+                    return e;
+                }
+            }
+            log.warn("BatteryVoltage missing value {} ",  value);
+            return UNDEFINED;
+        }
+
+    }
+
+    public enum BatteryType {
+        UNDEFINED(-1, "Undefined"),
+        Flooded(0, "Flooded"),
+        Gell(1, "Gell"),
+        AGM(2, "AGM"),
+        LiFePO4(3, "LiFePO4"); // made this up, not official.
+        public final int id;
+        public final String name;
+        BatteryType(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+
+        public String toString() {
+            return "name:"+name+" (id:"+id+")";
+        }
+        public static BatteryType lookup(int value) {
+            for(BatteryType e: values()) {
+                if (e.id == value) {
+                    return e;
+                }
+            }
+            log.warn("BatteryType missing value {} ",  value);
+            return UNDEFINED;
+        }
+
+    }
+    public enum BatteryChemistry {
+        UNDEFINED(-1, "Undefined"),
+        Pb(0, "Pb"),
+        Li(1, "Li"),
+        NiCd(2, "NiCd"),
+        ZnO(3, "ZnO"),
+        NiMH(4, "NiMH");
+        public final int id;
+        public final String name;
+        BatteryChemistry(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+
+        public String toString() {
+            return "name:"+name+" (id:"+id+")";
+        }
+        public static BatteryChemistry lookup(int value) {
+            for(BatteryChemistry e: values()) {
+                if (e.id == value) {
+                    return e;
+                }
+            }
+            log.warn("BatteryChemistry missing value {} ",  value);
+            return UNDEFINED;
+        }
+
+    }
     public enum SteeringMode {
         UNDEFINED(-1, "Undefined"),
         MainSteering(0, "Main Steering"),

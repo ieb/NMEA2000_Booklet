@@ -19,6 +19,9 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
     private final TemperatureGauge alternatorTemperature;
     private final TemperatureGauge exhaustTemperature;
     private final VoltageGauge alternatorVoltage;
+    private final VoltageGauge engineVoltage;
+    private final VoltageGauge serviceVoltage;
+    private final CurrentGauge serviceCurrent;
     private long lastTachometerUpdate = System.currentTimeMillis();
     private long lastCoolantUpdate = System.currentTimeMillis();
     private long lastFuelUpdate = System.currentTimeMillis();
@@ -27,13 +30,49 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
     private long lastExhaustTemperatureUpdate = System.currentTimeMillis();
     private long lastEngineHoursUpdate = System.currentTimeMillis();
     private long lastEngineStatusUpdate = System.currentTimeMillis();
+    private long lastEngineBatteryUpdate = System.currentTimeMillis();
+    private long lastServiceBatteryUpdate = System.currentTimeMillis();
 
     public EnginePage(boolean rotate) {
         setLayout(null);
+
         Font dialLabelFont = Util.createFont(14.0f);
         tachometer = new Tachometer(true);
         this.add(tachometer);
         tachometer.setBounds(scaleKindle(10), scaleKindle(690), scaleKindle(700), scaleKindle( 700));
+
+
+        engineVoltage = new VoltageGauge(true);
+        this.add(engineVoltage);
+        engineVoltage.setTitle("Engine V");
+        engineVoltage.setBounds(scaleKindle(10), scaleKindle(56), scaleKindle(300), scaleKindle( 300));
+
+        LabelRotated engineVLabel = new LabelRotated("Engine V", true);
+        this.add(engineVLabel);
+        engineVLabel.setFont(dialLabelFont);
+        engineVLabel.setBounds(scaleKindle(318), scaleKindle(207), scaleKindle(150), scaleKindle(40) );
+
+        serviceVoltage = new VoltageGauge(true);
+        this.add(serviceVoltage);
+        serviceVoltage.setTitle("Service V");
+        serviceVoltage.setBounds(scaleKindle(360), scaleKindle(56), scaleKindle(300), scaleKindle( 300));
+
+        LabelRotated serviceVlabel = new LabelRotated("Service V", true);
+        this.add(serviceVlabel);
+        serviceVlabel.setFont(dialLabelFont);
+        serviceVlabel.setBounds(scaleKindle(669), scaleKindle(207), scaleKindle(150), scaleKindle(40) );
+
+
+        serviceCurrent = new CurrentGauge(true);
+        this.add(serviceCurrent);
+        serviceCurrent.setTitle("Service A");
+        serviceCurrent.setBounds(scaleKindle(730), scaleKindle(56), scaleKindle(300), scaleKindle( 300));
+
+        LabelRotated serviceCurrentLabel = new LabelRotated("Service A", true);
+        this.add(serviceCurrentLabel);
+        serviceCurrentLabel.setFont(dialLabelFont);
+        serviceCurrentLabel.setBounds(scaleKindle(1036), scaleKindle(207), scaleKindle(150), scaleKindle(40) );
+
 
         coolantGauge = new TemperatureGauge(true);
         this.add(coolantGauge);
@@ -43,12 +82,7 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
         LabelRotated coolantLabel = new LabelRotated("Coolant", true);
         this.add(coolantLabel);
         coolantLabel.setFont(dialLabelFont);
-        Dimension s = coolantLabel.getPreferredSize();
         coolantLabel.setBounds(scaleKindle(318), scaleKindle(541), scaleKindle(150), scaleKindle(40) );
-
-
-
-
 
         exhaustTemperature = new TemperatureGauge(true);
         this.add(exhaustTemperature);
@@ -58,7 +92,6 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
         LabelRotated exhaustLabel = new LabelRotated("Exhaust Temp", true);
         this.add(exhaustLabel);
         exhaustLabel.setFont(dialLabelFont);
-        s = exhaustLabel.getPreferredSize();
         exhaustLabel.setBounds(scaleKindle(669), scaleKindle(541), scaleKindle(150), scaleKindle(40) );
 
         alternatorTemperature = new TemperatureGauge(true);
@@ -69,7 +102,6 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
         LabelRotated alternatorLabel = new LabelRotated("Alternator Temp", true);
         this.add(alternatorLabel);
         alternatorLabel.setFont(dialLabelFont);
-        s = alternatorLabel.getPreferredSize();
         alternatorLabel.setBounds(scaleKindle(1036), scaleKindle(541), scaleKindle(150), scaleKindle(40) );
 
         alternatorVoltage = new VoltageGauge(true);
@@ -80,7 +112,6 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
         LabelRotated alternatorVoltageLabel = new LabelRotated("Alternator V", true);
         this.add(alternatorVoltageLabel);
         alternatorVoltageLabel.setFont(dialLabelFont);
-        s = alternatorVoltageLabel.getPreferredSize();
         alternatorVoltageLabel.setBounds(scaleKindle(1036), scaleKindle(875), scaleKindle(150), scaleKindle(40) );
 
         fuelGauge = new FluidLevelGauge(true);
@@ -91,10 +122,10 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
         LabelRotated fuelLabel = new LabelRotated("Fuel", true);
         this.add(fuelLabel);
         fuelLabel.setFont(dialLabelFont);
-        s = fuelLabel.getPreferredSize();
         fuelLabel.setBounds(scaleKindle(1036), scaleKindle(1226), scaleKindle(150), scaleKindle(40));
 
-       // Util.addMouseTracker(this);
+
+        // Util.addMouseTracker(this);
     }
 
     @Override
@@ -102,7 +133,8 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
         return new int[] {
                 EngineMessageHandler.PGN127488RapidEngineData.PGN,
                 EngineMessageHandler.PGN127489EngineDynamicParam.PGN,
-                EngineMessageHandler.PGN127505FluidLevel.PGN
+                EngineMessageHandler.PGN127505FluidLevel.PGN,
+                ElectricalMessageHandler.PGN127508DCBatteryStatus.PGN,
         };
     }
 
@@ -165,6 +197,29 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
                 lastFuelUpdate = System.currentTimeMillis();
                 this.repaint();
             }
+        } else if ( message instanceof ElectricalMessageHandler.PGN127508DCBatteryStatus) {
+            ElectricalMessageHandler.PGN127508DCBatteryStatus batt = (ElectricalMessageHandler.PGN127508DCBatteryStatus) message;
+            if ( batt.instance == 0 ) {
+                if (batt.batteryVoltage != CanMessageData.n2kDoubleNA) {
+                    engineVoltage.setVoltage(batt.batteryVoltage, true);
+                    lastEngineBatteryUpdate = System.currentTimeMillis();
+                    this.repaint();
+                }
+            } else if ( batt.instance == 1) {
+                // only the BMS Controller has current. The Engine controller emits
+                // PGN 127508 but does not have current (or temperature).
+                // both emit the voltage measured for the service battery.
+                // Longer term. might be better to disable the engine controller PGN 127508
+                // as there is bound to be a discrepancy between the engin controller voltage
+                // reading and the BMS.
+                if (batt.batteryVoltage != CanMessageData.n2kDoubleNA
+                        && batt.batteryCurrent != CanMessageData.n2kDoubleNA) {
+                    serviceVoltage.setVoltage(batt.batteryVoltage, true);
+                    serviceCurrent.setCurrent(batt.batteryCurrent, true);
+                    lastServiceBatteryUpdate = System.currentTimeMillis();
+                    this.repaint();
+                }
+            }
         } else if (message instanceof IsoMessageHandler.CanBusStatus) {
             if (System.currentTimeMillis() - lastTachometerUpdate > 30000) {
                 tachometer.setRpm(0, false);
@@ -190,6 +245,13 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
             if (System.currentTimeMillis() - lastEngineStatusUpdate > 30000) {
                 tachometer.setStatus1(0, false);
                 tachometer.setStatus2(0, false);
+            }
+            if (System.currentTimeMillis() - lastEngineBatteryUpdate > 30000) {
+                engineVoltage.setVoltage(0, false);
+            }
+            if (System.currentTimeMillis() - lastServiceBatteryUpdate > 30000) {
+                serviceVoltage.setVoltage(0, false);
+                serviceCurrent.setCurrent(0, false);
             }
         }
     }

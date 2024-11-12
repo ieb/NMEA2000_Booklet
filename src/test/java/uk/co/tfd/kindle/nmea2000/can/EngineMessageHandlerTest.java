@@ -136,15 +136,6 @@ public class EngineMessageHandlerTest {
 
     }
     @Test
-    public void testPGN127508DCBatteryStatus() throws UnsupportedEncodingException {
-
-        nmea0183CLient.processLine( Utils.addCheckSum("$PCDIN,1F214,8B8C51,18,0,0,0,FF,7F,2D,73,0"));
-        Assert.assertTrue(lastMessage instanceof EngineMessageHandler.PGN127508DCBatteryStatus);
-        EngineMessageHandler.PGN127508DCBatteryStatus mgs = (EngineMessageHandler.PGN127508DCBatteryStatus) lastMessage;
-        Assert.assertEquals(24,mgs.src);
-        // [main] INFO uk.co.tfd.kindle.nmea2000.can.IsoMessageHandlerTest - Got Message  Class:PGN127508DCBatteryStatus sid:255 instance:0 batteryVoltage:0.0 batteryCurrent:-1.0E9 batteryTemperature:294.85 pgn:127508 src:24 count:1 messageName:DCBatteryStatus
-    }
-    @Test
     public void testPGN127505FluidLevel() throws UnsupportedEncodingException {
 
         nmea0183CLient.processLine( Utils.addCheckSum("$PCDIN,1F211,8B8C52,18,0,AE,60,58,2,0,0,FF"));
@@ -153,15 +144,4 @@ public class EngineMessageHandlerTest {
         Assert.assertEquals(24,mgs.src);
 //[main] INFO uk.co.tfd.kindle.nmea2000.can.IsoMessageHandlerTest - Got Message  Class:PGN127505FluidLevel instance:0 fluidType:uk.co.tfd.kindle.nmea2000.can.N2KReference$N2KRef@31610302 fluidLevel:99.0 fluidCapacity:60.0 pgn:127505 src:24 count:1 messageName:FluidLevel
     }
-
-    @Test
-    public void testPGN127506DCStatus() throws UnsupportedEncodingException {
-
-        //        [main] INFO uk.co.tfd.kindle.nmea2000.SeaSmartHandler - Added handler at 127506 1F212
-        // 9144911 : Pri:6 PGN:127506 Source:22 Dest:255 Len:11 Data:1,1,1,56,5B,18,0,D7,0,FF,FF
-        nmea0183CLient.processLine(Utils.addCheckSum("$PCDIN,1F212,8B8C49,18,1,1,1,56,5B,18,0,D7,0,FF,FF"));
-        Assert.assertTrue(lastMessage instanceof EngineMessageHandler.PGN127506DCStatus);
-        EngineMessageHandler.PGN127506DCStatus msg = (EngineMessageHandler.PGN127506DCStatus) lastMessage;
-    }
-
 }

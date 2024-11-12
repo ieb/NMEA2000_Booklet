@@ -305,7 +305,7 @@ public class EngineView {
 
         public EngineBatteryVoltage(boolean rotate) {
             super(rotate, updateMap(new HashMap<>()));
-            pgns = new int[]{EngineMessageHandler.PGN127508DCBatteryStatus.PGN};
+            pgns = new int[]{ElectricalMessageHandler.PGN127508DCBatteryStatus.PGN};
         }
         public static Map<String, Object> updateMap(Map<String, Object> options) {
             Map<String, String> labels = new HashMap<>();
@@ -319,8 +319,8 @@ public class EngineView {
         @Override
         public boolean needsUpdate(CanMessage message) {
             String newOut = out;
-            if ( message instanceof EngineMessageHandler.PGN127508DCBatteryStatus) {
-                EngineMessageHandler.PGN127508DCBatteryStatus dc = (EngineMessageHandler.PGN127508DCBatteryStatus) message;
+            if ( message instanceof ElectricalMessageHandler.PGN127508DCBatteryStatus) {
+                ElectricalMessageHandler.PGN127508DCBatteryStatus dc = (ElectricalMessageHandler.PGN127508DCBatteryStatus) message;
                 if ( dc.instance == 0 && dc.batteryVoltage != CanMessageData.n2kDoubleNA) {
                     newOut = displayFormat(dc.batteryVoltage);
                     lastUpdate = System.currentTimeMillis();
@@ -345,7 +345,7 @@ public class EngineView {
 
         public ServiceBatteryVoltage(boolean rotate) {
             super(rotate, updateMap(new HashMap<>()));
-            pgns = new int[]{EngineMessageHandler.PGN127508DCBatteryStatus.PGN};
+            pgns = new int[]{ElectricalMessageHandler.PGN127508DCBatteryStatus.PGN};
         }
         public static Map<String, Object> updateMap(Map<String, Object> options) {
             Map<String, String> labels = new HashMap<>();
@@ -359,8 +359,8 @@ public class EngineView {
         @Override
         public boolean needsUpdate(CanMessage message) {
             String newOut = out;
-            if ( message instanceof EngineMessageHandler.PGN127508DCBatteryStatus) {
-                EngineMessageHandler.PGN127508DCBatteryStatus dc = (EngineMessageHandler.PGN127508DCBatteryStatus) message;
+            if ( message instanceof ElectricalMessageHandler.PGN127508DCBatteryStatus) {
+                ElectricalMessageHandler.PGN127508DCBatteryStatus dc = (ElectricalMessageHandler.PGN127508DCBatteryStatus) message;
                 if ( dc.instance == 1 && dc.batteryVoltage != CanMessageData.n2kDoubleNA) {
                     newOut = displayFormat(dc.batteryVoltage);
                     lastUpdate = System.currentTimeMillis();

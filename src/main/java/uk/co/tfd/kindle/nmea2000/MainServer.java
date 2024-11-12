@@ -133,7 +133,11 @@ public class MainServer {
                         try {
                             long timeStamp = Long.parseLong(line.split(":")[0].trim());
                             if (lastTimeStamp > 0 && lastTimeStamp < timeStamp) {
-                                Thread.sleep(timeStamp - lastTimeStamp);
+                                long wait = timeStamp - lastTimeStamp;
+                                if ( wait > 100 ) {
+                                    wait = 100;
+                                }
+                                Thread.sleep(wait);
                             }
                             lastTimeStamp = timeStamp;
                         } catch (NumberFormatException e) {

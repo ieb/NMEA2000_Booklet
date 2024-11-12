@@ -48,14 +48,14 @@ public class CanPageLayout extends JPanel  {
         this.instruments = new CanInstruments(canMessageProducer);
         this.setLayout(null);
         this.pageNo = 0;
-        this.addMouseMotionListener(new MouseAdapter() {
+        // the kindle SDK implementation of MouseAdapter is incomplete
+        this.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 int distanceY = e.getY() - dragStartY;
                 if (distanceY > 200) {
                     showPage("control");
                 }
-                super.mouseDragged(e);
                 if ( visiblePage instanceof MouseMotionListener ) {
                     ((MouseMotionListener) visiblePage).mouseMoved(e);
                 }
@@ -64,20 +64,38 @@ public class CanPageLayout extends JPanel  {
             @Override
             public void mouseMoved(MouseEvent e) {
                 dragStartY = e.getY();
-                super.mouseMoved(e);
                 if ( visiblePage instanceof MouseMotionListener ) {
                     ((MouseMotionListener) visiblePage).mouseMoved(e);
                 }
             }
         });
-        this.addMouseListener(new MouseAdapter() {
+        this.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 log.info("Clicked {}", visiblePage);
                 if ( visiblePage instanceof MouseListener ) {
                     ((MouseListener) visiblePage).mouseClicked(e);
                 }
-                super.mouseClicked(e);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
             }
         });
 

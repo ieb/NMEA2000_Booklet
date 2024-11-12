@@ -138,6 +138,7 @@ public class MainScreen {
         seaSmartHandler.addHandler(new EngineMessageHandler());
         seaSmartHandler.addHandler(new IsoMessageHandler());
         seaSmartHandler.addHandler(new NavMessageHandler());
+        seaSmartHandler.addHandler(new ElectricalMessageHandler());
         seaSmartHandler.addIgnore(59904); // Request Address
         seaSmartHandler.addIgnore(126720); // Proprietary raymarine
         seaSmartHandler.addIgnore(126208); // Function Group Handler

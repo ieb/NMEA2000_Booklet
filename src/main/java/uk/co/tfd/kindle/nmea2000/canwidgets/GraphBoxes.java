@@ -214,8 +214,9 @@ public class GraphBoxes {
 
 
         public BaseGraph(String title, long interval, long timePeriod) {
-            labelFont = Util.createFont(20.0f);
-            titleFont = Util.createFont(30.0f);
+            // font scaling still doesnt work as expected.
+            labelFont = Util.createFont(Util.isKindle()?10.0f:20.0f);
+            titleFont = Util.createFont(Util.isKindle()?15.0f:30.0f);
             xPoints = new int[201];
             yPoints = new int[201];
             history = new double[100];

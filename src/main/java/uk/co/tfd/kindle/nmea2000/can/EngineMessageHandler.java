@@ -109,52 +109,6 @@ public class EngineMessageHandler implements CanMessageHandler {
 
     }
 
-    public static class PGN127508DCBatteryStatus extends BaseCanMessage {
-        public final int sid;
-        public final int instance;
-        public final double batteryVoltage;
-        public final double batteryCurrent;
-        public final double batteryTemperature;
-
-        public final static int PGN = 127508;
-
-        PGN127508DCBatteryStatus(int pgn, int timeStamp, byte source, byte[] data) {
-            super(PGN, pgn, source, timeStamp,"DCBatteryStatus");
-            instance =  CanMessageData.get1ByteUInt(data, 0);
-            batteryVoltage = CanMessageData.get2ByteUDouble(data, 1, 0.01);
-            batteryCurrent = CanMessageData.get2ByteDouble(data, 3, 0.1);
-            batteryTemperature = CanMessageData.get2ByteUDouble(data, 5, 0.01);
-            sid = CanMessageData.get1ByteUInt(data, 7);
-        }
-    }
-
-    public static class PGN127506DCStatus extends BaseCanMessage {
-
-
-        public final int sid;
-        public final int dcInstance;
-        public final N2KReference.DcSourceType dcType;
-        public final int stateOfCharge;
-        public final int stateOfHealth;
-        public final double timeRemaining;
-        public final double rippleVoltage;
-        public final double capacity;
-
-        public final static int PGN = 127506;
-
-        PGN127506DCStatus(int pgn, int timeStamp, byte source, byte[] data) {
-            super(PGN, pgn, source, timeStamp,"N2K DirectionData");
-
-            sid = CanMessageData.get1ByteUInt(data, 0);
-            dcInstance = CanMessageData.get1ByteUInt(data, 1);
-            dcType = N2KReference.DcSourceType.lookup( CanMessageData.get1ByteUInt(data, 2)); // lookup
-            stateOfCharge = CanMessageData.get1ByteUInt(data, 3);
-            stateOfHealth = CanMessageData.get1ByteUInt(data, 4);
-            timeRemaining = CanMessageData.get2ByteUDouble(data, 5, 60);
-            rippleVoltage = CanMessageData.get2ByteUDouble(data, 7, 0.001);
-            capacity = CanMessageData.get2ByteUDouble(data, 9, 3600);
-        }
-    }
 
 
     public static class PGN127505FluidLevel extends BaseCanMessage {
@@ -181,9 +135,7 @@ public class EngineMessageHandler implements CanMessageHandler {
             case PGN127489EngineDynamicParam.PGN: return new PGN127489EngineDynamicParam(pgn, timeStamp, source, data);
             case PGN127488RapidEngineData.PGN: return new PGN127488RapidEngineData(pgn, timeStamp, source, data);
             case PGN130312Temperature.PGN: return new PGN130312Temperature(pgn, timeStamp, source, data);
-            case PGN127508DCBatteryStatus.PGN: return new PGN127508DCBatteryStatus(pgn, timeStamp, source, data);
             case PGN127505FluidLevel.PGN: return new PGN127505FluidLevel(pgn, timeStamp, source, data);
-            case PGN127506DCStatus.PGN: return new PGN127506DCStatus(pgn, timeStamp, source, data);
         }
         return null;
     }
@@ -192,9 +144,7 @@ public class EngineMessageHandler implements CanMessageHandler {
             PGN127489EngineDynamicParam.PGN,
             PGN127488RapidEngineData.PGN,
             PGN130312Temperature.PGN,
-            PGN127508DCBatteryStatus.PGN,
-            PGN127505FluidLevel.PGN,
-            PGN127506DCStatus.PGN};
+            PGN127505FluidLevel.PGN};
 
     @Override
     public int[] getPgns() {
