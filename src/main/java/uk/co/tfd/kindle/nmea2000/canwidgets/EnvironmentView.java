@@ -1,6 +1,5 @@
 package uk.co.tfd.kindle.nmea2000.canwidgets;
 
-import uk.co.tfd.kindle.nmea2000.can.NavMessageHandler;
 
 public class EnvironmentView {
 

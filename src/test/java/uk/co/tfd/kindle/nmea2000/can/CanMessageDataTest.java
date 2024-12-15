@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
 public class CanMessageDataTest {
 
@@ -125,6 +124,14 @@ public class CanMessageDataTest {
                     CanMessageData.get1ByteInt(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1));
         }
+
+        byte[] message = new byte[5];
+        for (int i = -127; i < 127 ; i++) {
+            CanMessageData.set1ByteInt(message,1,i);
+            Assert.assertEquals(i,
+                    CanMessageData.get1ByteInt(message,1));
+        }
+
     }
     @Test
     public void test1ByteUint() {
@@ -158,6 +165,13 @@ public class CanMessageDataTest {
             //log.info("Input {} {} {}", Integer.toString(i,2), Integer.toString(testValue, 2), s);
             Assert.assertEquals(i, testValue);
         }
+        byte[] message = new byte[5];
+        for (int i = 0; i < 255 ; i++) {
+            CanMessageData.set1ByteUInt(message,1,i);
+            Assert.assertEquals(i,
+                    CanMessageData.get1ByteUInt(message,1));
+        }
+
     }
 
     @Test
@@ -188,6 +202,13 @@ public class CanMessageDataTest {
                     CanMessageData.get2ByteInt(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1));
         }
+        byte[] message = new byte[5];
+        for (int i = -1024; i < 1024 ; i++) {
+            CanMessageData.set2ByteInt(message,1,i);
+            Assert.assertEquals(i,
+                    CanMessageData.get2ByteInt(message,1));
+        }
+
     }
     @Test
     public void test2ByteUInt() {
@@ -217,6 +238,13 @@ public class CanMessageDataTest {
                     CanMessageData.get2ByteUInt(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1));
         }
+        byte[] message = new byte[5];
+        for (int i = 0; i < 2024 ; i++) {
+            CanMessageData.set2ByteUInt(message,1,i);
+            Assert.assertEquals(i,
+                    CanMessageData.get2ByteUInt(message,1));
+        }
+
     }
 
     @Test
@@ -257,6 +285,19 @@ public class CanMessageDataTest {
                     CanMessageData.get3ByteInt(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1));
         }
+
+        byte[] message = new byte[5];
+        for (int i = -8388608; i < -8388608+10024 ; i++) {
+            CanMessageData.set3ByteInt(message,1,i);
+            Assert.assertEquals(i,
+                    CanMessageData.get3ByteInt(message,1));
+        }
+        for (int i = 8388607-10024; i < 8388607 ; i++) {
+            CanMessageData.set3ByteInt(message,1,i);
+            Assert.assertEquals(i,
+                    CanMessageData.get3ByteInt(message,1));
+        }
+
     }
     @Test
     public void test3ByteUInt() {
@@ -288,6 +329,13 @@ public class CanMessageDataTest {
                     CanMessageData.get3ByteUInt(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1));
         }
+        byte[] message = new byte[5];
+        for (int i = 8388607-10024; i < 8388607 ; i++) {
+            CanMessageData.set3ByteUInt(message,1,i);
+            Assert.assertEquals(i,
+                    CanMessageData.get3ByteUInt(message,1));
+        }
+
     }
 
     @Test
@@ -332,6 +380,18 @@ public class CanMessageDataTest {
                     CanMessageData.get4ByteInt(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1));
         }
+        byte[] message = new byte[5];
+        for (int i = -2147483648; i < -2147483648+10024 ; i++) {
+            CanMessageData.set4ByteInt(message,1,i);
+            Assert.assertEquals(i,
+                    CanMessageData.get4ByteInt(message,1));
+        }
+        for (int i = 2147483647-10024; i < 2147483647 ; i++) {
+            CanMessageData.set4ByteInt(message,1,i);
+            Assert.assertEquals(i,
+                    CanMessageData.get4ByteInt(message,1));
+        }
+
     }
     @Test
     public void test4ByteUInt() {
@@ -364,6 +424,13 @@ public class CanMessageDataTest {
                     CanMessageData.get4ByteUInt(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1));
         }
+        byte[] message = new byte[5];
+        for (int i = 2147483647-10024; i < 2147483647 ; i++) {
+            CanMessageData.set4ByteUInt(message,1,i);
+            Assert.assertEquals(i,
+                    CanMessageData.get4ByteUInt(message,1));
+        }
+
     }
 
     @Test
@@ -416,6 +483,19 @@ public class CanMessageDataTest {
                     CanMessageData.get8ByteInt(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1));
         }
+
+        byte[] message = new byte[9];
+        for (long i = -2147483648; i < -2147483648+10024 ; i++) {
+            CanMessageData.set8ByteInt(message,1,BigInteger.valueOf(i));
+            Assert.assertEquals(BigInteger.valueOf(i),
+                    CanMessageData.get8ByteInt(message,1));
+        }
+        for (long i = 2147483647-10024; i < 2147483647 ; i++) {
+            CanMessageData.set8ByteInt(message,1,BigInteger.valueOf(i));
+            Assert.assertEquals(BigInteger.valueOf(i),
+                    CanMessageData.get8ByteInt(message,1));
+        }
+
     }
     @Test
     public void test8ByteUInt() {
@@ -452,6 +532,13 @@ public class CanMessageDataTest {
                     CanMessageData.get8ByteUInt(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1));
         }
+        byte[] message = new byte[9];
+        for (long i = 2147483647-10024; i < 2147483647 ; i++) {
+            CanMessageData.set8ByteUInt(message,1,BigInteger.valueOf(i));
+            Assert.assertEquals(BigInteger.valueOf(i),
+                    CanMessageData.get8ByteUInt(message,1));
+        }
+
     }
 
     @Test
@@ -477,6 +564,14 @@ public class CanMessageDataTest {
                     CanMessageData.get1ByteDouble(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1, 0.2f), 0.0001);
         }
+        byte[] message = new byte[9];
+        for (int i = -127; i < 127 ; i++) {
+            double v = 0.2*i;
+            CanMessageData.set1ByteDouble(message,0,v, 0.2);
+            Assert.assertEquals(v,
+                    CanMessageData.get1ByteDouble(message,0, 0.2), 0.01);
+        }
+
     }
 
     @Test
@@ -499,6 +594,14 @@ public class CanMessageDataTest {
                     CanMessageData.get1ByteUDouble(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1, 0.01), 0.00001);
         }
+        byte[] message = new byte[9];
+        for (int i = 0; i < 255 ; i++) {
+            double v = 0.01*i;
+            CanMessageData.set1ByteUDouble(message,0,v, 0.01);
+            Assert.assertEquals(v,
+                    CanMessageData.get1ByteUDouble(message,0, 0.01), 0.0001);
+        }
+
     }
 
     @Test
@@ -523,6 +626,14 @@ public class CanMessageDataTest {
                     CanMessageData.get2ByteDouble(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1, 0.01), 0.00001);
         }
+        byte[] message = new byte[9];
+        for (int i = -1024; i < 1024 ; i++) {
+            double v = 0.01*i;
+            CanMessageData.set2ByteDouble(message,0,v, 0.01);
+            Assert.assertEquals(v,
+                    CanMessageData.get2ByteDouble(message,0, 0.01), 0.0001);
+        }
+
     }
     @Test
     public void test2ByteUDouble() {
@@ -545,6 +656,13 @@ public class CanMessageDataTest {
             Assert.assertEquals(0.01*i,
                     CanMessageData.get2ByteUDouble(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1, 0.01), 0.00001);
+        }
+        byte[] message = new byte[9];
+        for (int i = 0; i < 2024 ; i++) {
+            double v = 0.01*i;
+            CanMessageData.set2ByteUDouble(message,0,v, 0.01);
+            Assert.assertEquals(v,
+                    CanMessageData.get2ByteUDouble(message,0, 0.01), 0.0001);
         }
     }
 
@@ -580,6 +698,20 @@ public class CanMessageDataTest {
                     CanMessageData.get3ByteDouble(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1, 0.01), 0.00001);
         }
+        byte[] message = new byte[9];
+        for (int i = -8388608; i < -8388608+10024 ; i++) {
+            double v = 0.01*i;
+            CanMessageData.set3ByteDouble(message,0,v, 0.01);
+            Assert.assertEquals(v,
+                    CanMessageData.get3ByteDouble(message,0, 0.01), 0.0001);
+        }
+        for (int i = 8388607-10024; i < 8388607 ; i++) {
+            double v = 0.01*i;
+            CanMessageData.set3ByteDouble(message,0,v, 0.01);
+            Assert.assertEquals(v,
+                    CanMessageData.get3ByteDouble(message,0, 0.01), 0.0001);
+        }
+
     }
     @Test
     public void test3ByteUDouble() {
@@ -604,6 +736,13 @@ public class CanMessageDataTest {
             Assert.assertEquals(0.01*i,
                     CanMessageData.get3ByteUDouble(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1, 0.01), 0.00001);
+        }
+        byte[] message = new byte[9];
+        for (int i = 8388607-10024; i < 8388607 ; i++) {
+            double v = 0.01*i;
+            CanMessageData.set3ByteUDouble(message,0,v, 0.01);
+            Assert.assertEquals(v,
+                    CanMessageData.get3ByteUDouble(message,0, 0.01), 0.0001);
         }
     }
 
@@ -643,6 +782,19 @@ public class CanMessageDataTest {
                     CanMessageData.get4ByteDouble(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1, 0.01),0.00001);
         }
+        byte[] message = new byte[9];
+        for (int i = -2147483648; i < -2147483648+10024 ; i++) {
+            double v = 0.01*i;
+            CanMessageData.set4ByteDouble(message,0,v, 0.01);
+            Assert.assertEquals(v,
+                    CanMessageData.get4ByteDouble(message,0, 0.01), 0.0001);
+        }
+        for (int i = 2147483647-10024; i < 2147483647 ; i++) {
+            double v = 0.01*i;
+            CanMessageData.set4ByteDouble(message,0,v, 0.01);
+            Assert.assertEquals(v,
+                    CanMessageData.get4ByteDouble(message,0, 0.01), 0.0001);
+        }
     }
     @Test
     public void test4ByteUDouble() {
@@ -668,6 +820,13 @@ public class CanMessageDataTest {
             Assert.assertEquals(0.01*i,
                     CanMessageData.get4ByteUDouble(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1, 0.01), 0.00001);
+        }
+        byte[] message = new byte[9];
+        for (int i = 2147483647-10024; i < 2147483647 ; i++) {
+            double v = 0.01*i;
+            CanMessageData.set4ByteUDouble(message,0,v, 0.01);
+            Assert.assertEquals(v,
+                    CanMessageData.get4ByteUDouble(message,0, 0.01), 0.0001);
         }
     }
 
@@ -715,6 +874,19 @@ public class CanMessageDataTest {
                     CanMessageData.get8ByteDouble(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1, 0.01), 0.00001);
         }
+        byte[] message = new byte[9];
+        for (long i = -2147483648; i < -2147483648+10024 ; i++) {
+            double v = 0.01*i;
+            CanMessageData.set8ByteDouble(message,0,v, 0.01);
+            Assert.assertEquals(v,
+                    CanMessageData.get8ByteDouble(message,0, 0.01), 0.0001);
+        }
+        for (long i = 2147483647-10024; i < 2147483647 ; i++) {
+            double v = 0.01*i;
+            CanMessageData.set8ByteDouble(message,0,v, 0.01);
+            Assert.assertEquals(v,
+                    CanMessageData.get8ByteDouble(message,0, 0.01), v*0.0001);
+        }
     }
     @Test
     public void test8ByteUDouble() {
@@ -744,6 +916,13 @@ public class CanMessageDataTest {
             Assert.assertEquals(BigInteger.valueOf(i).doubleValue()*0.01,
                     CanMessageData.get8ByteUDouble(
                             CanMessageData.asPackedByteArray("00"+s+"010F",0, -1),1, 0.01), BigInteger.valueOf(i).doubleValue()*0.000001);
+        }
+        byte[] message = new byte[9];
+        for (long i = 2147483647-10024; i < 2147483647 ; i++) {
+            double v = 0.01*i;
+            CanMessageData.set8ByteUDouble(message,0,v, 0.01);
+            Assert.assertEquals(v,
+                    CanMessageData.get8ByteUDouble(message,0, 0.01), v*0.0001);
         }
     }
 }

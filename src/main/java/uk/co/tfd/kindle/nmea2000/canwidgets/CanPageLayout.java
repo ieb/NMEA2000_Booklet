@@ -1,30 +1,19 @@
 package uk.co.tfd.kindle.nmea2000.canwidgets;
 
-import com.amazon.agui.swing.ComplexStateModel;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.tfd.kindle.nmea2000.*;
-import uk.co.tfd.kindle.nmea2000.can.CanMessageListener;
 import uk.co.tfd.kindle.nmea2000.can.CanMessageProducer;
 
 import javax.swing.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
 
-import static uk.co.tfd.kindle.nmea2000.Util.scaleKindle;
 
 public class CanPageLayout extends JPanel  {
 

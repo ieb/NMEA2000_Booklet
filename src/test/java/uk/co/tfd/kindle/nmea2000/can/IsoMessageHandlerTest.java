@@ -6,14 +6,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.tfd.kindle.nmea2000.NMEA0183Client;
-import uk.co.tfd.kindle.nmea2000.NMEA0183Handler;
 import uk.co.tfd.kindle.nmea2000.SeaSmartHandler;
 
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class IsoMessageHandlerTest {
 

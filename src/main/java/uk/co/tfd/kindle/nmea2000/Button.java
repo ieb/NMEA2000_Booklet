@@ -8,8 +8,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.font.TextAttribute;
-import java.util.Map;
 
 public class Button extends JPanel {
     private static final Logger log = LoggerFactory.getLogger(Button.class);

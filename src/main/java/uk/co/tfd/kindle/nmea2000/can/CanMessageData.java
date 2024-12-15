@@ -3,8 +3,9 @@ package uk.co.tfd.kindle.nmea2000.can;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.List;
+import java.math.MathContext;
 
 public class CanMessageData {
     private static final Logger log = LoggerFactory.getLogger(CanMessageData.class);
@@ -60,34 +61,46 @@ public class CanMessageData {
         if (message.length < byteOffset + 8) {
             return n2kDoubleNA;
         }
-        if ((message[byteOffset] & 0xff) == 0xff
-                && (message[byteOffset + 1] & 0xff) == 0xff
-                && (message[byteOffset + 2] & 0xff) == 0xff
-                && (message[byteOffset + 3] & 0xff) == 0xff
-                && (message[byteOffset + 4] & 0xff) == 0xff
-                && (message[byteOffset + 5] & 0xff) == 0xff
-                && (message[byteOffset + 6] & 0xff) == 0xff
-                && (message[byteOffset + 7] & 0xff) == 0xff) {
+        BigInteger v = get8ByteUInt(message, byteOffset);
+        if ( v == n2kUInt64NA) {
             return n2kDoubleNA;
         }
-        return (float)(factor * get8ByteUInt(message, byteOffset).doubleValue());
+        return (float)(factor * v.doubleValue());
     }
+
+    public static void set8ByteUDouble(byte[] message, int byteOffset, double value, double factor) {
+        if (message.length < byteOffset + 8) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if ( value == n2kDoubleNA) {
+            set8ByteUInt(message, byteOffset, n2kUInt64NA);
+        } else {
+            set8ByteUInt(message, byteOffset, BigDecimal.valueOf(value / factor).round(MathContext.DECIMAL64).toBigInteger());
+        }
+    }
+
     public static double get8ByteDouble(byte[] message, int byteOffset, double factor) {
         if (message.length < byteOffset + 8) {
             return n2kDoubleNA;
         }
-        if ((message[byteOffset] & 0xff) == 0xff
-                && (message[byteOffset + 1] & 0xff) == 0xff
-                && (message[byteOffset + 2] & 0xff) == 0xff
-                && (message[byteOffset + 3] & 0xff) == 0xff
-                && (message[byteOffset + 4] & 0xff) == 0xff
-                && (message[byteOffset + 5] & 0xff) == 0xff
-                && (message[byteOffset + 6] & 0xff) == 0xff
-                && (message[byteOffset + 7] & 0xff) == 0x7f) {
+        BigInteger v = get8ByteInt(message, byteOffset);
+        if ( v == n2kInt64NA) {
             return n2kDoubleNA;
         }
-        return  (factor * get8ByteInt(message, byteOffset).doubleValue());
+        return  (factor * v.doubleValue());
     }
+
+    public static void set8ByteDouble(byte[] message, int byteOffset, double value, double factor) {
+        if (message.length < byteOffset + 8) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if ( value == n2kDoubleNA) {
+            set8ByteInt(message, byteOffset, n2kInt64NA);
+        } else {
+            set8ByteInt(message, byteOffset, BigDecimal.valueOf(value / factor).round(MathContext.DECIMAL64).toBigInteger());
+        }
+    }
+
 
     public static BigInteger get8ByteUInt(byte[] message, int byteOffset) {
         if (message.length < byteOffset + 8) {
@@ -110,6 +123,27 @@ public class CanMessageData {
             v = v.shiftLeft(8).or(BigInteger.valueOf(message[byteOffset + i] & 0xff));
         }
         return v;
+    }
+
+    public static void set8ByteUInt(byte[] message, int byteOffset, BigInteger value) {
+        if (message.length < byteOffset + 8) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if ( value == n2kUInt64NA) {
+            message[byteOffset] = (byte)0xff;
+            message[byteOffset+1] = (byte)0xff;
+            message[byteOffset+2] = (byte)0xff;
+            message[byteOffset+3] = (byte)0xff;
+            message[byteOffset+4] = (byte)0xff;
+            message[byteOffset+5] = (byte)0xff;
+            message[byteOffset+6] = (byte)0xff;
+            message[byteOffset+7] = (byte)0xff;
+        } else {
+            for(int i = 0; i < 8; i++) {
+                message[byteOffset+i] = value.byteValue();
+                value = value.shiftRight(8);
+            }
+        }
     }
 
     public static BigInteger get8ByteInt(byte[] message, int byteOffset) {
@@ -136,29 +170,73 @@ public class CanMessageData {
         return v;
     }
 
+    public static void set8ByteInt(byte[] message, int byteOffset, BigInteger value) {
+        if (message.length < byteOffset + 8) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if ( value == n2kInt64NA) {
+            message[byteOffset] = (byte)0xff;
+            message[byteOffset+1] = (byte)0xff;
+            message[byteOffset+2] = (byte)0xff;
+            message[byteOffset+3] = (byte)0xff;
+            message[byteOffset+4] = (byte)0xff;
+            message[byteOffset+5] = (byte)0xff;
+            message[byteOffset+6] = (byte)0xff;
+            message[byteOffset+7] = (byte)0x7f;
+        } else {
+            boolean negative = (value.compareTo(BigInteger.ZERO) < 0);
+            for(int i = 0; i < 7; i++) {
+                message[byteOffset+i] = value.byteValue();
+                value = value.shiftRight(8);
+            }
+            message[byteOffset+7] = (byte)(value.byteValue() & 0x7f);
+            if ( negative ) {
+                message[byteOffset+7] = (byte)(message[byteOffset+7] | 0x80);
+            }
+        }
+    }
+
+
     public static double get4ByteUDouble(byte[] message, int byteOffset, double factor) {
         if (message.length < byteOffset + 4) {
             return n2kDoubleNA;
         }
-        if ((message[byteOffset] & 0xff) == 0xff
-                && (message[byteOffset + 1] & 0xff) == 0xff
-                && (message[byteOffset + 2] & 0xff) == 0xff
-                && (message[byteOffset + 3] & 0xff) == 0xff) {
+        long v = get4ByteUInt(message, byteOffset);
+        if ( v == n2kUInt32NA) {
             return n2kDoubleNA;
         }
-        return factor * get4ByteUInt(message, byteOffset);
+        return factor * v;
+    }
+
+    public static void set4ByteUDouble(byte[] message, int byteOffset, double value, double factor) {
+        if (message.length < byteOffset + 4) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if ( value == n2kDoubleNA) {
+            set4ByteUInt(message, byteOffset, n2kUInt32NA);
+        } else {
+            set4ByteUInt(message, byteOffset, (Math.round(value/factor)));
+        }
     }
     public static double get4ByteDouble(byte[] message, int byteOffset, double factor) {
         if (message.length < byteOffset + 4) {
             return n2kDoubleNA;
         }
-        if ((message[byteOffset] & 0xff) == 0xff
-                && (message[byteOffset + 1] & 0xff) == 0xff
-                && (message[byteOffset + 2] & 0xff) == 0xff
-                && (message[byteOffset + 3] & 0xff) == 0x7f) {
+        long v = get4ByteInt(message, byteOffset);
+        if ( v == n2kInt32NA) {
             return n2kDoubleNA;
         }
-        return factor * get4ByteInt(message, byteOffset);
+        return factor * v;
+    }
+    public static void set4ByteDouble(byte[] message, int byteOffset, double value, double factor) {
+        if (message.length < byteOffset + 4) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if ( value == n2kDoubleNA) {
+            set4ByteInt(message, byteOffset, n2kInt32NA);
+        } else {
+            set4ByteInt(message, byteOffset, (Math.round(value/factor)));
+        }
     }
 
     public static long get4ByteUInt(byte[] message, int byteOffset) {
@@ -179,6 +257,23 @@ public class CanMessageData {
         // however, still relatively fast.
         return (long)v | (long)(message[byteOffset + 3] & 0xff ) << 24;
     }
+    public static void set4ByteUInt(byte[] message, int byteOffset, long value) {
+        if (message.length < byteOffset + 4) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if (value == n2kUInt32NA) {
+            message[byteOffset] = (byte) 0xff;
+            message[byteOffset + 1] = (byte) 0xff;
+            message[byteOffset + 2] = (byte) 0xff;
+            message[byteOffset + 3] = (byte) 0xff;
+        } else {
+            message[byteOffset] = (byte) (value & 0xff);
+            message[byteOffset + 1] = (byte) ((value >> 8) & 0xff);
+            message[byteOffset + 2] = (byte) ((value >> 16) & 0xff);
+            message[byteOffset + 3] = (byte) ((value >> 24) & 0xff);
+        }
+    }
+
 
     public static int get4ByteInt(byte[] message, int byteOffset) {
         if (message.length < byteOffset + 4) {
@@ -200,27 +295,67 @@ public class CanMessageData {
         return v;
     }
 
+    public static void set4ByteInt(byte[] message, int byteOffset, long value) {
+        if (message.length < byteOffset + 4) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if (value == n2kInt32NA) {
+            message[byteOffset] = (byte) 0xff;
+            message[byteOffset + 1] = (byte) 0xff;
+            message[byteOffset + 2] = (byte) 0xff;
+            message[byteOffset + 3] = (byte) 0x7f;
+        } else {
+            message[byteOffset] = (byte) (value & 0xff);
+            message[byteOffset + 1] = (byte) ((value >> 8) & 0xff);
+            message[byteOffset + 2] = (byte) ((value >> 16) & 0xff);
+            message[byteOffset + 3] = (byte) ((value >> 24) & 0x7f);
+            if ( value < 0) {
+                message[byteOffset + 3] = (byte) (message[byteOffset + 3] | 0x80);
+            }
+        }
+    }
+
     public static double get3ByteUDouble(byte[] message, int byteOffset, double factor) {
         if (message.length < byteOffset + 3) {
             return n2kDoubleNA;
         }
-        if ((message[byteOffset] & 0xff) == 0xff
-                && (message[byteOffset + 1] & 0xff) == 0xff
-                && (message[byteOffset + 2] & 0xff) == 0xff) {
+
+        int v = get3ByteUInt(message, byteOffset);
+        if ( v == n2kUInt24NA) {
             return n2kDoubleNA;
         }
-        return factor * get3ByteUInt(message, byteOffset);
+        return factor * v;
     }
+    public static void set3ByteUDouble(byte[] message, int byteOffset, double value, double factor) {
+        if (message.length < byteOffset + 3) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if ( value == n2kDoubleNA) {
+            set3ByteUInt(message, byteOffset, n2kUInt24NA);
+        } else {
+            set3ByteUInt(message, byteOffset,(int)(Math.round(value/factor)));
+        }
+    }
+
     public static double get3ByteDouble(byte[] message, int byteOffset, double factor) {
         if (message.length < byteOffset + 2) {
             return n2kDoubleNA;
         }
-        if ((message[byteOffset] & 0xff) == 0xff
-                && (message[byteOffset + 1] & 0xff) == 0xff
-                && (message[byteOffset + 2] & 0xff) == 0x7f) {
+        int v = get3ByteInt(message, byteOffset);
+        if ( v == n2kInt24NA) {
             return n2kDoubleNA;
         }
-        return factor * get3ByteInt(message, byteOffset);
+        return factor * v;
+    }
+    public static void set3ByteDouble(byte[] message, int byteOffset, double value, double factor) {
+        if (message.length < byteOffset + 3) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if ( value == n2kDoubleNA) {
+            set3ByteInt(message, byteOffset, n2kInt24NA);
+        } else {
+            set3ByteInt(message, byteOffset,  (int)(Math.round(value/factor)));
+        }
     }
 
     public static int get3ByteUInt(byte[] message, int byteOffset) {
@@ -236,6 +371,22 @@ public class CanMessageData {
                 | (message[byteOffset + 1] & 0xff) << 8
                 | (message[byteOffset + 2] & 0xff) << 16;
     }
+
+    public static void set3ByteUInt(byte[] message, int byteOffset, int value) {
+        if (message.length < byteOffset + 3) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if (value == n2kUInt24NA) {
+            message[byteOffset] = (byte) 0xff;
+            message[byteOffset + 1] = (byte) 0xff;
+            message[byteOffset + 2] = (byte) 0xff;
+        } else {
+            message[byteOffset] = (byte) (value & 0xff);
+            message[byteOffset + 1] = (byte) ((value >> 8) & 0xff);
+            message[byteOffset + 2] = (byte) ((value >> 16) & 0xff);
+        }
+    }
+
 
     public static int get3ByteInt(byte[] message, int byteOffset) {
         if (message.length < byteOffset + 3) {
@@ -255,25 +406,65 @@ public class CanMessageData {
         return v;
     }
 
+    public static void set3ByteInt(byte[] message, int byteOffset, int value) {
+        if (message.length < byteOffset + 4) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if (value == n2kInt24NA) {
+            message[byteOffset] = (byte) 0xff;
+            message[byteOffset + 1] = (byte) 0xff;
+            message[byteOffset + 2] = (byte) 0x7f;
+        } else {
+            message[byteOffset] = (byte) (value & 0xff);
+            message[byteOffset + 1] = (byte) ((value >> 8) & 0xff);
+            message[byteOffset + 2] = (byte) ((value >> 16) & 0x7f);
+            if ( value < 0) {
+                message[byteOffset + 2] = (byte) (message[byteOffset + 2] | 0x80);
+            }
+        }
+    }
+
+
     public static double get2ByteUDouble(byte[] message, int byteOffset, double factor) {
         if (message.length < byteOffset + 2) {
             return n2kDoubleNA;
         }
-        if ((message[byteOffset] & 0xff) == 0xff
-                && (message[byteOffset + 1] & 0xff) == 0xff) {
+        int v = get2ByteUInt(message, byteOffset);
+        if ( v == n2kUInt16NA) {
             return n2kDoubleNA;
         }
-        return factor * get2ByteUInt(message, byteOffset);
+        return factor * v;
     }
+    public static void set2ByteUDouble(byte[] message, int byteOffset, double value, double factor) {
+        if (message.length < byteOffset + 3) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if ( value == n2kDoubleNA) {
+            set2ByteUInt(message, byteOffset, n2kUInt16NA);
+        } else {
+            set2ByteUInt(message, byteOffset,  (int)(Math.round(value/factor)));
+        }
+    }
+
     public static double get2ByteDouble(byte[] message, int byteOffset, double factor) {
         if (message.length < byteOffset + 2) {
             return n2kDoubleNA;
         }
-        if ((message[byteOffset] & 0xff) == 0xff
-                && (message[byteOffset + 1] & 0xff) == 0x7f) {
+        int v = get2ByteInt(message, byteOffset);
+        if ( v == n2kInt16NA) {
             return n2kDoubleNA;
         }
-        return factor * get2ByteInt(message, byteOffset);
+        return factor * v;
+    }
+    public static void set2ByteDouble(byte[] message, int byteOffset, double value, double factor) {
+        if (message.length < byteOffset + 3) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if ( value == n2kDoubleNA) {
+            set2ByteInt(message, byteOffset, n2kInt16NA);
+        } else {
+            set2ByteInt(message, byteOffset, (int)(Math.round(value/factor)));
+        }
     }
 
     public static int get2ByteUInt(byte[] message, int byteOffset) {
@@ -287,6 +478,20 @@ public class CanMessageData {
         return message[byteOffset] & 0xff
                 | (message[byteOffset + 1] & 0xff) << 8;
     }
+
+    public static void set2ByteUInt(byte[] message, int byteOffset, int value) {
+        if (message.length < byteOffset + 2) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if (value == n2kUInt16NA) {
+            message[byteOffset] = (byte) 0xff;
+            message[byteOffset + 1] = (byte) 0xff;
+        } else {
+            message[byteOffset] = (byte) (value & 0xff);
+            message[byteOffset + 1] = (byte) ((value >> 8) & 0xff);
+        }
+    }
+
 
     public static int get2ByteInt(byte[] message, int byteOffset) {
         if (message.length < byteOffset + 2) {
@@ -304,6 +509,22 @@ public class CanMessageData {
         return v;
     }
 
+    public static void set2ByteInt(byte[] message, int byteOffset, int value) {
+        if (message.length < byteOffset + 4) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if (value == n2kInt16NA) {
+            message[byteOffset] = (byte) 0xff;
+            message[byteOffset + 1] = (byte) 0x7f;
+        } else {
+            message[byteOffset] = (byte) (value & 0xff);
+            message[byteOffset + 1] = (byte) ((value >> 8) & 0x7f);
+            if ( value < 0) {
+                message[byteOffset + 1] = (byte) (message[byteOffset + 1] | 0x80);
+            }
+        }
+    }
+
 
     public static double get1ByteUDouble(byte[] message, int byteOffset, double factor) {
         if (message.length < byteOffset + 1) {
@@ -314,6 +535,17 @@ public class CanMessageData {
         }
         return factor * get1ByteUInt(message, byteOffset);
     }
+    public static void set1ByteUDouble(byte[] message, int byteOffset, double value, double factor) {
+        if (message.length < byteOffset + 3) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if ( value == n2kDoubleNA) {
+            set1ByteUInt(message, byteOffset, n2kUInt8NA);
+        } else {
+            set1ByteUInt(message, byteOffset,  (int)(Math.round(value/factor)));
+        }
+    }
+
     public static double get1ByteDouble(byte[] message, int byteOffset, double factor) {
         if (message.length < byteOffset + 1) {
             return n2kDoubleNA;
@@ -323,6 +555,17 @@ public class CanMessageData {
         }
         return factor * get1ByteInt(message, byteOffset);
     }
+    public static void set1ByteDouble(byte[] message, int byteOffset, double value, double factor) {
+        if (message.length < byteOffset + 1) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if ( value == n2kDoubleNA) {
+            set1ByteInt(message, byteOffset, n2kInt8NA);
+        } else {
+            set1ByteInt(message, byteOffset,  (int)(Math.round(value/factor)));
+        }
+    }
+
 
     public static int get1ByteUInt(byte[] message, int byteOffset) {
         if (message.length < byteOffset + 1) {
@@ -332,6 +575,17 @@ public class CanMessageData {
             return n2kUInt8NA;
         }
         return message[byteOffset] & 0xff;
+    }
+
+    public static void set1ByteUInt(byte[] message, int byteOffset, int value) {
+        if (message.length < byteOffset + 1) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if (value == n2kUInt8NA) {
+            message[byteOffset] = (byte) 0xff;
+        } else {
+            message[byteOffset] = (byte) (value & 0xff);
+        }
     }
 
     public static int get1ByteInt(byte[] message, int byteOffset) {
@@ -347,6 +601,20 @@ public class CanMessageData {
         }
         return v;
     }
+    public static void set1ByteInt(byte[] message, int byteOffset, int value) {
+        if (message.length < byteOffset + 1) {
+            throw new IllegalArgumentException("message overflow");
+        }
+        if (value == n2kInt8NA) {
+            message[byteOffset] = (byte) 0x7f;
+        } else {
+            message[byteOffset] = (byte) (value & 0x7f);
+            if ( value < 0) {
+                message[byteOffset] = (byte) (message[byteOffset] | 0x80);
+            }
+        }
+    }
+
 
     public static String dumpMessage(byte[] message) {
         StringBuilder output = new StringBuilder();

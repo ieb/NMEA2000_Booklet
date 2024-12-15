@@ -5,8 +5,6 @@ import org.slf4j.LoggerFactory;
 import uk.co.tfd.kindle.nmea2000.Configuration;
 import uk.co.tfd.kindle.nmea2000.can.CanMessageProducer;
 
-import javax.swing.*;
-import javax.xml.bind.JAXBContext;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -70,6 +68,7 @@ public class CanInstruments {
         map.put("status", new CanInstrument(SystemView.CanBusStatus.class));
         map.put("polarpage", new CanInstrument(PolarPage.class));
         map.put("enginepage", new CanInstrument(EnginePage.class));
+        map.put("batterypage", new CanInstrument(BatteryPage.class));
 
         blank = new CanInstrument<>(BaseCanWidget.class);
         map.put("blank",blank);

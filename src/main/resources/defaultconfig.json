@@ -600,6 +600,13 @@
       "vspace" : 5,
       "rotate": true,
       "page": "enginepage"
+    },
+    {
+      "id" : "Battery",
+      "hspace" : 5,
+      "vspace" : 5,
+      "rotate": false,
+      "page": "batterypage"
     }
   ]
 }

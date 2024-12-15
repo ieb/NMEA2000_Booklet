@@ -9,7 +9,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.net.InetAddress;
 
 /**
  * Disconnects every 5s to simulate failure and test the firmware, not exactly chaos, but enough to stress the

@@ -3,7 +3,6 @@ package uk.co.tfd.kindle.nmea2000;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.event.WindowFocusListener;
 import java.io.*;
 import java.net.*;
 import java.util.*;

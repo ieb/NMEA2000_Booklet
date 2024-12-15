@@ -1,15 +1,12 @@
 package uk.co.tfd.kindle.nmea2000.can;
 
 import org.slf4j.LoggerFactory;
-import uk.co.tfd.kindle.nmea2000.Util;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.function.ToDoubleFunction;
-import java.util.stream.Stream;
 
 public class ElectricalMessageHandler  implements CanMessageHandler {
 

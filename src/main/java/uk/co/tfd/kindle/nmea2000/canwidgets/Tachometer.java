@@ -5,9 +5,7 @@ import org.slf4j.LoggerFactory;
 import uk.co.tfd.kindle.nmea2000.Util;
 import uk.co.tfd.kindle.nmea2000.can.CanMessageData;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.CubicCurve2D;
 
 public class Tachometer extends BaseGauge  {
     private static final Logger log = LoggerFactory.getLogger(Tachometer.class);

@@ -1,7 +1,8 @@
 # NMEA2000 EInk Booklet
 
 This is a Kindle Booklet for NMEA2000 data that allows you to open a book on a Kindle Paperwhite that displays pages
-of graphical instruments that display real time data from a NMEA2000 HTTP server on the network supporting the CanDiagnose format. (see https://github.com/ieb/CanDiagnose) 
+of graphical instruments that display real time data from a NMEA2000 SeaSmart TCP server on the network.
+(see https://github.com/ieb/N2KNMEA0183Wifi for a fully functional embeded SeaSmart server with BMS support) 
 
 Kindle UIs are Java Swing applications running inside a lightweight OSGi Framework.
 
