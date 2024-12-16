@@ -27,6 +27,20 @@ public class IsoMessageHandler implements CanMessageHandler {
             this.industryGroup =  N2KReference.Industry.lookup ((int)(industryGroupAndSystemInstance >> 4) & 0x0f);
             this.systemInstance = (short) ((industryGroupAndSystemInstance) & 0x0f);
         }
+        public static int encode(byte[] message, short  deviceInstance,
+                                  short deviceClass,
+                                  int uniqueNumber,
+                                  short deviceFuncton,
+                                  short systemInstance,
+                                  N2KReference.ManufacturerCode manufacturerCode,
+                                  N2KReference.Industry industryGroup) {
+            CanMessageData.set4ByteUInt(message, 0, ((manufacturerCode.id&0x7ff) << 21) | uniqueNumber&0x1fffff);
+            CanMessageData.set1ByteUInt(message, 4, deviceInstance);
+            CanMessageData.set1ByteUInt(message, 5, deviceFuncton);
+            CanMessageData.set1ByteUInt(message, 6, deviceClass);
+            CanMessageData.set1ByteUInt(message, 7, ((industryGroup.id&0x0f)<<4) | (systemInstance&0x0f));
+            return 8;
+        }
     }
 
     public static class PGN126993HeartBeat extends BaseCanMessage {

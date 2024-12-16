@@ -69,6 +69,37 @@ public class EngineMessageHandler implements CanMessageHandler {
             if ((status2 & 0x80) == 0x80) statusMesssagesList.add("Engine Shutting Down");
             this.statusMessages = String.join(",",statusMesssagesList);
         }
+
+        public static int encode(byte[] message, int engineInstance,
+                                  double engineOilPressure,
+                                  double engineOilTemperature,
+                                  double engineCoolantTemperature,
+                                  double alternatorVoltage,
+                                  double fuelRate,
+                                  double engineHours,
+                                  double engineCoolantPressure,
+                                  double engineFuelPressure,
+                                  byte engineLoad,
+                                  byte engineTorque,
+                                  int status1,
+                                  int status2) {
+            CanMessageData.set1ByteUInt(message, 0, engineInstance);
+            CanMessageData.set2ByteUDouble(message, 1, engineOilPressure, 100);
+            CanMessageData.set2ByteUDouble(message, 3, engineOilTemperature, 0.1);
+            CanMessageData.set2ByteUDouble(message, 5, engineCoolantTemperature, 0.01);
+            CanMessageData.set2ByteDouble(message, 7, alternatorVoltage, 0.01);
+            CanMessageData.set2ByteDouble(message, 9, fuelRate, 0.1);
+            CanMessageData.set4ByteUDouble(message, 11, engineHours, 1);
+            CanMessageData.set2ByteUDouble(message, 15, engineCoolantPressure, 100);
+            CanMessageData.set2ByteUDouble(message, 17, engineFuelPressure, 1000);
+            CanMessageData.set1ByteUInt(message, 19, 0xff); // reserved
+            CanMessageData.set2ByteUInt(message, 20, status1);
+            CanMessageData.set2ByteUInt(message, 22, status2);
+            CanMessageData.set1ByteUInt(message, 24, engineLoad);
+            CanMessageData.set1ByteUInt(message, 25, engineTorque);
+            return 26;
+        }
+
     }
 
     public static class PGN127488RapidEngineData extends BaseCanMessage {
@@ -86,6 +117,15 @@ public class EngineMessageHandler implements CanMessageHandler {
             engineSpeed = CanMessageData.get2ByteUDouble(data, 1, 0.25); // RPM
             engineBoostPressure = CanMessageData.get2ByteUDouble(data, 3, 100);
             engineTiltTrim = CanMessageData.get1ByteInt(data, 5);
+        }
+
+        public static int encode(byte[] message, int engineInstance, double engineSpeed, double engineBoostPressure, int engineTiltTrim) {
+            CanMessageData.set1ByteUInt(message,0, engineInstance);
+            CanMessageData.set2ByteUDouble(message,1, engineSpeed, 0.25);
+            CanMessageData.set2ByteUDouble(message,3, engineBoostPressure, 100);
+            CanMessageData.set1ByteInt(message,5, engineTiltTrim);
+            CanMessageData.set1ByteUInt(message,7, CanMessageData.n2kUInt8NA);
+            return 8;
         }
     }
 
@@ -107,6 +147,17 @@ public class EngineMessageHandler implements CanMessageHandler {
             requestedTemperature = CanMessageData.get2ByteUDouble(data, 5, 0.01);
         }
 
+        public static int encode(byte[] message, int sid, int instance, double actualTemperature, double requestedTemperature, N2KReference.TemperatureSource source) {
+            CanMessageData.set1ByteUInt(message,0, sid);
+            CanMessageData.set1ByteUInt(message,1, instance);
+            CanMessageData.set1ByteUInt(message,2, source.id);
+            CanMessageData.set2ByteUDouble(message,3, actualTemperature, 0.01);
+            CanMessageData.set2ByteUDouble(message,5, requestedTemperature, 0.01);
+            CanMessageData.set1ByteUInt(message,7, CanMessageData.n2kUInt8NA);
+            return 8;
+        }
+
+
     }
 
 
@@ -127,6 +178,14 @@ public class EngineMessageHandler implements CanMessageHandler {
             fluidLevel = CanMessageData.get2ByteDouble(data, 1, 0.004);
             fluidCapacity = CanMessageData.get4ByteUDouble(data, 3, 0.1);
         }
+        public static int encode(byte[] message, int instance, N2KReference.TankType fluidType, double fluidLevel, double fluidCapacity) {
+            CanMessageData.set1ByteUInt(message,0, ((fluidType.id<<4) & 0xf0) | (instance & 0x0f));
+            CanMessageData.set2ByteDouble(message,1, fluidLevel, 0.004);
+            CanMessageData.set4ByteUDouble(message,3, fluidCapacity, 0.1);
+            CanMessageData.set1ByteUInt(message,7, CanMessageData.n2kUInt8NA);
+            return 8;
+        }
+
 
     }
 
