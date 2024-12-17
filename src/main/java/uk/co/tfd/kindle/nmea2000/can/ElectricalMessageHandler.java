@@ -1,9 +1,6 @@
 package uk.co.tfd.kindle.nmea2000.can;
 
-import org.slf4j.LoggerFactory;
-
 import java.io.UnsupportedEncodingException;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -208,11 +205,6 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
             }
             instance = CanMessageData.get1ByteUInt(data, 2);
             registerLength = CanMessageData.get1ByteUInt(data, 4);
-            LoggerFactory.getLogger(this.getClass()).info(
-                    String.format(" packVoltage %02x %02x  %d %f", data[5], data[6],
-                            CanMessageData.get2ByteUInt(data, 5),
-                            CanMessageData.get2ByteUDouble(data, 5, 0.01)
-                            ));
             packVoltage = CanMessageData.get2ByteUDouble(data, 5, 0.01);
             packCurrent = CanMessageData.get2ByteDouble(data, 7, 0.01);
             remainingCapacity = CanMessageData.get2ByteUDouble(data, 9, 0.01);

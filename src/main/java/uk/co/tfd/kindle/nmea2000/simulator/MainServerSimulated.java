@@ -57,12 +57,13 @@ public class MainServerSimulated {
                                             if (NMEA0183Client.checkSumOk(line)) {
                                                 if (line.startsWith("$PCDCM,1,")) {
                                                     // pgn list
-                                                    Set<Integer> newPgnFilterList = new HashSet<>();
+                                                    Set<Long> newPgnFilterList = new HashSet<>();
                                                     String[] parts = line.substring(0, line.lastIndexOf('*')).split(",");
                                                     for (int i = 3; i < parts.length; i++) {
-                                                        newPgnFilterList.add(Integer.parseInt(parts[i]));
+                                                        newPgnFilterList.add(Long.parseLong(parts[i]));
                                                     }
                                                     pgnFilter.setPgnFilterList(newPgnFilterList);
+                                                    log.info("Filter now {}", pgnFilter);
                                                 } else {
                                                     log.info("Command not regognised");
                                                 }
@@ -81,7 +82,12 @@ public class MainServerSimulated {
                     });
                     reader.start();
                     while (true) {
-                        Thread.sleep(firmwareSimulator.sendNext(out, pgnFilter));
+                        long t = firmwareSimulator.sendNext(out, pgnFilter);
+                        if ( t > 0 ) {
+                            Thread.sleep(t);
+                        } else if ( t < 0) {
+                            log.warn("Delay < 0 {}", t);
+                        }
                     }
                 } catch (IOException ex) {
                     log.info("Failed with client",ex);

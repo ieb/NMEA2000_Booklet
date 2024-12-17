@@ -109,7 +109,6 @@ public class N2KEngineFirmware {
             return 5001;
         }
     }
-
     public static class EngineTemperatures extends  Sender {
 
         byte sid = 0;
@@ -151,7 +150,7 @@ public class N2KEngineFirmware {
                         31));
                 sid++;
             }
-            nextSend = System.currentTimeMillis() + 5001;
+            nextSend = System.currentTimeMillis() + 15001;
             return 15000;
         }
     }

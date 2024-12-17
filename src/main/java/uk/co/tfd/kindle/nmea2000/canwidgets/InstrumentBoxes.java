@@ -155,6 +155,32 @@ public class InstrumentBoxes {
         }
     }
 
+    public static class Battery3CellBox extends BaseBox3Cell {
+        public Battery3CellBox(String title) {
+            super("",
+                    new String[] {
+                            title,
+                            "A",
+                            "C",
+                    },
+                    new String[] {
+                            "%3.2f",
+                            "%3.1f",
+                            "%3.1f"
+                    },
+                    new double[] {
+                            1.0,
+                            1.0,
+                            1.0
+                    },
+                    0.8);
+        }
+
+        @Override
+        public void update(double voltage, double current, double temperature) {
+            super.update(voltage, current, (temperature==CanMessageData.n2kDoubleNA)?temperature:temperature-273.15);
+        }
+    }
 
     public static class BaseBox3Cell extends JPanel {
 

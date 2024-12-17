@@ -31,15 +31,22 @@ public class FirmwareSimulator {
     public long sendNext(OutputStream out, PGNFilter filter) throws IOException {
         long now = System.currentTimeMillis();
         long wait = 10000;
+        int sent = 0;
+        int skipped = 0;
+        filter.reset();
         for (Sender s : senders) {
             long delay = s.nextSend - now;
             if (delay < 0) {
                 delay = s.send(out, filter);
+                sent++;
+            } else {
+                skipped++;
             }
             if (delay < wait) {
                 wait = delay;
             }
         }
+        //log.info("Sent:{} skip:{} wait: {} {}" , sent, skipped, wait, filter);
         return wait;
     }
 }

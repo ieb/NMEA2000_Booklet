@@ -134,6 +134,7 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
                 EngineMessageHandler.PGN127488RapidEngineData.PGN,
                 EngineMessageHandler.PGN127489EngineDynamicParam.PGN,
                 EngineMessageHandler.PGN127505FluidLevel.PGN,
+                EngineMessageHandler.PGN130312Temperature.PGN,
                 ElectricalMessageHandler.PGN127508DCBatteryStatus.PGN,
         };
     }

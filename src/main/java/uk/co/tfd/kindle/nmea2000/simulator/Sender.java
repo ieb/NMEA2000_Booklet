@@ -28,12 +28,14 @@ public abstract class Sender {
             for (int i = 0; i < cm.message.length; i++) {
                 dataAsHex.append(String.format("%02X", cm.message[i]));
             }
-            out.write((NMEA0183Client.addCheckSum(
+            String sentence = NMEA0183Client.addCheckSum(
                     "$PCDIN,"
                             + Long.toHexString(cm.pgn).toUpperCase() + ","
                             + Integer.toHexString(timestamp).toUpperCase() + ","
                             + Integer.toHexString(source).toUpperCase() + ","
-                            + dataAsHex.toString()) + "\r\n").getBytes("ASCII"));
+                            + dataAsHex.toString());
+            log.info(">{}", sentence);
+            out.write((sentence+"\r\n").getBytes("ASCII"));
         } catch (UnsupportedEncodingException ex) {
             log.info(ex.getMessage(), ex);
         }
