@@ -24,7 +24,12 @@ lasts for many many hours.
 Photos are from the desktop version, however the Kindle UI is the same.
 
 <div>
-<img alt="Front Page" src="screenshots/Screenshot 2024-11-12 at 08.33.16.png" height="200"/><img alt="Polar Page" height="200" src="screenshots/Screenshot 2024-11-12 at 08.28.20.png"/><img alt="Performance Graphs" height="200" src="screenshots/Screenshot 2024-11-12 at 08.28.36.png"/><img alt="Engine Dials" height="200" src="screenshots/Screenshot 2024-11-12 at 08.28.47.png"/><img alt="Boxes" height="200" src="screenshots/Screenshot 2024-11-12 at 08.27.47.png"/>
+<img alt="Front Page" src="screenshots/Screenshot 2024-11-12 at 08.33.16.png" height="200"/>
+<img alt="Polar Page" height="200" src="screenshots/Screenshot 2024-11-12 at 08.28.20.png"/>
+<img alt="Performance Graphs" height="200" src="screenshots/Screenshot 2024-11-12 at 08.28.36.png"/>
+<img alt="Engine Dials" height="200" src="screenshots/Screenshot 2024-11-12 at 08.28.47.png"/>
+<img alt="BMS and Batteries" height="200" src="screenshots/Screenshot 2024-12-17 at 16.46.00.png"/>
+<img alt="Boxes" height="200" src="screenshots/Screenshot 2024-11-12 at 08.27.47.png"/>
 </div>
 
 
