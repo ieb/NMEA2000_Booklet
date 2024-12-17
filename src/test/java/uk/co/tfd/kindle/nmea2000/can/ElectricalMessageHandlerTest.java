@@ -86,9 +86,8 @@ public class ElectricalMessageHandlerTest {
     @Test
     public void createPGN127508DCBatteryStatus() {
 
-        byte[] message = new byte[8];
-        ElectricalMessageHandler.PGN127508DCBatteryStatus.encode(message, 12,1,13.34,4.5, 295.4);
-        ElectricalMessageHandler.PGN127508DCBatteryStatus mgs2 = new ElectricalMessageHandler.PGN127508DCBatteryStatus(127508, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+        CanMessageData b = ElectricalMessageHandler.PGN127508DCBatteryStatus.encode( 12,1,13.34,4.5, 295.4);
+        ElectricalMessageHandler.PGN127508DCBatteryStatus mgs2 = new ElectricalMessageHandler.PGN127508DCBatteryStatus(127508, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,mgs2.src);
         Assert.assertEquals(1,mgs2.instance);
         Assert.assertEquals(13.34,mgs2.batteryVoltage, 0.01);
@@ -107,8 +106,7 @@ public class ElectricalMessageHandlerTest {
     }
     @Test
     public void createPGN127506DCStatus() throws UnsupportedEncodingException {
-        byte[] message = new byte[12];
-        ElectricalMessageHandler.PGN127506DCStatus.encode(message,
+        CanMessageData b = ElectricalMessageHandler.PGN127506DCStatus.encode(
                 12,
                 1,
                 N2KReference.DcSourceType.Battery,
@@ -118,7 +116,7 @@ public class ElectricalMessageHandlerTest {
                 0.2,
                 340*3600);
         ElectricalMessageHandler.PGN127506DCStatus msg = new ElectricalMessageHandler.PGN127506DCStatus(
-                127506, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                127506, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.sid);
         Assert.assertEquals(N2KReference.DcSourceType.Battery,msg.dcType);
@@ -185,11 +183,10 @@ public class ElectricalMessageHandlerTest {
 
     @Test
     public void createPGN130829BMSRegO3() throws UnsupportedEncodingException {
-        byte[] message = new byte[45];
         Calendar manufactureDate = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"));
         manufactureDate.set(2017,8,24,8,5,21);
 
-        ElectricalMessageHandler.PGN130829BMSRegO3.encode(message,
+        CanMessageData b = ElectricalMessageHandler.PGN130829BMSRegO3.encode(
                 12,
                 12.4,
                 -23.4,
@@ -211,7 +208,7 @@ public class ElectricalMessageHandlerTest {
                 298.7,
                 0.421);
         ElectricalMessageHandler.PGN130829BMSRegO3 msg = new ElectricalMessageHandler.PGN130829BMSRegO3(
-                130829, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                130829, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.instance);
         Assert.assertEquals(12.4, msg.packVoltage, 0.001);
@@ -249,12 +246,11 @@ public class ElectricalMessageHandlerTest {
 
     @Test
     public void createPGN130829BMSRegO4() throws UnsupportedEncodingException {
-        byte[] message = new byte[20];
-        ElectricalMessageHandler.PGN130829BMSRegO4.encode(message,
+        CanMessageData b = ElectricalMessageHandler.PGN130829BMSRegO4.encode(
                 12,
                 new double[] { 3.412, 2.897, 3.213, 3.111 });
         ElectricalMessageHandler.PGN130829BMSRegO4 msg = new ElectricalMessageHandler.PGN130829BMSRegO4(
-                130829, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                130829, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.instance);
         Assert.assertArrayEquals(new double[] { 3.412, 2.897, 3.213, 3.111 }, msg.cellVoltage, 0.0001);
@@ -267,12 +263,11 @@ public class ElectricalMessageHandlerTest {
     }
     @Test
     public void createPGN130829BMSRegO5() throws UnsupportedEncodingException {
-        byte[] message = new byte[20];
-        ElectricalMessageHandler.PGN130829BMSRegO5.encode(message,
+        CanMessageData b = ElectricalMessageHandler.PGN130829BMSRegO5.encode(
                 12,
                 "V:12.9 sys:8.4");
         ElectricalMessageHandler.PGN130829BMSRegO5 msg = new ElectricalMessageHandler.PGN130829BMSRegO5(
-                130829, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                130829, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.instance);
         Assert.assertEquals("V:12.9 sys:8.4", msg.hwVersion);

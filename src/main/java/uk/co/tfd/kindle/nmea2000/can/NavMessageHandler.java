@@ -19,12 +19,13 @@ public class NavMessageHandler implements CanMessageHandler {
             systemDate = CanMessageData.get2ByteUInt(data, 2);
             systemTime = CanMessageData.get4ByteUDouble(data, 4, 0.0001);
         }
-        public static int encode(byte[] message, int sid, N2KReference.TimeSource timeSource, int systemDate, double systemTime) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set1ByteUInt(message, 1, timeSource.id&0x0f);
-            CanMessageData.set2ByteUInt(message, 2, systemDate);
-            CanMessageData.set4ByteUDouble(message, 4, systemTime, 0.0001);
-            return 8;
+        public static CanMessageData encode( int sid, N2KReference.TimeSource timeSource, int systemDate, double systemTime) {
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set1ByteUInt( 1, timeSource.id&0x0f);
+            b.set2ByteUInt( 2, systemDate);
+            b.set4ByteUDouble( 4, systemTime, 0.0001);
+            return b;
         }
     }
 
@@ -44,15 +45,16 @@ public class NavMessageHandler implements CanMessageHandler {
             angleOrder = CanMessageData.get2ByteDouble(data, 2, 0.0001);
             rudderPosition = CanMessageData.get2ByteDouble(data, 4, 0.0001);
         }
-        public static int encode(byte[] message, int instance,
+        public static CanMessageData encode( int instance,
                                   N2KReference.RudderDirectionOrder rudderDirectionOrder,
                                   double angleOrder, double rudderPosition) {
-            CanMessageData.set1ByteUInt(message, 0, instance);
-            CanMessageData.set1ByteUInt(message, 1, rudderDirectionOrder.id&0x07);
-            CanMessageData.set2ByteDouble(message, 2, angleOrder, 0.0001);
-            CanMessageData.set2ByteDouble(message, 4, rudderPosition, 0.0001);
-            CanMessageData.set2ByteUInt(message, 6, 0xffff); // reserved
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, instance);
+            b.set1ByteUInt( 1, rudderDirectionOrder.id&0x07);
+            b.set2ByteDouble( 2, angleOrder, 0.0001);
+            b.set2ByteDouble( 4, rudderPosition, 0.0001);
+            b.set2ByteUInt( 6, 0xffff); // reserved
+            return b;
         }
 
     }
@@ -87,15 +89,16 @@ public class NavMessageHandler implements CanMessageHandler {
             ref =  N2KReference.HeadingReference.lookup( CanMessageData.get1ByteUInt(data,  7) & 0x03);
         }
 
-        public static int encode(byte[] message, int sid,
+        public static CanMessageData encode( int sid,
                                   double heading, double deviation,
                                   double variation, N2KReference.HeadingReference ref ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set2ByteUDouble(message, 1, heading, 0.0001);
-            CanMessageData.set2ByteDouble(message, 3, deviation, 0.0001);
-            CanMessageData.set2ByteDouble(message, 5, variation, 0.0001);
-            CanMessageData.set1ByteUInt(message, 7, ref.id&0x03);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set2ByteUDouble( 1, heading, 0.0001);
+            b.set2ByteDouble( 3, deviation, 0.0001);
+            b.set2ByteDouble( 5, variation, 0.0001);
+            b.set1ByteUInt( 7, ref.id&0x03);
+            return b;
 
         }
 
@@ -115,12 +118,13 @@ public class NavMessageHandler implements CanMessageHandler {
             sid = CanMessageData.get1ByteUInt(data, 0);
             rateOfTurn = CanMessageData.get4ByteDouble(data, 1, 3.125E-08);
         }
-        public static int encode(byte[] message, int sid,
+        public static CanMessageData encode( int sid,
                                   double rateOfTurn ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set4ByteDouble(message, 1, rateOfTurn, 3.125E-08);
-            CanMessageData.set3ByteUInt(message, 5, CanMessageData.n2kUInt24NA); // reserved
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set4ByteDouble( 1, rateOfTurn, 3.125E-08);
+            b.set3ByteUInt( 5, CanMessageData.n2kUInt24NA); // reserved
+            return b;
         }
 
     }
@@ -149,14 +153,15 @@ public class NavMessageHandler implements CanMessageHandler {
             pitch = CanMessageData.get2ByteDouble(data, 3, 0.0001);
             roll = CanMessageData.get2ByteDouble(data, 5, 0.0001);
         }
-        public static int encode(byte[] message, int sid,
+        public static CanMessageData encode( int sid,
                                   double yaw, double pitch, double roll ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set2ByteDouble(message, 1, yaw, 0.0001);
-            CanMessageData.set2ByteDouble(message, 3, pitch, 0.0001);
-            CanMessageData.set2ByteDouble(message, 5, roll, 0.0001);
-            CanMessageData.set1ByteUInt(message, 7, CanMessageData.n2kUInt8NA);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set2ByteDouble( 1, yaw, 0.0001);
+            b.set2ByteDouble( 3, pitch, 0.0001);
+            b.set2ByteDouble( 5, roll, 0.0001);
+            b.set1ByteUInt( 7, CanMessageData.n2kUInt8NA);
+            return b;
         }
 
     }
@@ -187,16 +192,17 @@ public class NavMessageHandler implements CanMessageHandler {
             variation = CanMessageData.get2ByteDouble(data, 4, 0.0001);
 
         }
-        public static int encode(byte[] message, int sid,
+        public static CanMessageData encode( int sid,
                                   N2KReference.VariationSource source,
                                     int daysSince1970,
                                   double variation ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set1ByteUInt(message, 1,source.id&0x0f);
-            CanMessageData.set2ByteUInt(message, 2, daysSince1970);
-            CanMessageData.set2ByteDouble(message, 4, variation, 0.0001);
-            CanMessageData.set2ByteUInt(message, 6, CanMessageData.n2kUInt16NA);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set1ByteUInt( 1,source.id&0x0f);
+            b.set2ByteUInt( 2, daysSince1970);
+            b.set2ByteDouble( 4, variation, 0.0001);
+            b.set2ByteUInt( 6, CanMessageData.n2kUInt16NA);
+            return b;
         }
 
     }
@@ -229,20 +235,21 @@ public class NavMessageHandler implements CanMessageHandler {
             speedDirection = (CanMessageData.get1ByteUInt(data, 6) >> 4) & 0x0f;
         }
 
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int sid,
                                     double waterReferenced,
                                     double groundReferenced,
                                     N2KReference.SwrtType swrt,
                                     int speedDirection
                              ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set2ByteDouble(message, 1,waterReferenced, 0.01);
-            CanMessageData.set2ByteDouble(message, 3,groundReferenced, 0.01);
-            CanMessageData.set1ByteUInt(message, 5, swrt.id);
-            CanMessageData.set1ByteUInt(message, 6, (speedDirection&0x0f)<<4);
-            CanMessageData.set1ByteUInt(message, 7, CanMessageData.n2kUInt8NA);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set2ByteDouble( 1,waterReferenced, 0.01);
+            b.set2ByteDouble( 3,groundReferenced, 0.01);
+            b.set1ByteUInt( 5, swrt.id);
+            b.set1ByteUInt( 6, (speedDirection&0x0f)<<4);
+            b.set1ByteUInt( 7, CanMessageData.n2kUInt8NA);
+            return b;
         }
 
     }
@@ -263,17 +270,18 @@ public class NavMessageHandler implements CanMessageHandler {
             maxRange = CanMessageData.get1ByteUDouble(data, 7, 10);
         }
 
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int sid,
                                   double depthBelowTransducer,
                                   double offset,
                                   double maxRange
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set4ByteUDouble(message, 1,depthBelowTransducer, 0.01);
-            CanMessageData.set2ByteDouble(message, 5,offset, 0.001);
-            CanMessageData.set1ByteUDouble(message, 7, maxRange, 10);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set4ByteUDouble( 1,depthBelowTransducer, 0.01);
+            b.set2ByteDouble( 5,offset, 0.001);
+            b.set1ByteUDouble( 7, maxRange, 10);
+            return b;
         }
 
     }
@@ -294,17 +302,18 @@ public class NavMessageHandler implements CanMessageHandler {
             log = CanMessageData.get4ByteUDouble(data, 6, 1);
             tripLog = CanMessageData.get4ByteUDouble(data, 10, 1);
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int daysSince1970,
                                 double secondsSinceMidnight,
                                 double log,
                                 double tripLog
         ) {
-            CanMessageData.set2ByteUInt(message, 0, daysSince1970);
-            CanMessageData.set4ByteUDouble(message, 2,secondsSinceMidnight, 0.0001);
-            CanMessageData.set4ByteUDouble(message, 6,log, 1);
-            CanMessageData.set4ByteUDouble(message, 10, tripLog, 1);
-            return 14;
+            CanMessageData b = new CanMessageData(PGN, 14);
+            b.set2ByteUInt( 0, daysSince1970);
+            b.set4ByteUDouble( 2,secondsSinceMidnight, 0.0001);
+            b.set4ByteUDouble( 6,log, 1);
+            b.set4ByteUDouble( 10, tripLog, 1);
+            return b;
         }
 
     }
@@ -324,18 +333,19 @@ public class NavMessageHandler implements CanMessageHandler {
             cog = CanMessageData.get2ByteUDouble(data, 2, 0.0001);
             sog = CanMessageData.get2ByteUDouble(data, 4, 0.01);
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                  int sid,
                                 N2KReference.HeadingReference ref,
                                 double cog,
                                 double sog
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set1ByteUInt(message, 1, ref.id&0x03);
-            CanMessageData.set2ByteUDouble(message, 2,cog, 0.0001);
-            CanMessageData.set2ByteUDouble(message, 4,sog, 0.01);
-            CanMessageData.set2ByteUInt(message, 6, CanMessageData.n2kUInt16NA);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set1ByteUInt( 1, ref.id&0x03);
+            b.set2ByteUDouble( 2,cog, 0.0001);
+            b.set2ByteUDouble( 4,sog, 0.01);
+            b.set2ByteUInt( 6, CanMessageData.n2kUInt16NA);
+            return b;
         }
 
     }
@@ -363,7 +373,7 @@ public class NavMessageHandler implements CanMessageHandler {
             tdop = CanMessageData.get2ByteDouble(data, 6, 0.01);
 
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                    int sid,
                                  N2KReference.GnssMode desiredMode,
                                  N2KReference.GnssMode actualMode,
@@ -371,12 +381,13 @@ public class NavMessageHandler implements CanMessageHandler {
                                  double vdop,
                                  double tdop
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set1ByteUInt(message, 1, (desiredMode.id&0x07)<<5 | (actualMode.id&0x07)<<2);
-            CanMessageData.set2ByteUDouble(message, 2,hdop, 0.01);
-            CanMessageData.set2ByteUDouble(message, 4,vdop, 0.01);
-            CanMessageData.set2ByteUDouble(message, 6,tdop, 0.01);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set1ByteUInt( 1, (desiredMode.id&0x07)<<5 | (actualMode.id&0x07)<<2);
+            b.set2ByteUDouble( 2,hdop, 0.01);
+            b.set2ByteUDouble( 4,vdop, 0.01);
+            b.set2ByteUDouble( 6,tdop, 0.01);
+            return b;
         }
 
     }
@@ -394,13 +405,14 @@ public class NavMessageHandler implements CanMessageHandler {
             longitude = CanMessageData.get4ByteDouble(data, 4, 1e-7);
         }
 
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   double latitude,
                                   double longitude
         ) {
-            CanMessageData.set4ByteUDouble(message, 0, latitude, 1e-7);
-            CanMessageData.set4ByteUDouble(message, 4, longitude, 1e-7);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set4ByteUDouble( 0, latitude, 1e-7);
+            b.set4ByteUDouble( 4, longitude, 1e-7);
+            return b;
         }
 
     }
@@ -473,7 +485,7 @@ public class NavMessageHandler implements CanMessageHandler {
             }
         }
 
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                  int sid,
                                  int daysSince1970,
                                  double secondsSinceMidnight,
@@ -489,29 +501,30 @@ public class NavMessageHandler implements CanMessageHandler {
                                  double geoidalSeparation,
                                   ReferenceStation[] stations
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set2ByteUInt(message, 1, daysSince1970);
-            CanMessageData.set4ByteUDouble(message, 3,secondsSinceMidnight, 0.0001);
-            CanMessageData.set8ByteDouble(message, 7, latitude, 1e-16);
-            CanMessageData.set8ByteDouble(message, 15, longitude, 1e-16);
-            CanMessageData.set8ByteDouble(message, 23, altitude, 1e-6);
-            CanMessageData.set1ByteUInt(message, 31, ((GNSSmethod.id & 0x0f) << 4) | GNSStype.id & 0x0f);
-            CanMessageData.set1ByteUInt(message, 32, (integrety.id & 0x03));
-            CanMessageData.set1ByteUInt(message, 33, nSatellites);
-            CanMessageData.set2ByteUDouble(message, 34, hdop, 0.01);
-            CanMessageData.set2ByteUDouble(message, 36, pdop, 0.01);
-            CanMessageData.set4ByteUDouble(message, 38, geoidalSeparation, 0.01);
+            CanMessageData b = new CanMessageData(PGN, 43+stations.length*4);
+            b.set1ByteUInt( 0, sid);
+            b.set2ByteUInt( 1, daysSince1970);
+            b.set4ByteUDouble( 3,secondsSinceMidnight, 0.0001);
+            b.set8ByteDouble( 7, latitude, 1e-16);
+            b.set8ByteDouble( 15, longitude, 1e-16);
+            b.set8ByteDouble( 23, altitude, 1e-6);
+            b.set1ByteUInt( 31, ((GNSSmethod.id & 0x0f) << 4) | GNSStype.id & 0x0f);
+            b.set1ByteUInt( 32, (integrety.id & 0x03));
+            b.set1ByteUInt( 33, nSatellites);
+            b.set2ByteUDouble( 34, hdop, 0.01);
+            b.set2ByteUDouble( 36, pdop, 0.01);
+            b.set4ByteUDouble( 38, geoidalSeparation, 0.01);
             if ( stations.length == 0) {
-                CanMessageData.set1ByteUInt(message, 42, CanMessageData.n2kUInt8NA);
+                b.set1ByteUInt( 42, CanMessageData.n2kUInt8NA);
                 
             } else {
-                CanMessageData.set1ByteUInt(message, 42, stations.length);
+                b.set1ByteUInt( 42, stations.length);
                 for(int i = 0; i < stations.length; i++) {
-                    CanMessageData.set2ByteUInt(message, 43+i*4, ((stations[i].referenceSationID<<4)&0xfff0) |  (stations[i].referenceStationType.id&0x0f));
-                    CanMessageData.set2ByteUDouble(message, (43+i*4)+2, stations[i].ageOfCorrection,0.01);
+                    b.set2ByteUInt( 43+i*4, ((stations[i].referenceSationID<<4)&0xfff0) |  (stations[i].referenceStationType.id&0x0f));
+                    b.set2ByteUDouble( (43+i*4)+2, stations[i].ageOfCorrection,0.01);
                 }
             }
-            return (43+stations.length*4);
+            return b;
         }
 
     }
@@ -535,17 +548,18 @@ public class NavMessageHandler implements CanMessageHandler {
 
         }
 
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                    int sid, 
                                   N2KReference.XteMode xteMode, 
                                   N2KReference.YesNo navigationTerminated,
                                   double xte
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set1ByteUInt(message, 1, ((navigationTerminated.id&0x01)<< 6) | (xteMode.id &0x0f));
-            CanMessageData.set4ByteDouble(message, 2, xte, 0.01);
-            CanMessageData.set2ByteUInt(message, 6, CanMessageData.n2kUInt16NA);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set1ByteUInt( 1, ((navigationTerminated.id&0x01)<< 6) | (xteMode.id &0x0f));
+            b.set4ByteDouble( 2, xte, 0.01);
+            b.set2ByteUInt( 6, CanMessageData.n2kUInt16NA);
+            return b;
         }
 
     }
@@ -577,22 +591,23 @@ public class NavMessageHandler implements CanMessageHandler {
             }
             windAngle = wa;
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int sid, 
                                   N2KReference.WindReference ref,
                                   double windSpeed, 
                                   double windAngle
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set2ByteUDouble(message, 1, windSpeed, 0.01);
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set2ByteUDouble( 1, windSpeed, 0.01);
 
             if ( windAngle < 0 ) {
                 windAngle = (2*Math.PI)+windAngle;
             }
-            CanMessageData.set2ByteUDouble(message, 3, windAngle, 0.0001);
-            CanMessageData.set1ByteUInt(message, 5, ref.id & 0x07);
-            CanMessageData.set2ByteUInt(message, 6, CanMessageData.n2kUInt16NA);
-            return 8;
+            b.set2ByteUDouble( 3, windAngle, 0.0001);
+            b.set1ByteUInt( 5, ref.id & 0x07);
+            b.set2ByteUInt( 6, CanMessageData.n2kUInt16NA);
+            return b;
         }
 
     }
@@ -612,18 +627,19 @@ public class NavMessageHandler implements CanMessageHandler {
             outsideAmbientAirTemperature = CanMessageData.get2ByteUDouble(data, 3, 0.01);
             atmosphericPressure = CanMessageData.get2ByteUDouble(data, 5, 100);
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int sid, 
                                   double outsideAmbientAirTemperature, 
                                   double waterTemperature, 
                                   double atmosphericPressure
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set2ByteUDouble(message, 1, waterTemperature, 0.01);
-            CanMessageData.set2ByteUDouble(message, 3, outsideAmbientAirTemperature, 0.01);
-            CanMessageData.set2ByteUDouble(message, 5, atmosphericPressure, 100);
-            CanMessageData.set1ByteUInt(message, 7, CanMessageData.n2kUInt8NA);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set2ByteUDouble( 1, waterTemperature, 0.01);
+            b.set2ByteUDouble( 3, outsideAmbientAirTemperature, 0.01);
+            b.set2ByteUDouble( 5, atmosphericPressure, 100);
+            b.set1ByteUInt( 7, CanMessageData.n2kUInt8NA);
+            return b;
         }
 
     }
@@ -652,7 +668,7 @@ public class NavMessageHandler implements CanMessageHandler {
             humidity = CanMessageData.get2ByteDouble(data, 4, 0.004);
             atmosphericPressure = CanMessageData.get2ByteUDouble(data, 6, 100);
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int sid, 
                                   N2KReference.TemperatureSource tempSource, 
                                   N2KReference.HumiditySource humiditySource, 
@@ -660,12 +676,13 @@ public class NavMessageHandler implements CanMessageHandler {
                                   double humidity, 
                                   double atmosphericPressure
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set1ByteUInt(message, 1,((humiditySource.id&0x03)<<6) | (tempSource.id & 0x3f) );
-            CanMessageData.set2ByteUDouble(message, 2, temperature, 0.01);
-            CanMessageData.set2ByteDouble(message, 4, humidity, 0.004);
-            CanMessageData.set2ByteUDouble(message, 6, atmosphericPressure, 100);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set1ByteUInt( 1,((humiditySource.id&0x03)<<6) | (tempSource.id & 0x3f) );
+            b.set2ByteUDouble( 2, temperature, 0.01);
+            b.set2ByteDouble( 4, humidity, 0.004);
+            b.set2ByteUDouble( 6, atmosphericPressure, 100);
+            return b;
         }
 
     }
@@ -688,20 +705,21 @@ public class NavMessageHandler implements CanMessageHandler {
             actualHumidity = CanMessageData.get2ByteDouble(data, 3, 0.004);
             setHumidity = CanMessageData.get2ByteDouble(data, 5, 0.004);
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int sid, 
                                   int humidityInstance, 
                                   N2KReference.HumiditySource humiditySource, 
                                   double actualHumidity, 
                                   double setHumidity
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set1ByteUInt(message, 1, humidityInstance);
-            CanMessageData.set1ByteUInt(message, 2,humiditySource.id);
-            CanMessageData.set2ByteDouble(message, 3, actualHumidity, 0.004);
-            CanMessageData.set2ByteDouble(message, 5, setHumidity, 0.004);
-            CanMessageData.set1ByteUInt(message, 7, CanMessageData.n2kUInt8NA);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set1ByteUInt( 1, humidityInstance);
+            b.set1ByteUInt( 2,humiditySource.id);
+            b.set2ByteDouble( 3, actualHumidity, 0.004);
+            b.set2ByteDouble( 5, setHumidity, 0.004);
+            b.set1ByteUInt( 7, CanMessageData.n2kUInt8NA);
+            return b;
         }
 
     }
@@ -723,18 +741,19 @@ public class NavMessageHandler implements CanMessageHandler {
             pressureSource = N2KReference.PressureSource.lookup( CanMessageData.get1ByteUInt(data, 2));
             actualPressure = CanMessageData.get4ByteDouble(data, 3, 0.1);
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int sid,
                                   int pressureInstance,
                                   N2KReference.PressureSource pressureSource,
                                   double actualPressure
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set1ByteUInt(message, 1, pressureInstance);
-            CanMessageData.set1ByteUInt(message, 2,pressureSource.id);
-            CanMessageData.set4ByteDouble(message, 3, actualPressure, 0.1);
-            CanMessageData.set1ByteUInt(message, 7, CanMessageData.n2kUInt8NA);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set1ByteUInt( 1, pressureInstance);
+            b.set1ByteUInt( 2,pressureSource.id);
+            b.set4ByteDouble( 3, actualPressure, 0.1);
+            b.set1ByteUInt( 7, CanMessageData.n2kUInt8NA);
+            return b;
         }
 
     }
@@ -756,18 +775,19 @@ public class NavMessageHandler implements CanMessageHandler {
             pressureSource = N2KReference.PressureSource.lookup( CanMessageData.get1ByteUInt(data, 2));
             setPressure = CanMessageData.get4ByteDouble(data, 3, 0.1);
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int sid,
                                   int pressureInstance,
                                   N2KReference.PressureSource pressureSource,
                                   double setPressure
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set1ByteUInt(message, 1, pressureInstance);
-            CanMessageData.set1ByteUInt(message, 2,pressureSource.id);
-            CanMessageData.set4ByteDouble(message, 3, setPressure, 0.1);
-            CanMessageData.set1ByteUInt(message, 7, CanMessageData.n2kUInt8NA);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set1ByteUInt( 1, pressureInstance);
+            b.set1ByteUInt( 2,pressureSource.id);
+            b.set4ByteDouble( 3, setPressure, 0.1);
+            b.set1ByteUInt( 7, CanMessageData.n2kUInt8NA);
+            return b;
         }
 
     }
@@ -790,19 +810,20 @@ public class NavMessageHandler implements CanMessageHandler {
             actualTemperature = CanMessageData.get3ByteUDouble(data, 3, 0.001);
             setTemperature = CanMessageData.get2ByteUDouble(data, 6, 0.1);
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int sid,
                                   int tempInstance,
                                   N2KReference.TemperatureSource tempSource,
                                   double actualTemperature,
                                   double setTemperature
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set1ByteUInt(message, 1, tempInstance);
-            CanMessageData.set1ByteUInt(message, 2,tempSource.id);
-            CanMessageData.set3ByteUDouble(message, 3, actualTemperature, 0.001);
-            CanMessageData.set2ByteUDouble(message, 6, setTemperature, 0.1);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt( 0, sid);
+            b.set1ByteUInt( 1, tempInstance);
+            b.set1ByteUInt( 2,tempSource.id);
+            b.set3ByteUDouble( 3, actualTemperature, 0.001);
+            b.set2ByteUDouble( 6, setTemperature, 0.1);
+            return b;
         }
 
     }
@@ -839,7 +860,7 @@ public class NavMessageHandler implements CanMessageHandler {
             set = CanMessageData.get2ByteUDouble(data, 10, 0.0001); // rad
             drift = CanMessageData.get2ByteUDouble(data, 12, 0.01); // m/s
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int sid,
                                   N2KReference.ResidualMode residualMode,
                                   N2KReference.DirectionReference cogReference,
@@ -850,15 +871,16 @@ public class NavMessageHandler implements CanMessageHandler {
                                   double set,
                                   double drift
         ) {
-            CanMessageData.set1ByteUInt(message, 0, ((cogReference.id&0x03)<<4) | (residualMode.id & 0x0f));
-            CanMessageData.set1ByteUInt(message, 1, sid);
-            CanMessageData.set2ByteUDouble(message, 2, cog, 0.0001);
-            CanMessageData.set2ByteUDouble(message, 4, sog, 0.01);
-            CanMessageData.set2ByteUDouble(message, 6, heading, 0.0001);
-            CanMessageData.set2ByteUDouble(message, 8, stw, 0.01);
-            CanMessageData.set2ByteUDouble(message, 10, set, 0.0001);
-            CanMessageData.set2ByteUDouble(message, 12, drift, 0.01);
-            return 14;
+            CanMessageData b = new CanMessageData(PGN, 14);
+            b.set1ByteUInt( 0, ((cogReference.id&0x03)<<4) | (residualMode.id & 0x0f));
+            b.set1ByteUInt( 1, sid);
+            b.set2ByteUDouble( 2, cog, 0.0001);
+            b.set2ByteUDouble( 4, sog, 0.01);
+            b.set2ByteUDouble( 6, heading, 0.0001);
+            b.set2ByteUDouble( 8, stw, 0.01);
+            b.set2ByteUDouble( 10, set, 0.0001);
+            b.set2ByteUDouble( 12, drift, 0.01);
+            return b;
         }
 
     }

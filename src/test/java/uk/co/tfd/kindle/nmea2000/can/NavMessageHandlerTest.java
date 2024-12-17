@@ -82,15 +82,14 @@ public class NavMessageHandlerTest {
 
     @Test
     public void createPGN127245Rudder()  {
-        byte[] message = new byte[8];
-        NavMessageHandler.PGN127245Rudder.encode(message,
+        CanMessageData b = NavMessageHandler.PGN127245Rudder.encode(
                 12,
                 N2KReference.RudderDirectionOrder.NoDirectionOrder,
                 6.2/CanMessageData.scaleToDegrees,
                 5.8/CanMessageData.scaleToDegrees);
 
         NavMessageHandler.PGN127245Rudder msg = new NavMessageHandler.PGN127245Rudder(
-                127245, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                127245, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.instance);
         Assert.assertEquals(N2KReference.RudderDirectionOrder.NoDirectionOrder, msg.rudderDirectionOrder);
@@ -110,8 +109,7 @@ public class NavMessageHandlerTest {
 
     @Test
     public void createPGN127250Heading()  {
-        byte[] message = new byte[10];
-        NavMessageHandler.PGN127250Heading.encode(message,
+        CanMessageData b = NavMessageHandler.PGN127250Heading.encode(
                 12,
                 272/CanMessageData.scaleToDegrees,
                 1.1/CanMessageData.scaleToDegrees,
@@ -119,7 +117,7 @@ public class NavMessageHandlerTest {
                 N2KReference.HeadingReference.Magnetic);
 
         NavMessageHandler.PGN127250Heading msg = new NavMessageHandler.PGN127250Heading(
-                127250, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                127250, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.sid);
         Assert.assertEquals(272, msg.heading*CanMessageData.scaleToDegrees, 0.01);
@@ -139,13 +137,12 @@ public class NavMessageHandlerTest {
     }
     @Test
     public void createPGN127251RateOfTurn()  {
-        byte[] message = new byte[10];
-        NavMessageHandler.PGN127251RateOfTurn.encode(message,
+        CanMessageData b = NavMessageHandler.PGN127251RateOfTurn.encode(
                 12,
                 5.12/CanMessageData.scaleToDegrees);
 
         NavMessageHandler.PGN127251RateOfTurn msg = new NavMessageHandler.PGN127251RateOfTurn(
-                127251, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                127251, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.sid);
         Assert.assertEquals(5.12, msg.rateOfTurn*CanMessageData.scaleToDegrees, 0.001);
@@ -163,8 +160,7 @@ public class NavMessageHandlerTest {
 
     @Test
     public void createPGN127257Attitude() {
-        byte[] message = new byte[10];
-        NavMessageHandler.PGN127257Attitude.encode(message,
+        CanMessageData b = NavMessageHandler.PGN127257Attitude.encode(
                 12,
                 5.12/CanMessageData.scaleToDegrees,
                 10.12/CanMessageData.scaleToDegrees,
@@ -172,7 +168,7 @@ public class NavMessageHandlerTest {
                 );
 
         NavMessageHandler.PGN127257Attitude msg = new NavMessageHandler.PGN127257Attitude(
-                127257, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                127257, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.sid);
         Assert.assertEquals(5.12, msg.yaw*CanMessageData.scaleToDegrees, 0.01);
@@ -194,8 +190,7 @@ public class NavMessageHandlerTest {
 
     @Test
     public void createPGN127258MagneticVariation()  {
-        byte[] message = new byte[10];
-        NavMessageHandler.PGN127258MagneticVariation.encode(message,
+        CanMessageData b = NavMessageHandler.PGN127258MagneticVariation.encode(
                 12,
                 N2KReference.VariationSource.Wmm2020,
                 365*50+200,
@@ -203,7 +198,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN127258MagneticVariation msg = new NavMessageHandler.PGN127258MagneticVariation(
-                127258, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                127258, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.sid);
         Assert.assertEquals(365*50+200, msg.daysSince1970);
@@ -223,8 +218,7 @@ public class NavMessageHandlerTest {
 
     @Test
     public void createPGN128259Speed() {
-        byte[] message = new byte[10];
-        NavMessageHandler.PGN128259Speed.encode(message,
+        CanMessageData b = NavMessageHandler.PGN128259Speed.encode(
                 12,
                 12.2/CanMessageData.scaleToKnots,
                 12.9/CanMessageData.scaleToKnots,
@@ -233,7 +227,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN128259Speed msg = new NavMessageHandler.PGN128259Speed(
-                128259, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                128259, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.sid);
         Assert.assertEquals(12.2, msg.waterReferenced*CanMessageData.scaleToKnots, 0.01);
@@ -255,8 +249,7 @@ public class NavMessageHandlerTest {
 
     @Test
     public void createPGN128267WaterDepth()  {
-        byte[] message = new byte[10];
-        NavMessageHandler.PGN128267WaterDepth.encode(message,
+        CanMessageData b = NavMessageHandler.PGN128267WaterDepth.encode(
                 12,
                 15.21,
                 0.12,
@@ -264,7 +257,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN128267WaterDepth msg = new NavMessageHandler.PGN128267WaterDepth(
-                128267, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                128267, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.sid);
         Assert.assertEquals(15.21, msg.depthBelowTransducer, 0.01);
@@ -284,8 +277,7 @@ public class NavMessageHandlerTest {
     }
     @Test
     public void createPGN128275DistanceLog()  {
-        byte[] message = new byte[16];
-        NavMessageHandler.PGN128275DistanceLog.encode(message,
+        CanMessageData b = NavMessageHandler.PGN128275DistanceLog.encode(
                 365*50+200,
                 12.4*3600,
                 15012.21/CanMessageData.scaleToNm,
@@ -293,7 +285,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN128275DistanceLog msg = new NavMessageHandler.PGN128275DistanceLog(
-                128275, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                128275, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(365*50+200, msg.daysSince1970);
         Assert.assertEquals(12.4*3600, msg.secondsSinceMidnight, 0.1);
@@ -311,8 +303,7 @@ public class NavMessageHandlerTest {
     }
     @Test
     public void createPGN129026COGSOGRapid(){
-        byte[] message = new byte[16];
-        NavMessageHandler.PGN129026COGSOGRapid.encode(message,
+        CanMessageData b = NavMessageHandler.PGN129026COGSOGRapid.encode(
                 84,
                 N2KReference.HeadingReference.TRue,
                 181.2/CanMessageData.scaleToDegrees,
@@ -320,7 +311,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN129026COGSOGRapid msg = new NavMessageHandler.PGN129026COGSOGRapid(
-                129026, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                129026, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(181.2, msg.cog*CanMessageData.scaleToDegrees, 0.01);
@@ -338,8 +329,7 @@ public class NavMessageHandlerTest {
     }
     @Test
     public void createPGN129539GNSDOPS()  {
-        byte[] message = new byte[12];
-        NavMessageHandler.PGN129539GNSDOPS.encode(message,
+        CanMessageData b = NavMessageHandler.PGN129539GNSDOPS.encode(
                 84,
                 N2KReference.GnssMode.Mode3D,
                 N2KReference.GnssMode.Mode2D,
@@ -349,7 +339,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN129539GNSDOPS msg = new NavMessageHandler.PGN129539GNSDOPS(
-                129539, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                129539, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(3.12, msg.hdop, 0.01);
@@ -369,8 +359,7 @@ public class NavMessageHandlerTest {
     }
     @Test
     public void createPGN129025RapidPosition()  {
-        byte[] message = new byte[12];
-        NavMessageHandler.PGN129539GNSDOPS.encode(message,
+        CanMessageData b = NavMessageHandler.PGN129539GNSDOPS.encode(
                 84,
                 N2KReference.GnssMode.Mode3D,
                 N2KReference.GnssMode.Mode2D,
@@ -380,7 +369,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN129539GNSDOPS msg = new NavMessageHandler.PGN129539GNSDOPS(
-                129539, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                129539, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(3.12, msg.hdop, 0.01);
@@ -400,8 +389,7 @@ public class NavMessageHandlerTest {
 
     @Test
     public void createPGN129029GNSS()  {
-        byte[] message = new byte[55];
-        NavMessageHandler.PGN129029GNSS.encode(message,
+        CanMessageData b = NavMessageHandler.PGN129029GNSS.encode(
                 84,
                 365*50+200,
                 12.4*3600,
@@ -421,7 +409,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN129029GNSS msg = new NavMessageHandler.PGN129029GNSS(
-                129029, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                129029, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(365*50+200, msg.daysSince1970, 0.01);
@@ -459,8 +447,7 @@ public class NavMessageHandlerTest {
 
     @Test
     public void createPGN129283CrossTrackError()  {
-        byte[] message = new byte[12];
-        NavMessageHandler.PGN129283CrossTrackError.encode(message,
+        CanMessageData b = NavMessageHandler.PGN129283CrossTrackError.encode(
                 84,
                 N2KReference.XteMode.Autonomous,
                 N2KReference.YesNo.No,
@@ -468,7 +455,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN129283CrossTrackError msg = new NavMessageHandler.PGN129283CrossTrackError(
-                129283, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                129283, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(N2KReference.XteMode.Autonomous, msg.xteMode);
@@ -487,8 +474,7 @@ public class NavMessageHandlerTest {
     }
     @Test
     public void createPGN130306Wind()  {
-        byte[] message = new byte[12];
-        NavMessageHandler.PGN130306Wind.encode(message,
+        CanMessageData b = NavMessageHandler.PGN130306Wind.encode(
                 84,
                 N2KReference.WindReference.Apparent,
                 23.3/CanMessageData.scaleToKnots,
@@ -496,7 +482,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN130306Wind msg = new NavMessageHandler.PGN130306Wind(
-                130306, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                130306, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(N2KReference.WindReference.Apparent, msg.windReference);
@@ -518,8 +504,7 @@ public class NavMessageHandlerTest {
 
     @Test
     public void createPGN130310OutsideEnvironmentParameters()  {
-        byte[] message = new byte[12];
-        NavMessageHandler.PGN130310OutsideEnvironmentParameters.encode(message,
+        CanMessageData b = NavMessageHandler.PGN130310OutsideEnvironmentParameters.encode(
                 84,
                 24.2+273.15,
                 15.2+273.15,
@@ -527,7 +512,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN130310OutsideEnvironmentParameters msg = new NavMessageHandler.PGN130310OutsideEnvironmentParameters(
-                130310, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                130310, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(24.2+273.15, msg.outsideAmbientAirTemperature, 0.1);
@@ -546,8 +531,7 @@ public class NavMessageHandlerTest {
     }
     @Test
     public void createPGN130311EnvironmentParameters()  {
-        byte[] message = new byte[12];
-        NavMessageHandler.PGN130311EnvironmentParameters.encode(message,
+        CanMessageData b = NavMessageHandler.PGN130311EnvironmentParameters.encode(
                 84,
                 N2KReference.TemperatureSource.MainCabinTemperature,
                 N2KReference.HumiditySource.Outside,
@@ -557,7 +541,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN130311EnvironmentParameters msg = new NavMessageHandler.PGN130311EnvironmentParameters(
-                130311, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                130311, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(N2KReference.TemperatureSource.MainCabinTemperature,msg.tempSource);
@@ -578,8 +562,7 @@ public class NavMessageHandlerTest {
     }
     @Test
     public void createPGN130313Humidity()  {
-        byte[] message = new byte[12];
-        NavMessageHandler.PGN130313Humidity.encode(message,
+        CanMessageData b = NavMessageHandler.PGN130313Humidity.encode(
                 84,
                 3,
                 N2KReference.HumiditySource.Outside,
@@ -588,7 +571,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN130313Humidity msg = new NavMessageHandler.PGN130313Humidity(
-                130313, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                130313, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(3,msg.humidityInstance);
@@ -607,8 +590,7 @@ public class NavMessageHandlerTest {
     }
     @Test
     public void createPGN130314Pressure()  {
-        byte[] message = new byte[12];
-        NavMessageHandler.PGN130314Pressure.encode(message,
+        CanMessageData b = NavMessageHandler.PGN130314Pressure.encode(
                 84,
                 3,
                 N2KReference.PressureSource.Oil,
@@ -616,7 +598,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN130314Pressure msg = new NavMessageHandler.PGN130314Pressure(
-                130314, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                130314, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(3,msg.pressureInstance);
@@ -635,8 +617,7 @@ public class NavMessageHandlerTest {
 
     @Test
     public void createPGN130315SetPressure()  {
-        byte[] message = new byte[12];
-        NavMessageHandler.PGN130315SetPressure.encode(message,
+        CanMessageData b = NavMessageHandler.PGN130315SetPressure.encode(
                 84,
                 3,
                 N2KReference.PressureSource.CompressedAir,
@@ -644,7 +625,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN130315SetPressure msg = new NavMessageHandler.PGN130315SetPressure(
-                130315, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                130315, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(3,msg.pressureInstance);
@@ -663,8 +644,7 @@ public class NavMessageHandlerTest {
     }
     @Test
     public void createPGN130316TemperatureExtended()  {
-        byte[] message = new byte[12];
-        NavMessageHandler.PGN130316TemperatureExtended.encode(message,
+        CanMessageData b = NavMessageHandler.PGN130316TemperatureExtended.encode(
                 84,
                 3,
                 N2KReference.TemperatureSource.EngineRoomTemperature,
@@ -673,7 +653,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN130316TemperatureExtended msg = new NavMessageHandler.PGN130316TemperatureExtended(
-                130316, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                130316, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(3,msg.tempInstance);
@@ -692,8 +672,7 @@ public class NavMessageHandlerTest {
     }
     @Test
     public void createPGN130577DirectionData()  {
-        byte[] message = new byte[20];
-        NavMessageHandler.PGN130577DirectionData.encode(message,
+        CanMessageData b = NavMessageHandler.PGN130577DirectionData.encode(
                 84,
                 N2KReference.ResidualMode.Differential,
                 N2KReference.DirectionReference.True,
@@ -706,7 +685,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN130577DirectionData msg = new NavMessageHandler.PGN130577DirectionData(
-                130577, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                130577, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(N2KReference.ResidualMode.Differential,msg.residualMode);
@@ -742,8 +721,7 @@ public class NavMessageHandlerTest {
 
     @Test
     public void createHeading()  {
-        byte[] message = new byte[20];
-        NavMessageHandler.PGN127250Heading.encode(message,
+        CanMessageData b = NavMessageHandler.PGN127250Heading.encode(
                 84,
                 84.5/CanMessageData.scaleToDegrees,
                 0.4/CanMessageData.scaleToDegrees,
@@ -752,7 +730,7 @@ public class NavMessageHandlerTest {
         );
 
         NavMessageHandler.PGN127250Heading msg = new NavMessageHandler.PGN127250Heading(
-                127250, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                127250, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(84,msg.sid);
         Assert.assertEquals(N2KReference.HeadingReference.TRue,msg.ref);

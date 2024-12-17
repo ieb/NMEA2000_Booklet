@@ -100,8 +100,7 @@ public class EngineMessageHandlerTest {
     }
     @Test
     public void createPGN127489EngineDynamicParam() throws UnsupportedEncodingException {
-        byte[] message = new byte[30];
-        EngineMessageHandler.PGN127489EngineDynamicParam.encode(message,
+        CanMessageData b = EngineMessageHandler.PGN127489EngineDynamicParam.encode(
                 12,
                 123490.0,
                 80+273.15,
@@ -116,7 +115,7 @@ public class EngineMessageHandlerTest {
                 0x0011,
                 0x0505);
         EngineMessageHandler.PGN127489EngineDynamicParam msg = new EngineMessageHandler.PGN127489EngineDynamicParam(
-                127489, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                127489, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.engineInstance);
         Assert.assertEquals(123500.0, msg.engineOilPressure, 0.1);
@@ -153,15 +152,14 @@ public class EngineMessageHandlerTest {
     }
     @Test
     public void createPGN127488RapidEngineData() throws UnsupportedEncodingException {
-        byte[] message = new byte[8];
-        EngineMessageHandler.PGN127488RapidEngineData.encode(message,
+        CanMessageData b = EngineMessageHandler.PGN127488RapidEngineData.encode(
                 12,
                 2342.2,
                 CanMessageData.n2kDoubleNA,
                 CanMessageData.n2kInt8NA);
 
         EngineMessageHandler.PGN127488RapidEngineData msg = new EngineMessageHandler.PGN127488RapidEngineData(
-                127488, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                127488, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.engineInstance);
         Assert.assertEquals(2342.2, msg.engineSpeed, 0.1);
@@ -189,8 +187,7 @@ public class EngineMessageHandlerTest {
     }
     @Test
     public void createPGN130312Temperature() throws UnsupportedEncodingException {
-        byte[] message = new byte[8];
-        EngineMessageHandler.PGN130312Temperature.encode(message,
+        CanMessageData b = EngineMessageHandler.PGN130312Temperature.encode(
                 12,
                 8,
                 21.45+273.15,
@@ -198,7 +195,7 @@ public class EngineMessageHandlerTest {
                 N2KReference.TemperatureSource.EngineRoomTemperature);
 
         EngineMessageHandler.PGN130312Temperature msg = new EngineMessageHandler.PGN130312Temperature(
-                130312, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                130312, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.sid);
         Assert.assertEquals(8, msg.instance);
@@ -218,15 +215,14 @@ public class EngineMessageHandlerTest {
 
     @Test
     public void createPGN127505FluidLevel() throws UnsupportedEncodingException {
-        byte[] message = new byte[8];
-        EngineMessageHandler.PGN127505FluidLevel.encode(message,
+        CanMessageData b = EngineMessageHandler.PGN127505FluidLevel.encode(
                 12,
                 N2KReference.TankType.Fuel,
                 85.2,
                 58.0);
 
         EngineMessageHandler.PGN127505FluidLevel msg = new EngineMessageHandler.PGN127505FluidLevel(
-                127505, (int)(System.currentTimeMillis()/1000), (byte)15, message);
+                127505, (int)(System.currentTimeMillis()/1000), (byte)15, b.message);
         Assert.assertEquals(15,msg.src);
         Assert.assertEquals(12, msg.instance);
         Assert.assertEquals(N2KReference.TankType.Fuel, msg.fluidType);

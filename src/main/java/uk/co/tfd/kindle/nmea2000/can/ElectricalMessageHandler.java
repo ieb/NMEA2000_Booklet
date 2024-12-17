@@ -26,7 +26,7 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
             batteryTemperature = CanMessageData.get2ByteUDouble(data, 5, 0.01);
             sid = CanMessageData.get1ByteUInt(data, 7);
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int sid, 
                                   int instance, 
                                   double batteryVoltage, 
@@ -34,12 +34,13 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
                                   double batteryTemperature
 
         ) {
-            CanMessageData.set1ByteUInt(message, 0, instance);
-            CanMessageData.set2ByteUDouble(message, 1, batteryVoltage, 0.01);
-            CanMessageData.set2ByteDouble(message, 3, batteryCurrent, 0.1);
-            CanMessageData.set2ByteUDouble(message, 5, batteryTemperature, 0.01);
-            CanMessageData.set1ByteUInt(message, 7, sid);
-            return 8;
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt(0, instance);
+            b.set2ByteUDouble(1, batteryVoltage, 0.01);
+            b.set2ByteDouble(3, batteryCurrent, 0.1);
+            b.set2ByteUDouble(5, batteryTemperature, 0.01);
+            b.set1ByteUInt(7, sid);
+            return b;
         }
 
     }
@@ -72,7 +73,7 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
             rippleVoltage = CanMessageData.get2ByteUDouble(data, 7, 0.001);
             capacity = CanMessageData.get2ByteUDouble(data, 9, 3600);
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int sid, 
                                   int dcInstance, 
                                   N2KReference.DcSourceType dcType, 
@@ -82,15 +83,16 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
                                   double rippleVoltage, 
                                   double capacity
         ) {
-            CanMessageData.set1ByteUInt(message, 0, sid);
-            CanMessageData.set1ByteUInt(message, 1, dcInstance);
-            CanMessageData.set1ByteUInt(message, 2, dcType.id);
-            CanMessageData.set1ByteUInt(message, 3, stateOfCharge);
-            CanMessageData.set1ByteUInt(message, 4, stateOfHealth);
-            CanMessageData.set2ByteUDouble(message, 5, timeRemaining, 60);
-            CanMessageData.set2ByteUDouble(message, 7, rippleVoltage, 0.001);
-            CanMessageData.set2ByteUDouble(message, 9, capacity, 3600);
-            return 11;
+            CanMessageData b = new CanMessageData(PGN, 11);
+            b.set1ByteUInt(0, sid);
+            b.set1ByteUInt(1, dcInstance);
+            b.set1ByteUInt(2, dcType.id);
+            b.set1ByteUInt(3, stateOfCharge);
+            b.set1ByteUInt(4, stateOfHealth);
+            b.set2ByteUDouble(5, timeRemaining, 60);
+            b.set2ByteUDouble(7, rippleVoltage, 0.001);
+            b.set2ByteUDouble(9, capacity, 3600);
+            return b;
         }
 
     }
@@ -126,7 +128,7 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
             peukertExponent = (500+CanMessageData.get1ByteUInt(data, 6))*0.002;
             chargeEfficiencyFactor = CanMessageData.get1ByteInt(data, 7);
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int instance, 
                                   N2KReference.BatteryType batteryType, 
                                   N2KReference.YesNo supportsEqualisation, 
@@ -137,18 +139,19 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
                                   double peukertExponent, 
                                   double capacity
         ) {
-            CanMessageData.set1ByteUInt(message, 0, instance);
-            CanMessageData.set1ByteUInt(message, 1,
+            CanMessageData b = new CanMessageData(PGN, 8);
+            b.set1ByteUInt(0, instance);
+            b.set1ByteUInt(1,
                     ((supportsEqualisation.id&0x03)<<6) 
                             | (batteryType.id&0x0f));
-            CanMessageData.set1ByteUInt(message, 2,
+            b.set1ByteUInt(2,
                     ((chemistry.id&0x0f)<<4)
                             | (nominalVoltage.id&0x0f));
-            CanMessageData.set2ByteUDouble(message, 3, capacity, 3600);
-            CanMessageData.set1ByteInt(message, 5, temperatureCoeffieint);
-            CanMessageData.set1ByteUInt(message, 6, (int)Math.round(peukertExponent/0.002)-500);
-            CanMessageData.set1ByteInt(message, 7, chargeEfficiencyFactor);
-            return 8;
+            b.set2ByteUDouble(3, capacity, 3600);
+            b.set1ByteInt(5, temperatureCoeffieint);
+            b.set1ByteUInt(6, (int)Math.round(peukertExponent/0.002)-500);
+            b.set1ByteInt(7, chargeEfficiencyFactor);
+            return b;
         }
 
     }
@@ -250,7 +253,7 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
             }
         }
 
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int instance,
                                   double packVoltage,
                                   double packCurrent,
@@ -272,17 +275,18 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
                                   double remainingChargeCapacity,
                                   double ballanceCurrent
         ) {
-            CanMessageData.set2ByteUInt(message, 0, 0x9ffe);
-            CanMessageData.set1ByteUInt(message, 2, instance);
-            CanMessageData.set1ByteUInt(message, 3, 0x03);
-
             int endTemp = 28+2*temperatures.length;
-            CanMessageData.set1ByteUInt(message, 4, endTemp-5+9); // register Length
-            CanMessageData.set2ByteUDouble(message, 5, packVoltage,0.01);
-            CanMessageData.set2ByteDouble(message, 7, packCurrent,0.01);
-            CanMessageData.set2ByteUDouble(message, 9, remainingCapacity,0.01);
-            CanMessageData.set2ByteUDouble(message, 11, nominalCapacity,0.01);
-            CanMessageData.set2ByteUInt(message, 13, chargeCycles);
+            CanMessageData b = new CanMessageData(PGN, endTemp+9);
+            b.set2ByteUInt(0, 0x9ffe);
+            b.set1ByteUInt(2, instance);
+            b.set1ByteUInt(3, 0x03);
+
+            b.set1ByteUInt(4, endTemp-5+9); // register Length
+            b.set2ByteUDouble(5, packVoltage,0.01);
+            b.set2ByteDouble(7, packCurrent,0.01);
+            b.set2ByteUDouble(9, remainingCapacity,0.01);
+            b.set2ByteUDouble(11, nominalCapacity,0.01);
+            b.set2ByteUInt(13, chargeCycles);
 
 
             Calendar gc = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -291,27 +295,27 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
             //            return (d&0x1f) | (((m&0xff)<<5)&0x1e0) | ((((y-2000)&0xff)<<9)&0xfe00);
             // gc.set((((md&0xfe00)>>9)&0xff)+2000, (((md&0x01e0)>>5)&0xff)-1, md&0x1f);
 
-            CanMessageData.set2ByteUInt(message, 15,
+            b.set2ByteUInt(15,
                     (gc.get(Calendar.DAY_OF_MONTH)&0x1f )
                             | ((((gc.get(Calendar.MONTH)+1)&0xff)<<5)&0x1e0)
                             | ((((gc.get(Calendar.YEAR)-2000)&0xff)<<9)&0xfe00));
-            CanMessageData.set2ByteUInt(message, 17, ballanceStatus0);
-            CanMessageData.set2ByteUInt(message, 19, ballanceStatus1);
-            CanMessageData.set2ByteUInt(message, 21, protectionStatus);
-            CanMessageData.set1ByteUInt(message, 23, softwareVersion);
-            CanMessageData.set1ByteUInt(message, 24, stateOfCharge);
-            CanMessageData.set1ByteUInt(message, 25, fetControl);
-            CanMessageData.set1ByteUInt(message, 26, nCells);
-            CanMessageData.set1ByteUInt(message, 27, temperatures.length);
+            b.set2ByteUInt(17, ballanceStatus0);
+            b.set2ByteUInt(19, ballanceStatus1);
+            b.set2ByteUInt(21, protectionStatus);
+            b.set1ByteUInt(23, softwareVersion);
+            b.set1ByteUInt(24, stateOfCharge);
+            b.set1ByteUInt(25, fetControl);
+            b.set1ByteUInt(26, nCells);
+            b.set1ByteUInt(27, temperatures.length);
             for(int i = 0; i < temperatures.length; i++) {
-                CanMessageData.set2ByteUDouble(message, 28+2*i, temperatures[i], 0.1);
+                b.set2ByteUDouble(28+2*i, temperatures[i], 0.1);
             }
-            CanMessageData.set1ByteUInt(message, endTemp, humidity);
-            CanMessageData.set2ByteUInt(message, endTemp+1, alarmStatus);
-            CanMessageData.set2ByteUDouble(message, endTemp+3, fullChargeCapacity, 0.01);
-            CanMessageData.set2ByteUDouble(message, endTemp+5, remainingChargeCapacity, 0.01);
-            CanMessageData.set2ByteUDouble(message, endTemp+7, ballanceCurrent, 0.001);
-            return endTemp+9;
+            b.set1ByteUInt(endTemp, humidity);
+            b.set2ByteUInt(endTemp+1, alarmStatus);
+            b.set2ByteUDouble(endTemp+3, fullChargeCapacity, 0.01);
+            b.set2ByteUDouble(endTemp+5, remainingChargeCapacity, 0.01);
+            b.set2ByteUDouble(endTemp+7, ballanceCurrent, 0.001);
+            return b;
         }
 
     }
@@ -352,19 +356,20 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
                  cellVoltage[i] = CanMessageData.get2ByteUDouble(data, 5+i*2, 0.001);
             }
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int instance,
                                   double[] cellVoltage
 
         ) {
-            CanMessageData.set2ByteUInt(message, 0, 0x9ffe);
-            CanMessageData.set1ByteUInt(message, 2, instance);
-            CanMessageData.set1ByteUInt(message, 3, 0x04);
-            CanMessageData.set1ByteUInt(message, 4, 2*cellVoltage.length);
+            CanMessageData b = new CanMessageData(PGN, 5*cellVoltage.length*2);
+            b.set2ByteUInt(0, 0x9ffe);
+            b.set1ByteUInt(2, instance);
+            b.set1ByteUInt(3, 0x04);
+            b.set1ByteUInt(4, 2*cellVoltage.length);
             for(int i = 0; i <  cellVoltage.length; i++) {
-                CanMessageData.set2ByteUDouble(message, 5+i*2, cellVoltage[i],0.001);
+                b.set2ByteUDouble(5+i*2, cellVoltage[i],0.001);
             }
-            return 5*cellVoltage.length*2;
+            return b;
         }
     }
 
@@ -400,21 +405,22 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
             registerLength = CanMessageData.get1ByteUInt(data, 4);
             hwVersion = new String(data,5,registerLength, Charset.forName("UTF-8"));
         }
-        public static int encode(byte[] message,
+        public static CanMessageData encode(
                                   int instance,
                                   String hwVersion
 
         ) {
-            CanMessageData.set2ByteUInt(message, 0, 0x9ffe);
-            CanMessageData.set1ByteUInt(message, 2, instance);
-            CanMessageData.set1ByteUInt(message, 3, 0x05);
             try {
-                byte[] b = hwVersion.getBytes("UTF-8");
-                CanMessageData.set1ByteUInt(message, 4, b.length);
-                for (int i = 0; i < b.length; i++) {
-                    message[5 + i] = b[i];
+                byte[] mb = hwVersion.getBytes("UTF-8");
+                CanMessageData b = new CanMessageData(PGN, 5+mb.length);
+                b.set2ByteUInt(0, 0x9ffe);
+                b.set1ByteUInt(2, instance);
+                b.set1ByteUInt(3, 0x05);
+                b.set1ByteUInt(4, mb.length);
+                for (int i = 0; i < mb.length; i++) {
+                    b.message[5 + i] = mb[i];
                 }
-                return 5+b.length;
+                return b;
             } catch (UnsupportedEncodingException e) {
                 throw new IllegalArgumentException("UTF8 not supported");
             }

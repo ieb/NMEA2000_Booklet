@@ -1,7 +1,8 @@
-package uk.co.tfd.kindle.nmea2000;
+package uk.co.tfd.kindle.nmea2000.simulator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.co.tfd.kindle.nmea2000.NMEA0183Client;
 
 import java.io.*;
 import java.net.*;
