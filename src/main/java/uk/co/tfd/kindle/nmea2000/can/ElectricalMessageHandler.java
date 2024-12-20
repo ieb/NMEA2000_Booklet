@@ -18,7 +18,7 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
         PGN127508DCBatteryStatus(int pgn, int timeStamp, byte source, byte[] data) {
             super(PGN, pgn, source, timeStamp,"DCBatteryStatus");
             instance =  CanMessageData.get1ByteUInt(data, 0);
-            batteryVoltage = CanMessageData.get2ByteUDouble(data, 1, 0.01);
+            batteryVoltage = CanMessageData.get2ByteDouble(data, 1, 0.01);
             batteryCurrent = CanMessageData.get2ByteDouble(data, 3, 0.1);
             batteryTemperature = CanMessageData.get2ByteUDouble(data, 5, 0.01);
             sid = CanMessageData.get1ByteUInt(data, 7);
@@ -33,7 +33,7 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
         ) {
             CanMessageData b = new CanMessageData(PGN, 8);
             b.set1ByteUInt(0, instance);
-            b.set2ByteUDouble(1, batteryVoltage, 0.01);
+            b.set2ByteDouble(1, batteryVoltage, 0.01);
             b.set2ByteDouble(3, batteryCurrent, 0.1);
             b.set2ByteUDouble(5, batteryTemperature, 0.01);
             b.set1ByteUInt(7, sid);

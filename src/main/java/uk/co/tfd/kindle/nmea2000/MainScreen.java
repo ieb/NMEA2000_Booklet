@@ -156,7 +156,7 @@ public class MainScreen {
         // generally the calculations are cheap relative to the network cost so at the moment
         // they are not enabled or disabled, however they could be in the same
         // way that traffic is enabled and disabled.
-        
+
         mainPanel.loadConfiguration(config);
 
         WidgetComponentListener listener = new WidgetComponentListener(messageProducer);
