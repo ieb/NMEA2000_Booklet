@@ -12,7 +12,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Created by ieb on 20/06/2020.
@@ -22,12 +23,12 @@ public class MainScreen {
     private static final Logger log = LoggerFactory.getLogger(MainScreen.class);
     private final NMEA0183Client nmea0183Client;
     private final SeaSmartHandler seaSmartHandler;
-    private final NMEA0183Discovery discovery;
     private final Timer timer;
     private final CanMessageProducer messageProducer;
     private final String simulatorMode = "normal";
-    private final Timer timer2;
     private String lastCommandMessage = "";
+    private int currentEndpoint = 0;
+    private String[] endpoints = null;
 
     public static class Theme {
         private final Color foreground;
@@ -97,9 +98,6 @@ public class MainScreen {
                 if ( timer != null) {
                     timer.stop();
                 }
-                if ( discovery != null) {
-                    discovery.endDiscovery();
-                }
                 MainScreen.this.stop();
                 exitHook.exit();
             }
@@ -122,6 +120,9 @@ public class MainScreen {
                 log.info("Set Screensize to {} ", root.getSize());
             }
         }
+
+        endpoints = config.getEndpoints();
+
         controlPage.onStatusChange("Config from " + config.getConfigName());
 
 
@@ -155,15 +156,7 @@ public class MainScreen {
         // generally the calculations are cheap relative to the network cost so at the moment
         // they are not enabled or disabled, however they could be in the same
         // way that traffic is enabled and disabled.
-
-
-        discovery = new NMEA0183Discovery(nmea0183Client);
-        discovery.addStatusUpdateListener(controlPage);
-        discovery.startDiscovery();
-
-
-
-
+        
         mainPanel.loadConfiguration(config);
 
         WidgetComponentListener listener = new WidgetComponentListener(messageProducer);
@@ -239,40 +232,20 @@ public class MainScreen {
                 controlPage.updateConnectionMessage(nmea0183Client.getStatusMessage()+" "+seaSmartHandler.getStatusMessage());
                 if ( nmea0183Client.hasStalled()) {
                     nmea0183Client.stop();
-                    nmea0183Client.start();
+                    if ( !nmea0183Client.start() ) {
+                        nmea0183Client.stop();
+                        MainScreen.this.currentEndpoint = (MainScreen.this.currentEndpoint+1)%MainScreen.this.endpoints.length;
+                        MainScreen.this.configureEndpointAndStart();
+                    }
                 }
             }
         });
         timer.start();
-
-        timer2 = new Timer(5000, new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    MainScreen.this.stop();
-                    MainScreen.this.start(InetAddress.getByAddress(new byte[] {(byte)192,(byte)168,1,116}), 10112);
-                } catch (IOException e1) {
-                    log.error(e1.getMessage(), e);
-                }
-                timer2.stop();
-            }
-        });
-        /*
-        timer2.start();
-
-         */
-
-
-
-
-
     }
 
     public void stop() {
         nmea0183Client.stop();
-        nmea0183Client.setAddress(null);
-        nmea0183Client.setPort(-1);
+        nmea0183Client.setSocketAddress(null);
      }
 
      public void restart() {
@@ -281,14 +254,25 @@ public class MainScreen {
      }
 
 
-    public void start(InetAddress address, int port) throws IOException {
+    public void start() {
         if ( !nmea0183Client.isRunning() ) {
-            log.info("Starting on {} {} ", address, port);
-            nmea0183Client.setAddress(address);
-            nmea0183Client.setPort(port);
-            nmea0183Client.start();
-            log.info("Started");
+            currentEndpoint = 0;
+            for(int i = 0; i < endpoints.length; i++) {
+                currentEndpoint = i;
+                if (configureEndpointAndStart()) {
+                    break;
+                }
+
+            }
         }
+    }
+
+    private boolean configureEndpointAndStart()  {
+        String[] endpoint = endpoints[currentEndpoint].split(":");
+        log.info("Starting on {}", endpoint);
+        SocketAddress socketAddress = new InetSocketAddress(endpoint[0], Integer.parseInt(endpoint[1]));
+        nmea0183Client.setSocketAddress(socketAddress);
+        return nmea0183Client.start();
     }
 
 

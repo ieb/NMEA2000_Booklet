@@ -1,5 +1,6 @@
 package uk.co.tfd.kindle.nmea2000;
 
+import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
@@ -59,5 +60,22 @@ public class Configuration {
 
     public String getConfigName() {
         return configName;
+    }
+
+    public String[] getEndpoints() {
+        JSONArray useEndpoints = (JSONArray) configuration.get("endpoints");
+        if (useEndpoints == null) {
+            return new String[] {
+                    "boatsystems.local:10110",
+                    "boatsystems.local:10112",
+                    "localhost:10110",
+                    "localhost:10112"
+            };
+        }
+        String[] endpoints = new String[useEndpoints.size()];
+        for (int i = 0; i < endpoints.length; i++) {
+            endpoints[i] = (String) useEndpoints.get(i);
+        }
+        return endpoints;
     }
 }

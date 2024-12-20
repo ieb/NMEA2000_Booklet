@@ -4,9 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,8 +18,6 @@ public class NMEA0183Client extends StatusUpdates {
 
     private Map<String, NMEA0183Handler> handlers = new HashMap<>();
     private boolean disabled = false;
-    private InetAddress address;
-    private int port;
     private OutputStream outputStream;
     private String lastSentence;
     private long lastRead = System.currentTimeMillis();
@@ -28,10 +25,10 @@ public class NMEA0183Client extends StatusUpdates {
     private int recieved = 0;
     private int sent = 0;
     private SocketHandler socketHandler;
+    private SocketAddress socketAddress;
 
-    public NMEA0183Client(InetAddress address, int port) {
-        this.address = address;
-        this.port = port;
+    public NMEA0183Client(SocketAddress socketAddress) {
+        this.socketAddress = socketAddress;
         try {
             lastSentence = addCheckSum("$PCDCM,1,0");
         } catch (UnsupportedEncodingException e) {
@@ -47,43 +44,38 @@ public class NMEA0183Client extends StatusUpdates {
         }
     }
 
-    public void setPort(int port) {
+    public void setSocketAddress(SocketAddress socketAddress) {
         if ( socket != null) {
-            log.info("Stop client before changing port.");
+            log.info("Stop client before changing socketAddress.");
             return;
         }
-        this.port = port;
+        this.socketAddress = socketAddress;
     }
 
-    public void setAddress(InetAddress address) {
-        if ( socket != null) {
-            log.info("Stop client before changing address.");
-            return;
-        }
-        this.address = address;
-    }
 
-    public synchronized void start() {
+    public synchronized boolean start() {
         if ( disabled ) {
-            return;
+            return true;
         }
         if ( socketHandler != null ) {
-            log.info("Stop client before starting.  socket:{} address:{} ", socket, address );
-            return;
+            log.info("Stop client before starting.  socket:{}  ", socketAddress );
+            return true;
         }
-        if ( address == null ) {
+        if ( socketAddress == null ) {
             log.info("No address set, cant start " );
-            return;
+            return false;
         }
         try {
-            socketHandler = new SocketHandler(address, port);
-            Thread thread = new Thread(socketHandler);
-            thread.start();
-            log.info("Created new thread for reading ", thread);
-        } catch ( IOException ex) {
-            log.error("Start failed ", ex);
-
+            socketHandler = new SocketHandler(socketAddress);
+        } catch (IOException ex) {
+            log.info("Connect Failed ", ex);
+            return false;
         }
+        Thread thread = new Thread(socketHandler);
+        thread.start();
+        log.info("Created new thread for reading ", thread);
+        return true;
+
     }
     public synchronized void stop() {
         if ( socketHandler != null ) {
@@ -103,7 +95,7 @@ public class NMEA0183Client extends StatusUpdates {
     }
 
     public boolean hasStalled() {
-        if ( address == null ) {
+        if ( socketAddress == null ) {
             return false;
         }
         return ((System.currentTimeMillis() - lastRead) > 30000);
@@ -185,21 +177,24 @@ public class NMEA0183Client extends StatusUpdates {
 
     public class SocketHandler implements Runnable {
         private final Socket socket;
-        private final InetAddress address;
-        private final int port;
+        private final SocketAddress socketAddress;
         private boolean running;
-
-        public SocketHandler(InetAddress address, int port) throws IOException {
-            this.address = address;
-            this.port = port;
-            updateStatus("Opening socket on "+address+":"+port);
-            log.info("Opening socket on {} {} ", address, port);
-            socket = new Socket();
-            InetSocketAddress socketAddress = new InetSocketAddress(address, port);
-            socket.connect(socketAddress, 5000);
-            updateStatus("Connected to "+address+":"+port);
-            log.info("Connected to {} {} ", address, port);
+        public SocketHandler(SocketAddress socketAddress) throws IOException {
+            this.socketAddress = socketAddress;
+            updateStatus("Opening socket on "+socketAddress);
+            log.info("Opening socket on {} ", socketAddress);
+            try {
+                socket = new Socket();
+                socket.connect(socketAddress, 5000);
+                updateStatus("Connected to " + socketAddress);
+                log.info("Connected to {} ", socketAddress);
+            } catch (IOException e) {
+                updateStatus("Failed top open socket on "+socketAddress);
+                throw e;
+            }
         }
+
+
 
         public synchronized void send(String sentence) throws IOException {
             if ( socket != null && outputStream != null) {
@@ -225,7 +220,7 @@ public class NMEA0183Client extends StatusUpdates {
                 while (running) {
                     processLine(reader.readLine());
                 }
-                log.info("Disconnected from {}:{}", address, port);
+                log.info("Disconnected from {}", socketAddress);
             } catch (Exception e) {
                 updateStatus("Client Error "+e.getMessage());
                 log.warn("Client error {} ", e.getMessage(), e);
@@ -237,14 +232,13 @@ public class NMEA0183Client extends StatusUpdates {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                updateStatus("Disconnected from "+address+":"+port);
-                log.info("Disconnected from {}:{}", address, port);
+                updateStatus("Disconnected from "+socketAddress);
+                log.info("Disconnected from {}", socketAddress);
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     log.info("Thread end interrupted");
                 }
-
             }
         }
 

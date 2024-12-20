@@ -144,12 +144,14 @@ public class NMEA2000Booklet extends AbstractBooklet implements ActionListener {
 
 			@Override
 			public void exit() {
-
                 NMEA2000Booklet.this.endBooklet();
 			}
 		});
+
         listComponentTree(root,"->");
-		//mainScreen.start(null, -1);
+        mainScreen.start();
+
+        //mainScreen.start(null, -1);
         // main screen is now referenced by Swing and a Thread.
         // no refrence held here.
 	}

@@ -9,8 +9,12 @@ Kindle UIs are Java Swing applications running inside a lightweight OSGi Framewo
 It recognises the mimetype of the "book" and launches the registered Booklet application (NMEA2000Booklet.java) which then 
 reads the json inside the book file, configures the UI with pages of widgets (EInkTextBox.java).
 
-It then either attempts to connect to a list of host port combinations from the book json. When 
-it connects it also fetches the current state from the NMEA2000 REST API. 
+It connects to a seasmart N2K stream on the following hosts:port combination, until a sucessful connection is made.
+
+    boatsystems.local:10110
+    boatsystems.local:10112
+    localhost:10110
+    localhost:10112
 
 When the booklet is running navigation is by finger swipes left and rig ht to change pages.
 

@@ -14,9 +14,8 @@ public class NMEA0183ClientTest {
     private String lastLine;
 
     @Before
-    public void before() throws UnknownHostException {
-        InetAddress address = InetAddress.getByAddress(new byte[] { (byte)192, (byte)168, 1,21 });
-        nmea0183CLient = new NMEA0183Client(address, 10110);
+    public void before() {
+        nmea0183CLient = new NMEA0183Client();
         nmea0183CLient.addHandler("RMC",
                 new NMEA0183Handler(){
                     @Override

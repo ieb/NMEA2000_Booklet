@@ -44,19 +44,7 @@ public class Main {
                 System.exit(0);
             }
         });
-        timer = new Timer(1000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    log.info("Forcing start on 10112, if not started");
-                    mainScreen.start(InetAddress.getLocalHost(), 10112);
-                } catch (IOException e1) {
-                    log.error(e1.getMessage(), e);
-                }
-                timer.stop();
-            }
-        });
-        timer.start();
 
+        mainScreen.start();
     }
 }

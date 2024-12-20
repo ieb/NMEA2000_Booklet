@@ -1,4 +1,10 @@
 {
+  "endpoints": [
+    "boatsystems.local:10110",
+    "boatsystems.local:10112",
+    "localhost:10110",
+    "localhost:10112"
+  ],
   "mode" : "can",
   "screensize": { "w":1072, "h":1448 },
 

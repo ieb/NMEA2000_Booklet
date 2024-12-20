@@ -33,8 +33,7 @@ public class FileReaderTest {
 
 
 
-        InetAddress address = InetAddress.getByAddress(new byte[]{(byte) 192, (byte) 168, 1, 21});
-        nmea0183CLient = new NMEA0183Client(address, 10110);
+        nmea0183CLient = new NMEA0183Client();
         canMessageProducer = new CanMessageProducer();
         seaSmartHandler = new SeaSmartHandler(canMessageProducer);
         nmea0183CLient.addHandler("DIN", seaSmartHandler);
