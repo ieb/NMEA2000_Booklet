@@ -1,5 +1,8 @@
 package uk.co.tfd.kindle.nmea2000.can;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -366,7 +369,7 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
     }
 
     public static class PGN130829BMSRegO5 extends BaseCanMessage {
-
+        private static final Logger log = LoggerFactory.getLogger(PGN130829BMSRegO5.class);
 
         public final int instance;
         public final int registerLength;
@@ -395,7 +398,11 @@ public class ElectricalMessageHandler  implements CanMessageHandler {
             }
             instance = CanMessageData.get1ByteUInt(data, 2);
             registerLength = CanMessageData.get1ByteUInt(data, 4);
-            hwVersion = new String(data,5,registerLength, Charset.forName("UTF-8"));
+            if (registerLength > 0 && data.length  > 5) {
+                hwVersion = new String(data, 5, registerLength, Charset.forName("UTF-8"));
+            } else {
+                hwVersion = "--";
+            }
         }
         public static CanMessageData encode(
                                   int instance,

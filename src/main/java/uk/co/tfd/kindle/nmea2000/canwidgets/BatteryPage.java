@@ -98,6 +98,7 @@ public class BatteryPage extends JPanel implements CanMessageListener, CanWidget
                         && batt.batteryCurrent != CanMessageData.n2kDoubleNA) {
                     lastServiceBatteryUpdate = System.currentTimeMillis();
                     serviceBattery.update(batt.batteryVoltage, batt.batteryCurrent, batt.batteryTemperature);
+                    bms.update(batt.batteryVoltage, batt.batteryCurrent);
                     this.repaint();
                 }
             }

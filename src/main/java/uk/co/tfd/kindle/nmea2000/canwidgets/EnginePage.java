@@ -167,8 +167,8 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
                 alternatorVoltage.setVoltage(engineDynamicParam.alternatorVoltage, true);
                 lastAlternatorVoltageUpdate = System.currentTimeMillis();
             }
-            if (engineDynamicParam.engineCoolantTemperature != CanMessageData.n2kDoubleNA) {
-                alternatorTemperature.setTemperature(engineDynamicParam.engineCoolantTemperature, true);
+            if (engineDynamicParam.engineOilTemperature != CanMessageData.n2kDoubleNA) {
+                alternatorTemperature.setTemperature(engineDynamicParam.engineOilTemperature, true);
                 lastAlternatorTemperatureUpdate = System.currentTimeMillis();
             }
             if (engineDynamicParam.engineHours != CanMessageData.n2kDoubleNA) {

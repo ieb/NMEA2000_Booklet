@@ -442,7 +442,14 @@ public class N2KReference {
         HeatIndexTemperature(12, "Heat Index Temperature"),
         FreezerTemperature(13, "Freezer Temperature"),
         ExhaustGasTemperature(14, "Exhaust Gas Temperature"),
-        ShaftSealTemperature(15, "Shaft Seal Temperature");
+        ShaftSealTemperature(15, "Shaft Seal Temperature"),
+        AlternatorTemperature(30, "Alternator Temperature"),
+        A2BChargerTemperature(31, "A2B Charger Temperature"),
+        NTC1Temperature(32, "NTC1 Temperature"),
+        NTC2Temperature(33, "NTC2 Temperature"),
+        NTC3Temperature(34, "NTC3 Temperature"),
+        NTC4Temperature(35, "NTC4 Temperature")
+        ;
         public final int id;
         public final String name;
         TemperatureSource(int id, String name) {
