@@ -17,6 +17,10 @@ public class Tachometer extends BaseGauge  {
     public Tachometer(boolean rotate) {
         super(rotate);
         setTitle("RPMx1000");
+        outOffset = 5;
+        outputFont = Util.createFont(16.0f);
+
+
     }
 
     public void setRpm(double rpm, boolean valid) {
@@ -110,6 +114,8 @@ public class Tachometer extends BaseGauge  {
         double cos30 = 0.8660254;
         double sin30 = 0.5;
 
+
+        drawStringExpanded("VOLVO PENTA", 0, 20+(digitRadius)/2, vpFont, g2);
 
         int x = -14-digitRadius/2;
         int y = 0;

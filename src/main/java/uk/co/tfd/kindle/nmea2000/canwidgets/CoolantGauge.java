@@ -6,10 +6,10 @@ import uk.co.tfd.kindle.nmea2000.can.*;
 
 import java.awt.*;
 
-public class TemperatureGauge extends BaseGauge {
-    private static final Logger log = LoggerFactory.getLogger(TemperatureGauge.class);
+public class CoolantGauge extends BaseGauge {
+    private static final Logger log = LoggerFactory.getLogger(CoolantGauge.class);
 
-    public TemperatureGauge(boolean rotate) {
+    public CoolantGauge(boolean rotate) {
         super(rotate);
         this.setTitle("Temperature °C");
         this.out = "-- °C";
@@ -17,7 +17,9 @@ public class TemperatureGauge extends BaseGauge {
     }
 
     public void setTemperature(double temperature, boolean valid) {
-        // 10 == -120.
+        // 50 == -120.
+        // 130 == +120
+        // 240/80 == 3 degrees er
         // 2 degree per degree.
         double celcius = temperature+CanMessageData.offsetCelcius;
         String newOut = "-- °C";
@@ -28,7 +30,7 @@ public class TemperatureGauge extends BaseGauge {
             out = newOut;
             repaint();
         }
-        targetNeedleAngle = (int)(-120.0+((celcius)-10.0)*2.0);
+        targetNeedleAngle = (int)(-120.0+((celcius)-50.0)*3.0);
         if ( targetNeedleAngle < -120) {
             targetNeedleAngle = -120;
         } else if ( targetNeedleAngle > 120) {
@@ -47,12 +49,12 @@ public class TemperatureGauge extends BaseGauge {
 
         // 120 C for 240 degrees, from 11 to 15
 
-        double step = 240.0/120.0;
+        double step = 240.0/80.0;
 
         g2.rotate(-120*Math.PI/180.0);
-        for (int i = 0; i < 121; i++) {
+        for (int i = 0; i < 81; i++) {
             int height;
-            if ( i%15 == 0) {
+            if ( i%10 == 0) {
                 height = 13;
                 g2.setStroke(thickTickStroke);
             } else if (i%5 == 0) {
@@ -75,14 +77,14 @@ public class TemperatureGauge extends BaseGauge {
     void annotateDial(Graphics2D g2, int digitRadius) {
         double cos30 = 0.8660254;
         double sin30 = 0.5;
-        drawStringScaled("10",(int)-(cos30*digitRadius),(int)(sin30*digitRadius), unitsFont, g2);
-        drawStringScaled("25", (int)-(digitRadius), 0, unitsFont, g2);
-        drawStringScaled("40", (int)-(cos30*digitRadius), (int)-(sin30*digitRadius), unitsFont, g2);
-        drawStringScaled("55", (int)-(sin30*digitRadius), (int)-(cos30*digitRadius), unitsFont, g2);
-        drawStringScaled("70", 0, -digitRadius, unitsFont, g2);
-        drawStringScaled("85", (int)(sin30*digitRadius), (int)-(cos30*digitRadius), unitsFont, g2);
-        drawStringScaled("100", (int)(cos30*digitRadius), (int)-(sin30*digitRadius), unitsFont, g2);
-        drawStringScaled("115", digitRadius, 0, unitsFont, g2);
+        drawStringScaled("50",(int)-(cos30*digitRadius),(int)(sin30*digitRadius), unitsFont, g2);
+        drawStringScaled("60", (int)-(digitRadius), 0, unitsFont, g2);
+        drawStringScaled("70", (int)-(cos30*digitRadius), (int)-(sin30*digitRadius), unitsFont, g2);
+        drawStringScaled("80", (int)-(sin30*digitRadius), (int)-(cos30*digitRadius), unitsFont, g2);
+        drawStringScaled("90", 0, -digitRadius, unitsFont, g2);
+        drawStringScaled("100", (int)(sin30*digitRadius), (int)-(cos30*digitRadius), unitsFont, g2);
+        drawStringScaled("110", (int)(cos30*digitRadius), (int)-(sin30*digitRadius), unitsFont, g2);
+        drawStringScaled("120", digitRadius, 0, unitsFont, g2);
         drawStringScaled("130", (int)(cos30*digitRadius), (int)(sin30*digitRadius), unitsFont, g2);
 
     }

@@ -15,15 +15,17 @@ import java.util.Map;
 public abstract class BaseGauge extends JPanel  {
     private static final Logger log = LoggerFactory.getLogger(BaseGauge.class);
     final Timer timer;
-    private final Font vpFont;
+    final Font vpFont;
     private final boolean rotate;
     private double needleRpm = 0;
     int needleAngle = -120;
     private long lastUpdate = System.currentTimeMillis();
     int targetNeedleAngle = -120;
     private int startupState = 0;
+    int outOffset = 20;
     Font dialFont;
     Font unitsFont;
+    Font outputFont;
     String out = "-- %";
     String title;
     final BasicStroke medTickStroke;
@@ -34,6 +36,7 @@ public abstract class BaseGauge extends JPanel  {
         this.title = "Voltage V";
         dialFont = Util.createFont(10.0f);
         unitsFont = Util.createFont(14.0f);
+        outputFont = Util.createFont(30.0f);
         Map<TextAttribute, Object> attributes = new HashMap<>();
         attributes.put(TextAttribute.FAMILY,"Serif");
         attributes.put(TextAttribute.WEIGHT,3.0f);
@@ -58,7 +61,7 @@ public abstract class BaseGauge extends JPanel  {
                         startupState = 3;
                     }
                 } else {
-                    int change = Math.abs(needleAngle - targetNeedleAngle) / 5;
+                    int change = Math.abs(needleAngle - targetNeedleAngle) / 2;
                     if (change < 1) {
                         change = 1;
                     }
@@ -128,9 +131,8 @@ public abstract class BaseGauge extends JPanel  {
         int digitRadius =  radius - 30;
         annotateDial(g2, digitRadius);
 
-        drawStringExpanded("VOLVO PENTA", 0, 20+(digitRadius)/2, vpFont, g2);
         drawStringScaled(title, 0, -(digitRadius-2)/2, dialFont,  g2);
-        drawStringScaled(out, 0, 5+(digitRadius)/2, unitsFont, g2);
+        drawStringScaled(out, 0, outOffset+(digitRadius)/2, outputFont, g2);
 
         annotateDial(g2, digitRadius);
 
@@ -156,7 +158,7 @@ public abstract class BaseGauge extends JPanel  {
 
     }
 
-    private void drawStringExpanded(String text, int x, int y, Font vpFont, Graphics2D g) {
+     void drawStringExpanded(String text, int x, int y, Font vpFont, Graphics2D g) {
         double scale = Util.isKindle()?0.5:1.0;
         Graphics2D g2 = (Graphics2D) g.create();
         g2.translate(x,y);

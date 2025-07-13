@@ -43,7 +43,7 @@ public class CurrentGauge extends BaseGauge  {
         Stroke defaultStroke = g2.getStroke();
 
         // 120A == 240 degrees, from -60 to +60
-        double step = (240.0/12);
+        double step = (240.0/120);
 
         g2.rotate(-120*Math.PI/180.0);
         // 100mv steps

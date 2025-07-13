@@ -14,7 +14,7 @@ import static uk.co.tfd.kindle.nmea2000.Util.*;
 public class EnginePage extends JPanel implements CanMessageListener, CanWidget {
     private static final Logger log = LoggerFactory.getLogger(EnginePage.class);
     private final Tachometer tachometer;
-    private final TemperatureGauge coolantGauge;
+    private final CoolantGauge coolantGauge;
     private final FluidLevelGauge fuelGauge;
     private final TemperatureGauge alternatorTemperature;
     private final TemperatureGauge exhaustTemperature;
@@ -74,7 +74,7 @@ public class EnginePage extends JPanel implements CanMessageListener, CanWidget 
         serviceCurrentLabel.setBounds(scaleKindle(1036), scaleKindle(207), scaleKindle(150), scaleKindle(40) );
 
 
-        coolantGauge = new TemperatureGauge(true);
+        coolantGauge = new CoolantGauge(true);
         this.add(coolantGauge);
         coolantGauge.setTitle("Coolant °C");
         coolantGauge.setBounds(scaleKindle(10), scaleKindle(390), scaleKindle(300), scaleKindle( 300));
